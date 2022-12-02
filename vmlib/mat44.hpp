@@ -59,21 +59,29 @@ constexpr Mat44f kIdentity44f = { {
 constexpr
 Mat44f operator*( Mat44f const& aLeft, Mat44f const& aRight ) noexcept
 {
-	//TODO: your implementation goes here
-	//TODO: remove the following when you start your implementation
-	(void)aLeft;   // Avoid warnings about unused arguments until the function
-	(void)aRight;  // is properly implemented.
-	return kIdentity44f;
+	Mat44f newMatrix{};
+	for (int i = 0; i < 4; ++i)
+		for (int j = 0; j < 4; ++j)
+			for (int k = 0; k < 4; ++k)
+			{
+				newMatrix(i, j) += aLeft(i, k) * aRight(k, j);
+			}
+
+	return Mat44f{ newMatrix };
 }
 
 constexpr
 Vec4f operator*( Mat44f const& aLeft, Vec4f const& aRight ) noexcept
 {
-	//TODO: your implementation goes here
-	//TODO: remove the following when you start your implementation
-	(void)aLeft;   // Avoid warnings about unused arguments until the function
-	(void)aRight;  // is properly implemented.
-	return { 0.f, 0.f, 0.f, 0.f };
+	Vec4f newVector{};
+	for (int i = 0; i < 4; ++i)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			newVector[i] += (aRight[j] * aLeft(i, j));
+		}
+	}
+	return Vec4f{ newVector };
 }
 
 // Functions:
@@ -81,42 +89,55 @@ Vec4f operator*( Mat44f const& aLeft, Vec4f const& aRight ) noexcept
 inline
 Mat44f make_rotation_x( float aAngle ) noexcept
 {
-	//TODO: your implementation goes here
-	//TODO: remove the following when you start your implementation
-	(void)aAngle; // Avoid warnings about unused arguments until the function
-	              // is properly implemented.
-	return kIdentity44f;
+	Mat44f rMatrix{};
+	rMatrix(0, 0) = 1;
+	rMatrix(3, 3) = 1;
+	rMatrix(1, 1) = cos(aAngle); //use matrix rotation rules to rotate matrix by angle
+	rMatrix(1, 2) = -sin(aAngle);
+	rMatrix(2, 1) = sin(aAngle);
+	rMatrix(2, 2) = cos(aAngle);
+	return Mat44f{ rMatrix };
 }
 
 
 inline
 Mat44f make_rotation_y( float aAngle ) noexcept
 {
-	//TODO: your implementation goes here
-	//TODO: remove the following when you start your implementation
-	(void)aAngle; // Avoid warnings about unused arguments until the function
-	              // is properly implemented.
-	return kIdentity44f;
+	Mat44f rMatrix{};
+	rMatrix(1, 1) = 1;
+	rMatrix(3, 3) = 1;
+	rMatrix(0, 0) = cos(aAngle); //use matrix rotation rules to rotate matrix by angle
+	rMatrix(0, 2) = sin(aAngle);
+	rMatrix(2, 0) = -sin(aAngle);
+	rMatrix(2, 2) = cos(aAngle);
+	return Mat44f{ rMatrix };
 }
 
 inline
 Mat44f make_rotation_z( float aAngle ) noexcept
 {
-	//TODO: your implementation goes here
-	//TODO: remove the following when you start your implementation
-	(void)aAngle; // Avoid warnings about unused arguments until the function
-	              // is properly implemented.
-	return kIdentity44f;
+	Mat44f rMatrix{};
+	rMatrix(2, 2) = 1;
+	rMatrix(3, 3) = 1;
+	rMatrix(0, 0) = cos(aAngle); //use matrix rotation rules to rotate matrix by angle
+	rMatrix(0, 1) = -sin(aAngle);
+	rMatrix(1, 0) = -sin(aAngle);
+	rMatrix(1, 1) = cos(aAngle);
+	return Mat44f{ rMatrix };
 }
 
 inline
 Mat44f make_translation( Vec3f aTranslation ) noexcept
 {
-	//TODO: your implementation goes here
-	//TODO: remove the following when you start your implementation
-	(void)aTranslation; // Avoid warnings about unused arguments until the function
-	                    // is properly implemented.
-	return kIdentity44f;
+	Mat44f rMatrix{};
+	rMatrix(0, 0) = 1;
+	rMatrix(1, 1) = 1;
+	rMatrix(2, 2) = 1;
+	rMatrix(3, 3) = 1;
+	rMatrix(0, 3) = aTranslation[0]; //use matrix translation rules to translate matrix by vector
+	rMatrix(1, 3) = aTranslation[1];
+	rMatrix(2, 3) = aTranslation[2];
+	return Mat44f{ rMatrix };
 }
 
 inline
@@ -134,13 +155,19 @@ Mat44f make_scaling( float aSX, float aSY, float aSZ ) noexcept
 inline
 Mat44f make_perspective_projection( float aFovInRadians, float aAspect, float aNear, float aFar ) noexcept
 {
-	//TODO: your implementation goes here
-	//TODO: remove the following when you start your implementation
-	(void)aFovInRadians; // Avoid warnings about unused arguments until the function
-	(void)aAspect;       // is properly implemented.
-	(void)aNear;
-	(void)aFar;
-	return kIdentity44f;
+	float s = 1 / (tan(aFovInRadians / 2));
+	float sx = s / aAspect;
+	float sy = s;
+	float a = -((aFar + aNear) / (aFar - aNear));
+	float b = -2 * ((aFar * aNear) / (aFar - aNear));
+	Mat44f rMatrix{};
+	rMatrix(0, 0) = sx;
+	rMatrix(1, 1) = sy;
+	rMatrix(2, 2) = a;
+	rMatrix(2, 3) = b;
+	rMatrix(3, 2) = -1;
+	rMatrix(3, 3) = 1;
+	return Mat44f{ rMatrix };
 }
 
 
