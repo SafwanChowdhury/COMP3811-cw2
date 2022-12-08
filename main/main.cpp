@@ -37,7 +37,7 @@ namespace
 		struct CamCtrl_
 		{
 			bool cameraActive;
-			bool actionZoomIn, actionZoomOut;
+			bool actionZoomIn, actionZoomOut, actionMoveL, actionMoveR, actionMoveU, actionMoveD;
 
 			float phi, theta;
 			float radius;
@@ -104,7 +104,6 @@ int main() try
 		kWindowTitle,
 		nullptr, nullptr
 	);
-
 	if( !window )
 	{
 		char const* msg = nullptr;
@@ -219,6 +218,8 @@ int main() try
 	OGL_CHECKPOINT_ALWAYS();
 
 	// Main loop
+	float y = 0;
+	float x = 0;
 	while( !glfwWindowShouldClose( window ) )
 	{
 		// Let GLFW process events
@@ -253,31 +254,52 @@ int main() try
 		last = now;
 
 
-		angle += dt * kPi_ * 0.3f;
-		if (angle >= 2.f * kPi_)
-			angle -= 2.f * kPi_;
+		//angle += dt * kPi_ * 0.3f;
+		//if (angle >= 2.f * kPi_)
+		//	angle -= 2.f * kPi_;
 
 		// Update camera state
-		if (state.camControl.actionZoomIn)
-			state.camControl.radius -= kMovementPerSecond_ * dt;
-		else if (state.camControl.actionZoomOut)
-			state.camControl.radius += kMovementPerSecond_ * dt;
+		if (state.camControl.actionZoomIn) {
+			y += sin(state.camControl.theta) * kMovementPerSecond_ * dt;
+			x -= cos(state.camControl.theta) * sin(state.camControl.phi) * kMovementPerSecond_ * dt;
+			state.camControl.radius -= cos(state.camControl.theta) * cos(state.camControl.phi) * kMovementPerSecond_ * dt;
+		}
+		else if (state.camControl.actionZoomOut) {
+			y -= sin(state.camControl.theta) * kMovementPerSecond_ * dt;
+			x += cos(state.camControl.theta) * sin(state.camControl.phi) * kMovementPerSecond_ * dt;
+			state.camControl.radius += cos(state.camControl.theta) * cos(state.camControl.phi) * kMovementPerSecond_ * dt;
 
-		if (state.camControl.radius <= 0.1f)
-			state.camControl.radius = 0.1f;
+		}
+		if (state.camControl.actionMoveL) {
+			x += cos(state.camControl.phi) * kMovementPerSecond_ * dt;
+			state.camControl.radius -= sin(state.camControl.phi) * kMovementPerSecond_ * dt;
+		}
+		else if (state.camControl.actionMoveR) {
+			x -= cos(state.camControl.phi) * kMovementPerSecond_ * dt;
+			state.camControl.radius += sin(state.camControl.phi) * kMovementPerSecond_ * dt;
+
+		}
+		if (state.camControl.actionMoveU) {
+			y -= kMovementPerSecond_ * dt;
+		}
+		else if (state.camControl.actionMoveD) {
+			y += kMovementPerSecond_ * dt;
+
+		}
 		//Compute matricies
 		Mat44f Rx = make_rotation_x(state.camControl.theta);
 		Mat44f Ry = make_rotation_y(state.camControl.phi);
 		Mat44f T = make_translation({ 0.f, 0.f, -state.camControl.radius });
+		Vec3f T2 = { x, y, 0.f };
 		Mat44f model2world = make_rotation_y(0);
-		Mat44f world2camera = ((make_translation({ 0.f, 0.f, -10.f }) * T) * Rx) * Ry;
+		Mat44f world2camera = (make_translation({ 0.f, 0.f, 0.f }) * Rx) * Ry * T;
 		Mat44f projection = make_perspective_projection(
 			60.f * 3.1415926f / 180.f,
 			fbwidth / float(fbheight),
 			0.1f, 100.0f
 		);
 		Mat44f projCameraWorld = projection * world2camera * model2world;
-
+		projCameraWorld = projCameraWorld * make_translation(T2);
 		// Draw scene
 		// Clear color buffer to specified clear color (glClearColor())
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -377,6 +399,34 @@ namespace
 						state->camControl.actionZoomOut = true;
 					else if (GLFW_RELEASE == aAction)
 						state->camControl.actionZoomOut = false;
+				}
+				if (GLFW_KEY_A == aKey)
+				{
+					if (GLFW_PRESS == aAction)
+						state->camControl.actionMoveL = true;
+					else if (GLFW_RELEASE == aAction)
+						state->camControl.actionMoveL = false;
+				}
+				else if (GLFW_KEY_D == aKey)
+				{
+					if (GLFW_PRESS == aAction)
+						state->camControl.actionMoveR = true;
+					else if (GLFW_RELEASE == aAction)
+						state->camControl.actionMoveR = false;
+				}
+				if (GLFW_KEY_Q == aKey)
+				{
+					if (GLFW_PRESS == aAction)
+						state->camControl.actionMoveU = true;
+					else if (GLFW_RELEASE == aAction)
+						state->camControl.actionMoveU = false;
+				}
+				else if (GLFW_KEY_E == aKey)
+				{
+					if (GLFW_PRESS == aAction)
+						state->camControl.actionMoveD = true;
+					else if (GLFW_RELEASE == aAction)
+						state->camControl.actionMoveD = false;
 				}
 			}
 		}
