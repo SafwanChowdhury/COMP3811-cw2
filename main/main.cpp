@@ -16,6 +16,10 @@
 #include "../vmlib/mat44.hpp"
 
 #include "defaults.hpp"
+#include "cube.hpp"
+#include "cone.hpp"
+#include "cylinder.hpp"
+#include "loadobj.hpp"
 
 namespace
 {
@@ -173,6 +177,44 @@ int main() try
 	OGL_CHECKPOINT_ALWAYS();
 	
 	// TODO: 
+	auto xcyl = make_cylinder(true, 16, { 0.f, 1.f, 0.f },
+		make_scaling(5.f, 0.1f, 0.1f) // scale X by 5, Y and Z by 0.1
+	);
+
+	auto xcone = make_cone(true, 16, { 0.f, 0.f, 0.f },
+		make_scaling(1.f, 0.3f, 0.3f) *
+		make_translation({ 5.f, 0.f, 0.f })
+	);
+	auto xarrow = concatenate(std::move(xcyl), xcone);
+
+	auto ycyl = make_cylinder(true, 16, { 1.f, 0.f, 0.f },
+		make_rotation_y(3.141592f / -2.f) *
+		make_scaling(5.f, 0.1f, 0.1f) // scale X by 5, Y and Z by 0.1
+	);
+
+	auto ycone = make_cone(true, 16, { 0.f, 0.f, 0.f },
+		make_rotation_y(3.141592f / -2.f) *
+		make_scaling(1.f, 0.3f, 0.3f) *
+		make_translation({ 5.f, 0.f, 0.f })
+	);
+	auto yarrow = concatenate(std::move(ycyl), ycone);
+
+	auto zcyl = make_cylinder(true, 16, { 0.f, 0.f, 1.f },
+		make_rotation_z(3.141592f / -2.f) *
+		make_scaling(5.f, 0.1f, 0.1f) // scale X by 5, Y and Z by 0.1
+	);
+
+	auto zcone = make_cone(true, 16, { 0.f, 0.f, 0.f },
+		make_rotation_z(3.141592f / -2.f) *
+		make_scaling(1.f, 0.3f, 0.3f) *
+		make_translation({ 5.f, 0.f, 0.f })
+	);
+	auto zarrow = concatenate(std::move(zcyl), zcone);
+
+	auto xy = concatenate(xarrow, yarrow);
+	auto xyz = concatenate(xy, zarrow);
+	GLuint vao = create_vao(xyz);
+	std::size_t vertexCount = xyz.positions.size();
 
 	OGL_CHECKPOINT_ALWAYS();
 
@@ -227,7 +269,7 @@ int main() try
 		Mat44f Rx = make_rotation_x(state.camControl.theta);
 		Mat44f Ry = make_rotation_y(state.camControl.phi);
 		Mat44f T = make_translation({ 0.f, 0.f, -state.camControl.radius });
-		Mat44f model2world = make_rotation_y(angle);
+		Mat44f model2world = make_rotation_y(0);
 		Mat44f world2camera = ((make_translation({ 0.f, 0.f, -10.f }) * T) * Rx) * Ry;
 		Mat44f projection = make_perspective_projection(
 			60.f * 3.1415926f / 180.f,
@@ -241,10 +283,11 @@ int main() try
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		// We want to draw with our program..
 		glUseProgram(prog.programId());
-		//static float const baseColor[] = { 0.2f, 1.f, 1.f };
-		//glUniform3fv(0, 1, baseColor);
-		glBindVertexArray(0);
 		glUniformMatrix4fv(0, 1, GL_TRUE, projCameraWorld.v);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glBindVertexArray(vao);
+		glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+		glBindVertexArray(0);
 
 		OGL_CHECKPOINT_DEBUG();
 

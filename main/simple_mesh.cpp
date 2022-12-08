@@ -10,7 +10,6 @@ SimpleMeshData concatenate( SimpleMeshData aM, SimpleMeshData const& aN )
 
 GLuint create_vao( SimpleMeshData const& aMeshData )
 {
-	//TODO: implement me
 	GLuint position = 0;
 	glGenBuffers(1, &position);
 	glBindBuffer(GL_ARRAY_BUFFER, position);
