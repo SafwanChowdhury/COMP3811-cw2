@@ -17,6 +17,8 @@
 
 #include "defaults.hpp"
 #include "cube.hpp"
+#include "frustum.hpp"
+#include "dome.hpp"
 #include "cone.hpp"
 #include "cylinder.hpp"
 #include "loadobj.hpp"
@@ -145,7 +147,7 @@ int main() try
 
 	// TODO: global GL setup goes here
 	glEnable(GL_FRAMEBUFFER_SRGB);
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
 	OGL_CHECKPOINT_ALWAYS();
@@ -214,6 +216,13 @@ int main() try
 	auto xyz = concatenate(xy, zarrow);
 	GLuint vao = create_vao(xyz);
 	std::size_t vertexCount = xyz.positions.size();
+
+	auto dome = make_dome(16, { 0.f, 0.f, 1.f } , 
+		make_translation({ 1.f, 2.f, 2.f })
+	);
+	GLuint vao2 = create_vao(dome);
+	std::size_t vertexCount2 = dome.positions.size();
+
 
 	OGL_CHECKPOINT_ALWAYS();
 
@@ -309,6 +318,8 @@ int main() try
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glBindVertexArray(vao);
 		glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+		glBindVertexArray(vao2);
+		glDrawArrays(GL_TRIANGLES, 0, vertexCount2);
 		glBindVertexArray(0);
 
 		OGL_CHECKPOINT_DEBUG();
