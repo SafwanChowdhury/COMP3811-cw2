@@ -25,8 +25,6 @@ namespace fs = std::filesystem;
 #include "cone.hpp"
 #include "cylinder.hpp"
 #include "loadobj.hpp"
-#include "skybox.hpp"
-#include <stb_image.h>
 
 namespace
 {
@@ -40,7 +38,6 @@ namespace
 	struct State_
 	{
 		ShaderProgram* prog;
-		ShaderProgram* skybox;
 
 		struct CamCtrl_
 		{
@@ -105,8 +102,6 @@ int main() try
 	// overheads. We therefore do not do this for release builds.
 	glfwWindowHint( GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE );
 #	endif // ~ !NDEBUG
-	const unsigned int width = 1280;
-	const unsigned int height = 720;
 	GLFWwindow* window = glfwCreateWindow(
 		1280,
 		720,
@@ -174,12 +169,7 @@ int main() try
 		{ GL_VERTEX_SHADER, "assets/default.vert" },
 		{ GL_FRAGMENT_SHADER, "assets/default.frag" }
 		});
-	ShaderProgram skybox({
-		{ GL_VERTEX_SHADER, "assets/skybox.vert" },
-		{ GL_FRAGMENT_SHADER, "assets/skybox.frag" }
-		});
 	state.prog = &prog;
-	state.skybox = &skybox;
 	state.camControl.radius = 10.f;
 
 	
@@ -190,69 +180,6 @@ int main() try
 	float angle = 0.f;
 	OGL_CHECKPOINT_ALWAYS();
 	
-	//skybox
-	unsigned int skyboxVAO, skyboxVBO;
-	glGenVertexArrays(1, &skyboxVAO);
-	glGenBuffers(1, &skyboxVBO);
-	glBindVertexArray(skyboxVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-
-	std::string facesCubemap[6] =
-	{
-		parentDir + "/textures/skybox/right.jpg",
-		parentDir + "/textures/skybox/left.jpg",
-		parentDir + "/textures/skybox/top.jpg",
-		parentDir + "/textures/skybox/bottom.jpg",
-		parentDir + "/textures/skybox/front.jpg",
-		parentDir + "/textures/skybox/back.jpg"
-	};
-
-	unsigned int cubemapTexture;
-	glGenTextures(1, &cubemapTexture);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	// These are very important to prevent seams
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-	for (unsigned int i = 0; i < 6; i++)
-	{
-		int width, height, nrChannels;
-		unsigned char* data = stbi_load(facesCubemap[i].c_str(), &width, &height, &nrChannels, 0);
-		if (data)
-		{
-			std::cout << "blob" << std::endl;
-			stbi_set_flip_vertically_on_load(false);
-			glTexImage2D
-			(
-				GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-				0,
-				GL_RGB,
-				width,
-				height,
-				0,
-				GL_RGB,
-				GL_UNSIGNED_BYTE,
-				data
-			);
-			stbi_image_free(data);
-		}
-		else
-		{
-			std::cout << "Failed to load texture: " << facesCubemap[i] << std::endl;
-			stbi_image_free(data);
-		}
-	}
-
-
-
 
 	// TODO: 
 	auto xcyl = make_cylinder(true, 16, { 0.f, 1.f, 0.f },
@@ -426,14 +353,6 @@ int main() try
 
 		OGL_CHECKPOINT_DEBUG();
 
-		//TODO: draw skybox
-		//glUseProgram(skybox.programId());
-		//glDepthFunc(GL_LEQUAL);
-		//glUniformMatrix4fv(glGetUniformLocation(skybox.programId(), "projection"), 1, GL_FALSE, projCameraWorld.v);
-		//glBindVertexArray(skyboxVAO);
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-		//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 
 		OGL_CHECKPOINT_DEBUG();

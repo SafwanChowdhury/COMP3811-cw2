@@ -98,6 +98,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="mat22.hpp" />
+    <ClInclude Include="mat33.hpp" />
     <ClInclude Include="mat44.hpp" />
     <ClInclude Include="vec2.hpp" />
     <ClInclude Include="vec3.hpp" />
@@ -105,6 +106,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="empty.cpp" />
+    <ClCompile Include="mat44.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

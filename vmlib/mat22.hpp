@@ -12,7 +12,7 @@
  * The matrix is stored in row-major order.
  *
  * Example:
- *   Mat22f identity{ 
+ *   Mat22f identity{
  *     1.f, 0.f,
  *     0.f, 1.f
  *   };
@@ -27,7 +27,7 @@ struct Mat22f
 // Note that you will need to implement these yourself.
 
 constexpr
-Mat22f operator*( Mat22f const& aLeft, Mat22f const& aRight ) noexcept
+Mat22f operator*(Mat22f const& aLeft, Mat22f const& aRight) noexcept
 {
 	Mat22f newMatrix{};
 	newMatrix._00 = (aLeft._00) * (aRight._00) + (aLeft._01) * (aRight._10); //matrix multiplication
@@ -38,7 +38,7 @@ Mat22f operator*( Mat22f const& aLeft, Mat22f const& aRight ) noexcept
 }
 
 constexpr
-Vec2f operator*( Mat22f const& aLeft, Vec2f const& aRight ) noexcept
+Vec2f operator*(Mat22f const& aLeft, Vec2f const& aRight) noexcept
 {
 	Vec2f newVect{};
 	newVect.x = (aLeft._00 * aRight.x) + (aLeft._01 * aRight.y); //matrix vector multiplication
@@ -49,8 +49,9 @@ Vec2f operator*( Mat22f const& aLeft, Vec2f const& aRight ) noexcept
 // Functions:
 
 inline
-Mat22f make_rotation_2d( float aAngle ) noexcept
+Mat22f make_rotation_2d(float aAngle) noexcept
 {
+
 	Mat22f rMatrix{};
 	rMatrix._00 = cos(aAngle); //use matrix rotation rules to rotate matrix by angle
 	rMatrix._01 = -sin(aAngle);

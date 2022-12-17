@@ -103,7 +103,6 @@
     <ClInclude Include="loadobj.hpp" />
     <ClInclude Include="frustum.hpp" />
     <ClInclude Include="simple_mesh.hpp" />
-    <ClInclude Include="skybox.hpp" />
     <ClInclude Include="Texture.hpp" />
   </ItemGroup>
   <ItemGroup>
