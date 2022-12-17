@@ -6,6 +6,8 @@
 #include <iostream>
 #include <cstdio>
 #include <cstdlib>
+#include <filesystem>
+namespace fs = std::filesystem;
 
 #include "../support/error.hpp"
 #include "../support/program.hpp"
@@ -14,6 +16,7 @@
 
 #include "../vmlib/vec4.hpp"
 #include "../vmlib/mat44.hpp"
+#include "../vmlib/mat33.hpp"
 
 #include "defaults.hpp"
 #include "cube.hpp"
@@ -22,6 +25,8 @@
 #include "cone.hpp"
 #include "cylinder.hpp"
 #include "loadobj.hpp"
+#include "skybox.hpp"
+#include <stb_image.h>
 
 namespace
 {
@@ -35,6 +40,7 @@ namespace
 	struct State_
 	{
 		ShaderProgram* prog;
+		ShaderProgram* skybox;
 
 		struct CamCtrl_
 		{
@@ -99,7 +105,8 @@ int main() try
 	// overheads. We therefore do not do this for release builds.
 	glfwWindowHint( GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE );
 #	endif // ~ !NDEBUG
-
+	const unsigned int width = 1280;
+	const unsigned int height = 720;
 	GLFWwindow* window = glfwCreateWindow(
 		1280,
 		720,
@@ -136,7 +143,7 @@ int main() try
 	std::printf( "VENDOR %s\n", glGetString( GL_VENDOR ) );
 	std::printf( "VERSION %s\n", glGetString( GL_VERSION ) );
 	std::printf( "SHADING_LANGUAGE_VERSION %s\n", glGetString( GL_SHADING_LANGUAGE_VERSION ) );
-
+	std::string parentDir = (fs::current_path().fs::path::parent_path()).string();
 	// Ddebug output
 #	if !defined(NDEBUG)
 	setup_gl_debug_output();
@@ -147,7 +154,7 @@ int main() try
 
 	// TODO: global GL setup goes here
 	glEnable(GL_FRAMEBUFFER_SRGB);
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
 	OGL_CHECKPOINT_ALWAYS();
@@ -167,9 +174,15 @@ int main() try
 		{ GL_VERTEX_SHADER, "assets/default.vert" },
 		{ GL_FRAGMENT_SHADER, "assets/default.frag" }
 		});
-
+	ShaderProgram skybox({
+		{ GL_VERTEX_SHADER, "assets/skybox.vert" },
+		{ GL_FRAGMENT_SHADER, "assets/skybox.frag" }
+		});
 	state.prog = &prog;
+	state.skybox = &skybox;
 	state.camControl.radius = 10.f;
+
+	
 
 	// Animation state
 	auto last = Clock::now();
@@ -177,6 +190,70 @@ int main() try
 	float angle = 0.f;
 	OGL_CHECKPOINT_ALWAYS();
 	
+	//skybox
+	unsigned int skyboxVAO, skyboxVBO;
+	glGenVertexArrays(1, &skyboxVAO);
+	glGenBuffers(1, &skyboxVBO);
+	glBindVertexArray(skyboxVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+	std::string facesCubemap[6] =
+	{
+		parentDir + "/textures/skybox/right.jpg",
+		parentDir + "/textures/skybox/left.jpg",
+		parentDir + "/textures/skybox/top.jpg",
+		parentDir + "/textures/skybox/bottom.jpg",
+		parentDir + "/textures/skybox/front.jpg",
+		parentDir + "/textures/skybox/back.jpg"
+	};
+
+	unsigned int cubemapTexture;
+	glGenTextures(1, &cubemapTexture);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	// These are very important to prevent seams
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	for (unsigned int i = 0; i < 6; i++)
+	{
+		int width, height, nrChannels;
+		unsigned char* data = stbi_load(facesCubemap[i].c_str(), &width, &height, &nrChannels, 0);
+		if (data)
+		{
+			std::cout << "blob" << std::endl;
+			stbi_set_flip_vertically_on_load(false);
+			glTexImage2D
+			(
+				GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+				0,
+				GL_RGB,
+				width,
+				height,
+				0,
+				GL_RGB,
+				GL_UNSIGNED_BYTE,
+				data
+			);
+			stbi_image_free(data);
+		}
+		else
+		{
+			std::cout << "Failed to load texture: " << facesCubemap[i] << std::endl;
+			stbi_image_free(data);
+		}
+	}
+
+
+
+
 	// TODO: 
 	auto xcyl = make_cylinder(true, 16, { 0.f, 1.f, 0.f },
 		make_scaling(5.f, 0.1f, 0.1f) // scale X by 5, Y and Z by 0.1
@@ -214,14 +291,23 @@ int main() try
 
 	auto xy = concatenate(xarrow, yarrow);
 	auto xyz = concatenate(xy, zarrow);
-	GLuint vao = create_vao(xyz);
-	std::size_t vertexCount = xyz.positions.size();
-
-	auto dome = make_dome(16, { 0.f, 0.f, 1.f } , 
-		make_translation({ 1.f, 2.f, 2.f })
+	//GLuint vao = create_vao(xyz);
+	//std::size_t vertexCount = xyz.positions.size();
+	
+	auto testCylinder = make_cylinder(true, 128, { 0.4f, 0.4f, 0.4f },
+		make_rotation_z(3.141592f / 2.f)
+		* make_scaling(8.f, 2.f, 2.f)
 	);
-	GLuint vao2 = create_vao(dome);
-	std::size_t vertexCount2 = dome.positions.size();
+	GLuint vao = create_vao(testCylinder);
+	std::size_t vertexCount = testCylinder.positions.size();
+
+	auto cone = make_cone(true, 16, { 0.f, 0.f, 0.f },
+		make_rotation_y(3.141592f / -2.f) *
+		make_scaling(1.f, 0.3f, 0.3f) *
+		make_translation({ -1.f, 1.f, 0.5f })
+	);
+	GLuint vao2 = create_vao(cone);
+	std::size_t vertexCount2 = cone.positions.size();
 
 
 	OGL_CHECKPOINT_ALWAYS();
@@ -307,24 +393,48 @@ int main() try
 			fbwidth / float(fbheight),
 			0.1f, 100.0f
 		);
+		Mat33f normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
 		Mat44f projCameraWorld = projection * world2camera * model2world;
 		projCameraWorld = projCameraWorld * make_translation(T2);
 		// Draw scene
-		// Clear color buffer to specified clear color (glClearColor())
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
+		
+		
+		// Clear color buffer to specified clear color (glClearColor())
 		// We want to draw with our program..
+
 		glUseProgram(prog.programId());
+		glUniformMatrix3fv(
+			1, // make sure this matches the location = N in the vertex shader!
+			1, GL_TRUE, normalMatrix.v
+		);
 		glUniformMatrix4fv(0, 1, GL_TRUE, projCameraWorld.v);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		Vec3f lightDir = normalize(Vec3f{ -1.f, 1.f, 0.5f }); //modify to use point light position
+		glUniform3fv(2, 1, &lightDir.x);
+		glUniform3f(3, 0.9f, 0.9f, 0.6f);
+		glUniform3f(4, 0.05f, 0.05f, 0.05f);
+
+		OGL_CHECKPOINT_DEBUG();
+		//TODO: draw frame
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glBindVertexArray(vao);
 		glDrawArrays(GL_TRIANGLES, 0, vertexCount);
-		glBindVertexArray(vao2);
-		glDrawArrays(GL_TRIANGLES, 0, vertexCount2);
-		glBindVertexArray(0);
+		//glBindVertexArray(vao2);
+		//glDrawArrays(GL_TRIANGLES, 0, vertexCount2);
+		
 
 		OGL_CHECKPOINT_DEBUG();
 
-		//TODO: draw frame
+		//TODO: draw skybox
+		//glUseProgram(skybox.programId());
+		//glDepthFunc(GL_LEQUAL);
+		//glUniformMatrix4fv(glGetUniformLocation(skybox.programId(), "projection"), 1, GL_FALSE, projCameraWorld.v);
+		//glBindVertexArray(skyboxVAO);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+		//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
 
 		OGL_CHECKPOINT_DEBUG();
 

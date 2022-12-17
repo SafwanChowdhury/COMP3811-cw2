@@ -95,10 +95,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="cone.hpp" />
+    <ClInclude Include="cube.hpp" />
+    <ClInclude Include="cylinder.hpp" />
     <ClInclude Include="defaults.hpp" />
+    <ClInclude Include="dome.hpp" />
+    <ClInclude Include="loadobj.hpp" />
+    <ClInclude Include="frustum.hpp" />
+    <ClInclude Include="simple_mesh.hpp" />
+    <ClInclude Include="skybox.hpp" />
+    <ClInclude Include="Texture.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="cone.cpp" />
+    <ClCompile Include="cylinder.cpp" />
+    <ClCompile Include="dome.cpp" />
+    <ClCompile Include="loadobj.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="frustum.cpp" />
+    <ClCompile Include="simple_mesh.cpp" />
+    <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\vmlib\vmlib.vcxproj">
@@ -116,6 +132,14 @@
     <ProjectReference Include="..\third_party\x-glfw.vcxproj">
       <Project>{FAB23223-E654-5DF9-CF0F-714DBB50E449}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="textures\skybox\back.png" />
+    <Image Include="textures\skybox\bottom.png" />
+    <Image Include="textures\skybox\front.png" />
+    <Image Include="textures\skybox\left.png" />
+    <Image Include="textures\skybox\right.png" />
+    <Image Include="textures\skybox\top.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
