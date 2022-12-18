@@ -8,19 +8,20 @@ in vec3 v2fView;
 uniform vec3 uLightPos;
 layout( location = 3 ) uniform vec3 uLightDiffuse;
 layout( location = 4 ) uniform vec3 uSceneAmbient; 
-
+uniform float shininess;
 
 layout( location = 0 ) out vec3 oColor;
 float specularStrength = 0.5;
+
 
 void main()
 {
 	vec3 viewDir = normalize(v2fView - v2fPos);
 	vec3 lightDir = normalize(uLightPos - v2fPos);
 	vec3 normal = normalize(v2fNormal);
-	vec3 reflectDir = reflect(normal, -lightDir);
-	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+	vec3 reflectDir = reflect(normal,-lightDir);
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
 	vec3 specular = specularStrength * spec * v2fColor;  
 	float nDotL = max( 0.0, dot(normal, lightDir ) );
-	oColor = (uSceneAmbient + (nDotL + specular) * uLightDiffuse) * v2fColor; 
+	oColor = (((uSceneAmbient + nDotL) + (nDotL * specular)) * uLightDiffuse) * v2fColor; 
 }

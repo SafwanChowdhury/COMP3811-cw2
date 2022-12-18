@@ -228,7 +228,7 @@ int main() try
 	std::size_t vertexCount = testCylinder.positions.size(); 
 
 	auto cone = make_cone(true, 16, { 0.f, 0.f, 0.f },
-		make_translation({ 10.f, 10.f, 10.f })
+		make_translation({ 10.f, 6.f, 6.f })
 	);
 	GLuint vao2 = create_vao(cone);
 	std::size_t vertexCount2 = cone.positions.size();
@@ -333,8 +333,10 @@ int main() try
 		glUniformMatrix4fv(0, 1, GL_TRUE, projCameraWorld.v);
 		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
 		glUniformMatrix4fv(6, 1, GL_TRUE, world2camera.v);
-		Vec3f lightPos = { 10.f, 10.f, 10.f }; //light position
+		float shininess = 20.f;
+		Vec3f lightPos = { 10.f, 6.f, 6.f }; //light position
 		glUniform3f(glGetUniformLocation(prog.programId(), "uLightPos"), lightPos.x, lightPos.y, lightPos.z);
+		glUniform1f(glGetUniformLocation(prog.programId(), "shininess"), shininess);
 		glUniform3f(3, 0.9f, 0.9f, 0.6f); //lightcolor
 		glUniform3f(4, 0.05f, 0.05f, 0.05f); //ambient light
 
