@@ -5,7 +5,7 @@ in vec3 v2fPos;
 in vec3 v2fView;
 
 //layout( location = 2 ) uniform vec3 uLightDir; // should be normalized! kuLightDirk = 1
-layout( location = 2 ) uniform vec3 uLightPos;
+uniform vec3 uLightPos;
 layout( location = 3 ) uniform vec3 uLightDiffuse;
 layout( location = 4 ) uniform vec3 uSceneAmbient; 
 
@@ -22,5 +22,5 @@ void main()
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
 	vec3 specular = specularStrength * spec * v2fColor;  
 	float nDotL = max( 0.0, dot(normal, lightDir ) );
-	oColor = (uSceneAmbient + nDotL + specular * uLightDiffuse) * v2fColor; 
+	oColor = (uSceneAmbient + (nDotL + specular) * uLightDiffuse) * v2fColor; 
 }

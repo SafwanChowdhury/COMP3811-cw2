@@ -204,12 +204,12 @@ int main() try
 	auto yarrow = concatenate(std::move(ycyl), ycone);
 
 	auto zcyl = make_cylinder(true, 16, { 0.f, 0.f, 1.f },
-		make_rotation_z(3.141592f / -2.f) *
+		make_rotation_z(3.141592f / 2.f) *
 		make_scaling(5.f, 0.1f, 0.1f) // scale X by 5, Y and Z by 0.1
 	);
 
 	auto zcone = make_cone(true, 16, { 0.f, 0.f, 0.f },
-		make_rotation_z(3.141592f / -2.f) *
+		make_rotation_z(3.141592f / 2.f) *
 		make_scaling(1.f, 0.3f, 0.3f) *
 		make_translation({ 5.f, 0.f, 0.f })
 	);
@@ -217,21 +217,18 @@ int main() try
 
 	auto xy = concatenate(xarrow, yarrow);
 	auto xyz = concatenate(xy, zarrow);
-	//GLuint vao = create_vao(xyz);
-	//std::size_t vertexCount = xyz.positions.size();
+	GLuint vao3 = create_vao(xyz);
+	std::size_t vertexCount3 = xyz.positions.size();
 	
 	auto testCylinder = make_cylinder(true, 128, { 0.4f, 0.4f, 0.4f },
 		make_rotation_z(3.141592f / 2.f)
 		* make_scaling(8.f, 2.f, 2.f)
 	);
 	GLuint vao = create_vao(testCylinder);
-	std::size_t vertexCount = testCylinder.positions.size();
+	std::size_t vertexCount = testCylinder.positions.size(); 
 
 	auto cone = make_cone(true, 16, { 0.f, 0.f, 0.f },
-		make_rotation_y(3.141592f / 2.f) *
-		make_rotation_z(3.141592f / 2.f) *
-		make_scaling(1.f, 0.3f, 0.3f) *
-		make_translation({ -10.f, 20.f, 0.5f })
+		make_translation({ 10.f, 10.f, 10.f })
 	);
 	GLuint vao2 = create_vao(cone);
 	std::size_t vertexCount2 = cone.positions.size();
@@ -323,7 +320,6 @@ int main() try
 		);
 		Mat33f normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
 		Mat44f projCameraWorld = projection * world2camera * model2world;
-		projCameraWorld = projCameraWorld;
 		// Draw scene
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
@@ -337,10 +333,10 @@ int main() try
 		glUniformMatrix4fv(0, 1, GL_TRUE, projCameraWorld.v);
 		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
 		glUniformMatrix4fv(6, 1, GL_TRUE, world2camera.v);
-		Vec3f lightPos = { -10.f, 20.f, 0.5f }; //<---- light position
-		glUniform3fv(2, 1, &lightPos.x);
-		glUniform3f(3, 0.9f, 0.9f, 0.6f);
-		glUniform3f(4, 0.05f, 0.05f, 0.05f);
+		Vec3f lightPos = { 10.f, 10.f, 10.f }; //light position
+		glUniform3f(glGetUniformLocation(prog.programId(), "uLightPos"), lightPos.x, lightPos.y, lightPos.z);
+		glUniform3f(3, 0.9f, 0.9f, 0.6f); //lightcolor
+		glUniform3f(4, 0.05f, 0.05f, 0.05f); //ambient light
 
 		OGL_CHECKPOINT_DEBUG();
 		//TODO: draw frame
@@ -349,6 +345,8 @@ int main() try
 		glDrawArrays(GL_TRIANGLES, 0, vertexCount);
 		glBindVertexArray(vao2);
 		glDrawArrays(GL_TRIANGLES, 0, vertexCount2);
+		glBindVertexArray(vao3);
+		glDrawArrays(GL_TRIANGLES, 0, vertexCount3);
 		
 
 		OGL_CHECKPOINT_DEBUG();
