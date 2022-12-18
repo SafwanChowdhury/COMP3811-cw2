@@ -21,7 +21,6 @@ namespace fs = std::filesystem;
 #include "defaults.hpp"
 #include "cube.hpp"
 #include "frustum.hpp"
-#include "dome.hpp"
 #include "cone.hpp"
 #include "cylinder.hpp"
 #include "loadobj.hpp"
@@ -229,9 +228,10 @@ int main() try
 	std::size_t vertexCount = testCylinder.positions.size();
 
 	auto cone = make_cone(true, 16, { 0.f, 0.f, 0.f },
-		make_rotation_y(3.141592f / -2.f) *
+		make_rotation_y(3.141592f / 2.f) *
+		make_rotation_z(3.141592f / 2.f) *
 		make_scaling(1.f, 0.3f, 0.3f) *
-		make_translation({ -1.f, 1.f, 0.5f })
+		make_translation({ -10.f, 20.f, 0.5f })
 	);
 	GLuint vao2 = create_vao(cone);
 	std::size_t vertexCount2 = cone.positions.size();
@@ -315,6 +315,7 @@ int main() try
 		Vec3f T2 = { x, y, 0.f };
 		Mat44f model2world = make_rotation_y(0);
 		Mat44f world2camera = (make_translation({ 0.f, 0.f, 0.f }) * Rx) * Ry * T;
+		world2camera = world2camera * make_translation(T2);
 		Mat44f projection = make_perspective_projection(
 			60.f * 3.1415926f / 180.f,
 			fbwidth / float(fbheight),
@@ -322,7 +323,7 @@ int main() try
 		);
 		Mat33f normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
 		Mat44f projCameraWorld = projection * world2camera * model2world;
-		projCameraWorld = projCameraWorld * make_translation(T2);
+		projCameraWorld = projCameraWorld;
 		// Draw scene
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
@@ -332,13 +333,12 @@ int main() try
 		// We want to draw with our program..
 
 		glUseProgram(prog.programId());
-		glUniformMatrix3fv(
-			1, // make sure this matches the location = N in the vertex shader!
-			1, GL_TRUE, normalMatrix.v
-		);
+		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
 		glUniformMatrix4fv(0, 1, GL_TRUE, projCameraWorld.v);
-		Vec3f lightDir = normalize(Vec3f{ -1.f, 1.f, 0.5f }); //modify to use point light position
-		glUniform3fv(2, 1, &lightDir.x);
+		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
+		glUniformMatrix4fv(6, 1, GL_TRUE, world2camera.v);
+		Vec3f lightPos = { -10.f, 20.f, 0.5f }; //<---- light position
+		glUniform3fv(2, 1, &lightPos.x);
 		glUniform3f(3, 0.9f, 0.9f, 0.6f);
 		glUniform3f(4, 0.05f, 0.05f, 0.05f);
 
@@ -347,8 +347,8 @@ int main() try
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glBindVertexArray(vao);
 		glDrawArrays(GL_TRIANGLES, 0, vertexCount);
-		//glBindVertexArray(vao2);
-		//glDrawArrays(GL_TRIANGLES, 0, vertexCount2);
+		glBindVertexArray(vao2);
+		glDrawArrays(GL_TRIANGLES, 0, vertexCount2);
 		
 
 		OGL_CHECKPOINT_DEBUG();

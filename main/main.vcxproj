@@ -99,21 +99,17 @@
     <ClInclude Include="cube.hpp" />
     <ClInclude Include="cylinder.hpp" />
     <ClInclude Include="defaults.hpp" />
-    <ClInclude Include="dome.hpp" />
     <ClInclude Include="loadobj.hpp" />
     <ClInclude Include="frustum.hpp" />
     <ClInclude Include="simple_mesh.hpp" />
-    <ClInclude Include="Texture.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cone.cpp" />
     <ClCompile Include="cylinder.cpp" />
-    <ClCompile Include="dome.cpp" />
     <ClCompile Include="loadobj.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="frustum.cpp" />
     <ClCompile Include="simple_mesh.cpp" />
-    <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\vmlib\vmlib.vcxproj">

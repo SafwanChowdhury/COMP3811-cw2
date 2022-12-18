@@ -5,13 +5,19 @@ layout( location = 2 ) in vec3 iNormal;
 
 layout( location = 0 ) uniform mat4 uProjCameraWorld; 
 layout( location = 1 ) uniform mat3 uNormalMatrix; 
+layout( location = 5 ) uniform mat4 uModel;
+layout( location = 6 ) uniform mat4 uView;
 
 out vec3 v2fColor;
 out vec3 v2fNormal;
+out vec3 v2fPos;
+out vec3 v2fView;
 
 void main()
 {
 	v2fColor = iColor;
-	v2fNormal = normalize(uNormalMatrix * iNormal); 
-	gl_Position = uProjCameraWorld * vec4( iPosition, 1.0 ); 
+	v2fNormal = normalize(uNormalMatrix * iNormal);
+	v2fPos = vec3(uModel * vec4(iPosition,1.0));
+	v2fView = vec3(uProjCameraWorld);
+	gl_Position = uProjCameraWorld * vec4( iPosition, 1.0 );
 }

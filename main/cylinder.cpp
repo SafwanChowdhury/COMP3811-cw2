@@ -3,7 +3,6 @@
 
 SimpleMeshData make_cylinder(bool aCapped, std::size_t aSubdivs, Vec3f aColor, Mat44f aPreTransform)
 {
-	//TODO: implement me
 	std::vector<Vec3f> pos;
 	std::vector<Vec3f> normal;
 	float prevY = std::cos(0.f);
@@ -37,7 +36,6 @@ SimpleMeshData make_cylinder(bool aCapped, std::size_t aSubdivs, Vec3f aColor, M
 		normal.emplace_back(Vec3f{ 0.f, y, z });
 		pos.emplace_back(Vec3f{ 1.f, prevY, prevZ });
 		normal.emplace_back(Vec3f{ 0.f, prevY, prevZ });
-
 		if (aCapped == true) {
 			pos.emplace_back(Vec3f{ 1.f, y, z });
 			normal.emplace_back(Vec3f{ 1.f, 0.f, 0.f });

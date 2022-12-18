@@ -153,4 +153,16 @@ Vec3f cross(Vec3f aLeft, Vec3f aRight) noexcept
 	newVec.z = aLeft.x * aRight.y - aLeft.y * aRight.x;
 	return newVec;
 }
+
+inline
+Vec3f reflect(Vec3f aIncidence, Vec3f aNormal) {
+	Vec3f newVec{};
+	newVec = aIncidence - 2.f * 
+		(aIncidence.x * aNormal.x
+		+ aIncidence.y * aNormal.y
+		+ aIncidence.z * aNormal.z)
+		* aNormal;
+	return newVec;
+}
+
 #endif // VEC3_HPP_5710DADF_17EF_453C_A9C8_4A73DC66B1CD
