@@ -333,12 +333,19 @@ int main() try
 		glUniformMatrix4fv(0, 1, GL_TRUE, projCameraWorld.v);
 		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
 		glUniformMatrix4fv(6, 1, GL_TRUE, world2camera.v);
-		float shininess = 20.f;
 		Vec3f lightPos = { 10.f, 6.f, 6.f }; //light position
+		Vec3f lightColor = { 0.f , 0.f, 1.f };
+		Vec3f diffuseColor = lightColor * 0.5f;
+		Vec3f ambientColor = diffuseColor * 0.2f;
 		glUniform3f(glGetUniformLocation(prog.programId(), "uLightPos"), lightPos.x, lightPos.y, lightPos.z);
-		glUniform1f(glGetUniformLocation(prog.programId(), "shininess"), shininess);
+		glUniform3f(glGetUniformLocation(prog.programId(), "material.ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
+		glUniform3f(glGetUniformLocation(prog.programId(), "material.diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
+		glUniform3f(glGetUniformLocation(prog.programId(), "material.specular"), 0.5f, 0.5f, 0.5f);
+		glUniform1f(glGetUniformLocation(prog.programId(), "material.shininess"), 5.f);
+		glUniform3f(glGetUniformLocation(prog.programId(), "light.ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
+		glUniform3f(glGetUniformLocation(prog.programId(), "light.diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
+		glUniform3f(glGetUniformLocation(prog.programId(), "light.specular"), 1.0f, 1.0f, 1.0f);
 		glUniform3f(3, 0.9f, 0.9f, 0.6f); //lightcolor
-		glUniform3f(4, 0.05f, 0.05f, 0.05f); //ambient light
 
 		OGL_CHECKPOINT_DEBUG();
 		//TODO: draw frame
