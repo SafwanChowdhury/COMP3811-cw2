@@ -7,7 +7,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
-namespace fs = std::filesystem;
+//namespace fs = std::filesystem;
 
 #include "../support/error.hpp"
 #include "../support/program.hpp"
@@ -137,7 +137,7 @@ int main() try
 	std::printf( "VENDOR %s\n", glGetString( GL_VENDOR ) );
 	std::printf( "VERSION %s\n", glGetString( GL_VERSION ) );
 	std::printf( "SHADING_LANGUAGE_VERSION %s\n", glGetString( GL_SHADING_LANGUAGE_VERSION ) );
-	std::string parentDir = (fs::current_path().fs::path::parent_path()).string();
+	//std::string parentDir = (fs::current_path().fs::path::parent_path()).string();
 	// Ddebug output
 #	if !defined(NDEBUG)
 	setup_gl_debug_output();
@@ -182,7 +182,10 @@ int main() try
 
 	// TODO: 
 
-
+	static Vec3f const pointLightPositions[] = {
+		Vec3f{3.f,3.f,3.f},
+		Vec3f{-3.f,-5.f, 1.f}
+	};
 
 	auto xcyl = make_cylinder(true, 16, { 0.f, 1.f, 0.f },
 		make_scaling(5.f, 0.1f, 0.1f) // scale X by 5, Y and Z by 0.1
@@ -339,19 +342,43 @@ int main() try
 		glUniformMatrix4fv(0, 1, GL_TRUE, projCameraWorld.v);
 		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
 		glUniformMatrix4fv(6, 1, GL_TRUE, world2camera.v);
-		Vec3f lightPos = { 3.f, 3.f, 3.f }; //light position
+		//Vec3f lightPos = { 3.f, 3.f, 3.f }; //light position
 		Vec3f lightColor = { 0.f , 0.f, 1.f };
 		Vec3f diffuseColor = lightColor * 0.7f;
 		Vec3f ambientColor = diffuseColor * 0.3f;
-		glUniform3f(glGetUniformLocation(prog.programId(), "uLightPos"), lightPos.x, lightPos.y, lightPos.z);
-		glUniform3f(glGetUniformLocation(prog.programId(), "material.ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
-		glUniform3f(glGetUniformLocation(prog.programId(), "material.diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
+		//glUniform3f(glGetUniformLocation(prog.programId(), "uLightPos"), lightPos.x, lightPos.y, lightPos.z);
+		glUniform3f(glGetUniformLocation(prog.programId(), "material.ambient"), 1.0f, 0.5f, 0.31f);
+		glUniform3f(glGetUniformLocation(prog.programId(), "material.diffuse"), 1.0f, 0.5f, 0.31f);
 		glUniform3f(glGetUniformLocation(prog.programId(), "material.specular"), 0.5f, 0.5f, 0.5f);
-		glUniform1f(glGetUniformLocation(prog.programId(), "material.shininess"), 5.f);
-		glUniform3f(glGetUniformLocation(prog.programId(), "light.ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
-		glUniform3f(glGetUniformLocation(prog.programId(), "light.diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
-		glUniform3f(glGetUniformLocation(prog.programId(), "light.specular"), 1.0f, 1.0f, 1.0f);
-		glUniform3f(3, 0.9f, 0.9f, 0.6f); //lightcolor
+		glUniform1f(glGetUniformLocation(prog.programId(), "material.shininess"), 10.f);
+
+		glUniform3f(glGetUniformLocation(prog.programId(), "dirLight.direction"), 10.f, 20.f, 10.f);
+		glUniform3f(glGetUniformLocation(prog.programId(), "dirLight.ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
+		glUniform3f(glGetUniformLocation(prog.programId(), "dirLight.diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
+		glUniform3f(glGetUniformLocation(prog.programId(), "dirLight.specular"), 1.0f, 1.0f, 1.0f);
+
+
+
+		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[0].position"), pointLightPositions[0].x, pointLightPositions[0].y, pointLightPositions[0].z);
+		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[0].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
+		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[0].diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
+		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[0].specular"), 1.0f, 1.0f, 1.0f);
+		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[0].constant"), 1.0f);
+		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[0].linear"), 0.09f);
+		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[0].quadratic"), 0.032f);
+
+		lightColor = { 1.f , 1.f, 1.f };
+		diffuseColor = lightColor * 0.7f;
+		ambientColor = diffuseColor * 0.3f;
+
+		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[1].position"), pointLightPositions[1].x, pointLightPositions[1].y, pointLightPositions[1].z);
+		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[1].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
+		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[1].diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
+		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[1].specular"), 1.0f, 1.0f, 1.0f);
+		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[1].constant"), 1.0f);
+		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[1].linear"), 0.09f);
+		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[1].quadratic"), 0.032f);
+
 
 		OGL_CHECKPOINT_DEBUG();
 		//TODO: draw frame
