@@ -91,6 +91,7 @@ constexpr float const kCubeColors[] = {
 	+0.f, +1.f, +1.f
 };
 
+
 static_assert(sizeof(kCubeColors) == sizeof(kCubePositions),
 	"Size of cube colors and cube positions do not match. Both are 3D vectors."
 	);

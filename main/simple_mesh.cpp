@@ -23,7 +23,7 @@ GLuint create_vao(SimpleMeshData const& aMeshData)
 	glBufferData(GL_ARRAY_BUFFER, aMeshData.colors.size() * sizeof(Vec3f), aMeshData.colors.data(), GL_STATIC_DRAW);
 
 	GLuint normals = 0;
-	glGenBuffers(2, &normals);
+	glGenBuffers(1, &normals);
 	glBindBuffer(GL_ARRAY_BUFFER, normals);
 	glBufferData(GL_ARRAY_BUFFER, aMeshData.normals.size() * sizeof(Vec3f), aMeshData.normals.data(), GL_STATIC_DRAW);
 
@@ -62,7 +62,7 @@ GLuint create_vao(SimpleMeshData const& aMeshData)
 	);
 	glEnableVertexAttribArray(2);
 
-
+	
 
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);

@@ -181,6 +181,9 @@ int main() try
 	
 
 	// TODO: 
+
+
+
 	auto xcyl = make_cylinder(true, 16, { 0.f, 1.f, 0.f },
 		make_scaling(5.f, 0.1f, 0.1f) // scale X by 5, Y and Z by 0.1
 	);
@@ -224,11 +227,14 @@ int main() try
 		make_rotation_z(3.141592f / 2.f)
 		* make_scaling(8.f, 2.f, 2.f)
 	);
+
+	OGL_CHECKPOINT_ALWAYS();
+
 	GLuint vao = create_vao(testCylinder);
 	std::size_t vertexCount = testCylinder.positions.size(); 
 
 	auto cone = make_cone(true, 16, { 0.f, 0.f, 0.f },
-		make_translation({ 10.f, 6.f, 6.f })
+		make_translation({ 3.f, 3.f, 3.f })
 	);
 	GLuint vao2 = create_vao(cone);
 	std::size_t vertexCount2 = cone.positions.size();
@@ -333,10 +339,10 @@ int main() try
 		glUniformMatrix4fv(0, 1, GL_TRUE, projCameraWorld.v);
 		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
 		glUniformMatrix4fv(6, 1, GL_TRUE, world2camera.v);
-		Vec3f lightPos = { 10.f, 6.f, 6.f }; //light position
+		Vec3f lightPos = { 3.f, 3.f, 3.f }; //light position
 		Vec3f lightColor = { 0.f , 0.f, 1.f };
-		Vec3f diffuseColor = lightColor * 0.5f;
-		Vec3f ambientColor = diffuseColor * 0.2f;
+		Vec3f diffuseColor = lightColor * 0.7f;
+		Vec3f ambientColor = diffuseColor * 0.3f;
 		glUniform3f(glGetUniformLocation(prog.programId(), "uLightPos"), lightPos.x, lightPos.y, lightPos.z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "material.ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "material.diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
