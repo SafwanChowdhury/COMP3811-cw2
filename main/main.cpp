@@ -225,16 +225,7 @@ int main() try
 	auto xyz = concatenate(xy, zarrow);
 	GLuint vao3 = create_vao(xyz);
 	std::size_t vertexCount3 = xyz.positions.size();
-	
-	auto testCylinder = make_cylinder(true, 128, { 0.4f, 0.4f, 0.4f },
-		make_rotation_z(3.141592f / 2.f)
-		* make_scaling(8.f, 2.f, 2.f)
-	);
-
-	OGL_CHECKPOINT_ALWAYS();
-
-	GLuint vao = create_vao(testCylinder);
-	std::size_t vertexCount = testCylinder.positions.size(); 
+	 
 
 	auto cone = make_cone(true, 16, { 0.f, 0.f, 0.f },
 		make_translation({ 3.f, 3.f, 3.f })
@@ -282,9 +273,19 @@ int main() try
 		last = now;
 
 
-		//angle += dt * kPi_ * 0.3f;
-		//if (angle >= 2.f * kPi_)
-		//	angle -= 2.f * kPi_;
+		angle += dt * kPi_ * 0.3f;
+		if (angle >= 2.f * kPi_)
+			angle -= 2.f * kPi_;
+
+		auto testCylinder = make_cylinder(true, 128, { 0.4f, 0.4f, 0.4f },
+			make_rotation_z(3.141592f / 2.) *
+			make_rotation_y(angle)
+			* make_scaling(8.f, 2.f, 2.f)
+		);
+
+		GLuint vao = create_vao(testCylinder);
+		std::size_t vertexCount = testCylinder.positions.size();
+
 
 		// Update camera state
 		if (state.camControl.actionZoomIn) {
