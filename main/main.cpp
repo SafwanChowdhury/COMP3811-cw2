@@ -177,6 +177,7 @@ int main() try
 	auto last = Clock::now();
 
 	float angle = 0.f;
+	float rktHeight = 0.f;
 	OGL_CHECKPOINT_ALWAYS();
 	
 
@@ -221,6 +222,7 @@ int main() try
 	);
 	auto zarrow = concatenate(std::move(zcyl), zcone);
 
+
 	auto xy = concatenate(xarrow, yarrow);
 	auto xyz = concatenate(xy, zarrow);
 	GLuint vao3 = create_vao(xyz);
@@ -232,6 +234,25 @@ int main() try
 	);
 	GLuint vao2 = create_vao(cone);
 	std::size_t vertexCount2 = cone.positions.size();
+
+	auto rocket = load_wavefront_obj("external/Rocket/rocket.obj",
+		make_scaling(0.005f, 0.005f, 0.005f) *
+		make_rotation_x(3.141592f / -2.f) *
+		make_translation({ 350.f, 0.f, 600.f })
+	);
+	for (int i = 0; i < rocket.positions.size(); i++) {
+		rocket.positions[i] = rocket.positions[i] + Vec3f{ 2.f, 0.f, 2.f };
+	}
+	GLuint rocketVAO = create_vao(rocket);
+	std::size_t rocketVertex = rocket.positions.size();
+
+
+	auto launch = load_wavefront_obj("external/Launchpad/Launchpad.obj", make_scaling(0.49f, 0.49f, 0.49f));
+	for (int i = 0; i < launch.positions.size(); i++) {
+		launch.positions[i] = launch.positions[i] + Vec3f{ 2.f, 0.f, 2.f };
+	}
+	GLuint launchVAO = create_vao(launch);
+	std::size_t launchVertex = launch.positions.size();
 
 
 	OGL_CHECKPOINT_ALWAYS();
@@ -271,8 +292,7 @@ int main() try
 		auto const now = Clock::now();
 		float dt = std::chrono::duration_cast<Secondsf>(now - last).count();
 		last = now;
-
-
+		rktHeight += 0.001f;
 		angle += dt * kPi_ * 0.3f;
 		if (angle >= 2.f * kPi_)
 			angle -= 2.f * kPi_;
@@ -282,6 +302,26 @@ int main() try
 			make_rotation_y(angle)
 			* make_scaling(8.f, 2.f, 2.f)
 		);
+
+		for (auto& p : rocket.positions)
+		{
+			Vec4f p4{ p.x, p.y, p.z, 1.f };
+			Vec4f t = make_translation({ 0.f, rktHeight, 0.f }) * p4;
+			t /= t.w;
+			p = Vec3f{ t.x, t.y, t.z };
+		}
+
+		Mat33f const N = mat44_to_mat33(transpose(invert(make_translation({ 0.f, rktHeight, 0.f}))));
+
+		for (auto& n : rocket.normals)
+		{
+			Vec3f n4{ n.x, n.y, n.z };
+			Vec3f t = N * n4;
+			t = normalize(t);
+			n = Vec3f{ t.x, t.y, t.z };
+		}
+
+		GLuint rocketVAO = create_vao(rocket);
 
 		GLuint vao = create_vao(testCylinder);
 		std::size_t vertexCount = testCylinder.positions.size();
@@ -384,13 +424,16 @@ int main() try
 		OGL_CHECKPOINT_DEBUG();
 		//TODO: draw frame
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		glBindVertexArray(vao);
-		glDrawArrays(GL_TRIANGLES, 0, vertexCount);
-		glBindVertexArray(vao2);
-		glDrawArrays(GL_TRIANGLES, 0, vertexCount2);
-		glBindVertexArray(vao3);
-		glDrawArrays(GL_TRIANGLES, 0, vertexCount3);
-		
+		//glBindVertexArray(vao);
+		//glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+		//glBindVertexArray(vao2);
+		//glDrawArrays(GL_TRIANGLES, 0, vertexCount2);
+		//glBindVertexArray(vao3);
+		//glDrawArrays(GL_TRIANGLES, 0, vertexCount3);
+		glBindVertexArray(rocketVAO);
+		glDrawArrays(GL_TRIANGLES, 0, rocketVertex);
+		glBindVertexArray(launchVAO);
+		glDrawArrays(GL_TRIANGLES, 0, launchVertex);
 
 		OGL_CHECKPOINT_DEBUG();
 
