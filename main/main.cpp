@@ -48,6 +48,27 @@ namespace
 
 			float lastX, lastY;
 		} camControl;
+
+		struct AnimCtrl_
+		{
+			bool animation = false;
+			bool animPlay, animFWD, animRWD;
+
+			float mod;
+
+		} animControl;
+
+		struct ObjCtrl_
+		{
+			bool displayCoords = false;
+			bool objFWD, objBKD, objLFT, objRGT, objUP, objDWN;
+
+			float x;
+			float y;
+			float z;
+
+		} objControl;
+
 	};
 	//end
 
@@ -166,8 +187,8 @@ int main() try
 	// Other initialization & loading
 	// Load shader program
 	ShaderProgram prog({
-		{ GL_VERTEX_SHADER, "assets/default.vert" },
-		{ GL_FRAGMENT_SHADER, "assets/default.frag" }
+		{ GL_VERTEX_SHADER, "../assets/default.vert" },
+		{ GL_FRAGMENT_SHADER, "../assets/default.frag" }
 		});
 	state.prog = &prog;
 	state.camControl.radius = 10.f;
@@ -178,15 +199,11 @@ int main() try
 	auto last = Clock::now();
 
 	float angle = 0.f;
+	float rktHeight = 0.f;
 	OGL_CHECKPOINT_ALWAYS();
 	
 
 	// TODO: 
-
-	static Vec3f const pointLightPositions[] = {
-		Vec3f{3.f,3.f,3.f},
-		Vec3f{-3.f,-5.f, 1.f}
-	};
 
 	auto xcyl = make_cylinder(true, 16, { 0.f, 1.f, 0.f },
 		make_scaling(5.f, 0.1f, 0.1f) // scale X by 5, Y and Z by 0.1
@@ -222,26 +239,61 @@ int main() try
 	);
 	auto zarrow = concatenate(std::move(zcyl), zcone);
 
+
 	auto xy = concatenate(xarrow, yarrow);
 	auto xyz = concatenate(xy, zarrow);
 	GLuint vao3 = create_vao(xyz);
 	std::size_t vertexCount3 = xyz.positions.size();
-	
-	auto testCylinder = make_cylinder(true, 128, { 0.4f, 0.4f, 0.4f },
-		make_rotation_z(3.141592f / 2.f)
-		* make_scaling(8.f, 2.f, 2.f)
+	 
+
+
+	state.objControl.x = 13.1f;
+	state.objControl.y = 98.6f;
+	state.objControl.z = 15.1f;
+
+	Vec3f pointLightPositions[] = {
+		Vec3f{ 13.1f, 98.6f, 24.7f },
+		Vec3f{13.1f, 98.6f, 15.1f}
+	};
+
+	auto cone2 = make_cone(true, 16, { 0.f, 0.f, 0.f },
+		make_scaling(0.2f, 0.1f, 0.1f) *
+		make_translation({ 13.1f, 98.6f, 15.1f }) *
+		make_rotation_z(3.141592f * 0.8)
 	);
 
-	OGL_CHECKPOINT_ALWAYS();
+	GLuint floodLight1Vao = create_vao(cone2);
+	std::size_t coneVertex = cone2.positions.size();
 
-	GLuint vao = create_vao(testCylinder);
-	std::size_t vertexCount = testCylinder.positions.size(); 
-
-	auto cone = make_cone(true, 16, { 0.f, 0.f, 0.f },
-		make_translation({ 3.f, 3.f, 3.f })
+	auto cone3 = make_cone(true, 16, { 0.f, 0.f, 0.f },
+		make_scaling(0.2f, 0.1f, 0.1f) *
+		make_translation({ 13.1f, 98.6f, 24.7f }) *
+		make_rotation_z(3.141592f * 0.8)
 	);
-	GLuint vao2 = create_vao(cone);
-	std::size_t vertexCount2 = cone.positions.size();
+
+	GLuint floodLight2Vao = create_vao(cone3);
+	std::size_t coneVertex2 = cone3.positions.size();
+
+
+
+	auto rocket = load_wavefront_obj("../external/Rocket/rocket.obj",
+		make_scaling(0.005f, 0.005f, 0.005f) *
+		make_rotation_x(3.141592f / -2.f) *
+		make_translation({ 350.f, 0.f, 600.f })
+	);
+	for (int i = 0; i < rocket.positions.size(); i++) {
+		rocket.positions[i] = rocket.positions[i] + Vec3f{ 2.f, 0.f, 2.f };
+	}
+	GLuint rocketVAO = create_vao(rocket);
+	std::size_t rocketVertex = rocket.positions.size();
+
+
+	auto launch = load_wavefront_obj("../external/Scene/scene.obj", make_scaling(0.49f, 0.49f, 0.49f));
+	for (int i = 0; i < launch.positions.size(); i++) {
+		launch.positions[i] = launch.positions[i] + Vec3f{ 2.f, 0.f, 2.f };
+	}
+	GLuint launchVAO = create_vao(launch);
+	std::size_t launchVertex = launch.positions.size();
 
 	//Creating textured cube for testing
 
@@ -329,6 +381,7 @@ int main() try
 	// Main loop
 	float y = 0;
 	float x = 0;
+
 	while( !glfwWindowShouldClose( window ) )
 	{
 		// Let GLFW process events
@@ -362,11 +415,42 @@ int main() try
 		float dt = std::chrono::duration_cast<Secondsf>(now - last).count();
 		last = now;
 
+		angle += dt * kPi_ * 0.3f;
+		if (angle >= 2.f * kPi_)
+			angle -= 2.f * kPi_;
 
-		//angle += dt * kPi_ * 0.3f;
-		//if (angle >= 2.f * kPi_)
-		//	angle -= 2.f * kPi_;
 
+		float rktLast = 0.f;
+		if (state.animControl.animation) {
+			rktHeight += 0.001f + rktLast + state.animControl.mod;
+			if (rktHeight < 0) {
+				rktHeight = 0.000000001;
+			}
+		}
+		else {
+			float rktLast = rktHeight;
+			rktHeight = 0.f;
+		}
+
+		if (state.animControl.animation) {
+			for (auto& p : rocket.positions)
+			{
+				Vec4f p4{ p.x, p.y, p.z, 1.f };
+				Vec4f t = make_translation({ 0.f, rktHeight, 0.f }) * p4;
+				t /= t.w;
+				p = Vec3f{ t.x, t.y, t.z };
+			}
+
+			Mat33f const N = mat44_to_mat33(transpose(invert(make_translation({ 0.f, rktHeight, 0.f }))));
+
+			for (auto& n : rocket.normals)
+			{
+				Vec3f n4{ n.x, n.y, n.z };
+				Vec3f t = N * n4;
+				t = normalize(t);
+				n = Vec3f{ t.x, t.y, t.z };
+			}
+		}
 		// Update camera state
 		if (state.camControl.actionZoomIn) {
 			y += sin(state.camControl.theta) * kMovementPerSecond_ * dt;
@@ -421,13 +505,12 @@ int main() try
 		glUseProgram(prog.programId());
 		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
 		glUniformMatrix4fv(0, 1, GL_TRUE, projCameraWorld.v);
-		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
 		glUniformMatrix4fv(6, 1, GL_TRUE, world2camera.v);
 		glUniform1f(7, 0.f);
 		//Vec3f lightPos = { 3.f, 3.f, 3.f }; //light position
-		Vec3f lightColor = { 0.f , 0.f, 1.f };
-		Vec3f diffuseColor = lightColor * 0.7f;
-		Vec3f ambientColor = diffuseColor * 0.3f;
+		Vec3f lightColor = { 1.f , 1.f, 1.f };
+		Vec3f diffuseColor = lightColor * 0.05f;
+		Vec3f ambientColor = diffuseColor * 0.02f;
 		//glUniform3f(glGetUniformLocation(prog.programId(), "uLightPos"), lightPos.x, lightPos.y, lightPos.z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "material.ambient"), 1.0f, 0.5f, 0.31f);
 		glUniform3f(glGetUniformLocation(prog.programId(), "material.diffuse"), 1.0f, 0.5f, 0.31f);
@@ -439,7 +522,9 @@ int main() try
 		glUniform3f(glGetUniformLocation(prog.programId(), "dirLight.diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "dirLight.specular"), 1.0f, 1.0f, 1.0f);
 
-
+		lightColor = { 1.f , 1.f, 1.f };
+		diffuseColor = lightColor * 0.3f;
+		ambientColor = diffuseColor * 0.1f;
 
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[0].position"), pointLightPositions[0].x, pointLightPositions[0].y, pointLightPositions[0].z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[0].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
@@ -449,10 +534,6 @@ int main() try
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[0].linear"), 0.09f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[0].quadratic"), 0.032f);
 	        
-
-		lightColor = { 1.f , 1.f, 1.f };
-		diffuseColor = lightColor * 0.7f;
-		ambientColor = diffuseColor * 0.3f;
 
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[1].position"), pointLightPositions[1].x, pointLightPositions[1].y, pointLightPositions[1].z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[1].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
@@ -486,6 +567,16 @@ int main() try
 
 	        glUniform1f(7, 1.f);
 		*/
+   
+    
+		glBindVertexArray(rocketVAO);
+		glDrawArrays(GL_TRIANGLES, 0, rocketVertex);
+		glBindVertexArray(launchVAO);
+		glDrawArrays(GL_TRIANGLES, 0, launchVertex);
+		glBindVertexArray(floodLight1Vao);
+		glDrawArrays(GL_TRIANGLES, 0, coneVertex);
+		glBindVertexArray(floodLight2Vao);
+		glDrawArrays(GL_TRIANGLES, 0, coneVertex2);
 		OGL_CHECKPOINT_DEBUG();
 
 		glBindVertexArray(0);
@@ -516,7 +607,8 @@ namespace
 	{
 		std::fprintf( stderr, "GLFW error: %s (%d)\n", aErrDesc, aErrNum );
 	}
-
+	int mod = 0;
+	float dc = 0.f;
 	void glfw_callback_key_( GLFWwindow* aWindow, int aKey, int, int aAction, int )
 	{
 		if( GLFW_KEY_ESCAPE == aKey && GLFW_PRESS == aAction )
@@ -528,6 +620,27 @@ namespace
 		//Camera Controls from Ex3...
 		if (auto* state = static_cast<State_*>(glfwGetWindowUserPointer(aWindow)))
 		{
+			
+			if (mod == 0) {
+				dc = 1.f;
+			}
+			else if (mod < 0) {
+				dc = 0.1f;
+				mod = -1;
+			}
+			else if (mod > 0) {
+				dc = 10.f;
+				mod = 1;
+			}
+
+			if (GLFW_KEY_KP_ADD == aKey && GLFW_PRESS == aAction)
+			{
+				mod+= 1;
+			}
+			if (GLFW_KEY_KP_SUBTRACT == aKey && GLFW_PRESS == aAction)
+			{
+				mod -= 1;
+			}
 			// R-key reloads shaders.
 			if (GLFW_KEY_R == aKey && GLFW_PRESS == aAction)
 			{
@@ -556,6 +669,43 @@ namespace
 					glfwSetInputMode(aWindow, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 				else
 					glfwSetInputMode(aWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			}
+			//animation controls
+			//slow down
+			if (GLFW_KEY_1 == aKey || GLFW_KEY_LEFT == aKey)
+			{
+				if (GLFW_PRESS == aAction) {
+					state->animControl.mod -= 0.01;
+				}
+				else if (GLFW_RELEASE == aAction)
+					state->animControl.mod += 0;
+			}
+			//play pause
+			if ((GLFW_KEY_2 == aKey || GLFW_KEY_UP == aKey) && GLFW_PRESS == aAction)
+			{
+				state->animControl.animPlay = !state->animControl.animPlay;
+				if (state->animControl.animPlay) {
+					printf("off\n");
+					state->animControl.animation = 0;
+				}
+				else {
+					printf("on\n");
+					state->animControl.animation = 1;
+				}
+			}
+			//reset speed modifier
+			if ((GLFW_KEY_3 == aKey || GLFW_KEY_DOWN == aKey) && GLFW_PRESS == aAction)
+			{
+				state->animControl.mod = 0;
+			}
+			//speed up
+			if (GLFW_KEY_4 == aKey || GLFW_KEY_RIGHT == aKey)
+			{
+				if (GLFW_PRESS == aAction) {
+					state->animControl.mod += 0.01;
+				}
+				else if (GLFW_RELEASE == aAction)
+					state->animControl.mod += 0;
 			}
 
 			// Camera controls if camera is active
@@ -603,6 +753,65 @@ namespace
 					else if (GLFW_RELEASE == aAction)
 						state->camControl.actionMoveD = false;
 				}
+			}
+
+
+			//object controls, for development only
+			if (GLFW_KEY_KP_4 == aKey)
+			{
+				if (GLFW_PRESS == aAction) {
+					state->objControl.x -= dc;
+				}
+				else if (GLFW_RELEASE == aAction)
+					state->objControl.x += 0;
+			}
+			else if (GLFW_KEY_KP_6 == aKey)
+			{
+				if (GLFW_PRESS == aAction) {
+					state->objControl.x += dc;
+				}
+				else if (GLFW_RELEASE == aAction)
+					state->objControl.x += 0;
+			}
+			if (GLFW_KEY_KP_2 == aKey)
+			{
+				if (GLFW_PRESS == aAction) {
+					state->objControl.y -= dc;
+				}
+				else if (GLFW_RELEASE == aAction)
+					state->objControl.y += 0;
+			}
+			else if (GLFW_KEY_KP_8 == aKey)
+			{
+				if (GLFW_PRESS == aAction) {
+					state->objControl.y += dc;
+				}
+				else if (GLFW_RELEASE == aAction)
+					state->objControl.y += 0;
+			}
+			if (GLFW_KEY_KP_7 == aKey)
+			{
+				if (GLFW_PRESS == aAction) {
+					state->objControl.z -= dc;
+				}
+				else if (GLFW_RELEASE == aAction)
+					state->objControl.z += 0;
+			}
+			else if (GLFW_KEY_KP_9 == aKey)
+			{
+				if (GLFW_PRESS == aAction) {
+					state->objControl.z += dc;
+				}
+				else if (GLFW_RELEASE == aAction)
+					state->objControl.z += 0;
+			}
+			if (GLFW_KEY_KP_5 == aKey)
+			{
+				if (GLFW_PRESS == aAction) {
+					state->objControl.displayCoords = 1;
+				}
+				else if (GLFW_RELEASE == aAction)
+					state->objControl.displayCoords = 0;
 			}
 		}
 	}

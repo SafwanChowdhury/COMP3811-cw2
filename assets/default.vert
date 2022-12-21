@@ -21,7 +21,7 @@ void main()
 {
 	v2fColor = iColor;
 	v2fNormal = normalize(uNormalMatrix * iNormal);
-	v2fPos = vec3(uModel * vec4(iPosition,1.0));
+	v2fPos = vec3(iPosition);
 	v2fView = vec3(uProjCameraWorld);
 	gl_Position = uProjCameraWorld * vec4( iPosition, 1.0 );
 	v2fTexCoord = iTexCoord;
