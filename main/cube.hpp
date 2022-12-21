@@ -3,6 +3,51 @@
 
 // This defines the vertex data for a colored unit cube.
 
+constexpr float const kTexCoords[] = {
+	+1.f, +1.f,
+        +0.f, +1.f,
+        +0.f, +0.f,
+        +1.f, +1.f,
+      	+0.f, +0.f,
+        +1.f, +0.f,
+
+	+1.f, +1.f,
+        +0.f, +1.f,
+        +0.f, +0.f,
+        +1.f, +1.f,
+      	+0.f, +0.f,
+        +1.f, +0.f,
+
+	+1.f, +1.f,
+        +0.f, +1.f,
+        +0.f, +0.f,
+        +1.f, +1.f,
+      	+0.f, +0.f,
+        +1.f, +0.f,
+
+	+1.f, +1.f,
+        +0.f, +1.f,
+        +0.f, +0.f,
+        +1.f, +1.f,
+      	+0.f, +0.f,
+        +1.f, +0.f,
+
+	+1.f, +1.f,
+        +0.f, +1.f,
+        +0.f, +0.f,
+        +1.f, +1.f,
+      	+0.f, +0.f,
+        +1.f, +0.f,
+
+	+1.f, +1.f,
+        +0.f, +1.f,
+        +0.f, +0.f,
+        +1.f, +1.f,
+      	+0.f, +0.f,
+        +1.f, +0.f
+	
+};
+
 constexpr float const kCubePositions[] = {
 	+1.f, +1.f, -1.f,
 	-1.f, +1.f, -1.f,

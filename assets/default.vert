@@ -2,6 +2,7 @@
 layout( location = 0 ) in vec3 iPosition;
 layout( location = 1 ) in vec3 iColor;
 layout( location = 2 ) in vec3 iNormal;
+layout( location = 2 ) in vec2 iTexCoord; 
 
 layout( location = 0 ) uniform mat4 uProjCameraWorld; 
 layout( location = 1 ) uniform mat3 uNormalMatrix; 
@@ -12,6 +13,7 @@ out vec3 v2fColor;
 out vec3 v2fNormal;
 out vec3 v2fPos;
 out vec3 v2fView;
+out vec2 v2fTexCoord;
 
 void main()
 {
@@ -20,4 +22,5 @@ void main()
 	v2fPos = vec3(uModel * vec4(iPosition,1.0));
 	v2fView = vec3(uProjCameraWorld);
 	gl_Position = uProjCameraWorld * vec4( iPosition, 1.0 );
+	v2fTexCoord = iTexCoord;
 }

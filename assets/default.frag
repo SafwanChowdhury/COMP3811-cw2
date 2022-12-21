@@ -1,11 +1,14 @@
 #version 430
 in vec3 v2fColor;
 in vec3 v2fNormal;
+in vec2 v2fTexCoord;
 in vec3 v2fPos;
 in vec3 v2fView;
 
 //layout( location = 2 ) uniform vec3 uLightDir; // should be normalized! kuLightDirk = 1
 layout( location = 0 ) out vec3 oColor;
+
+layout( binding = 0 ) uniform sampler2D uTexture;
 
 float specularStrength = 0.5;
 
@@ -81,11 +84,17 @@ void main()
 	vec3 normal = normalize(v2fNormal);
 	vec3 viewDir = normalize(v2fView - v2fPos);
 	
-    vec3 result = CalcDirLight(dirLight, normal, viewDir);
+    	vec3 result = CalcDirLight(dirLight, normal, viewDir);
 
-    for(int i = 0; i < NR_POINT_LIGHTS; i++)
-        result += CalcPointLight(pointLights[i], normal, v2fPos, viewDir);
+        for(int i = 0; i < NR_POINT_LIGHTS; i++)
+        	result += CalcPointLight(pointLights[i], normal, v2fPos, viewDir);
+	
+	
+	
+    	//oColor = result;
 
-    oColor = result;
+	//if(texThis == 1){
+		oColor = texture( uTexture, v2fTexCoord ).rgb;
+	//}
 
 }
