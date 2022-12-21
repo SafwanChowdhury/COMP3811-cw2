@@ -67,7 +67,6 @@ namespace
 	};
 }
 
-int texThis = 0;
 
 int main() try
 {
@@ -302,6 +301,9 @@ int main() try
 	glEnableVertexAttribArray(2);
 	*/
 	//texture
+	
+	GLuint texId = load_texture_2d("texture2.jpg");
+
 	glBindBuffer(GL_ARRAY_BUFFER, texcoords);
 
 	glVertexAttribPointer(
@@ -311,15 +313,14 @@ int main() try
 		0 // data starts at offset 0 in the VBO
 	);
 	glEnableVertexAttribArray(3);
-	
-	
 
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glDeleteBuffers(1, &position);
 	glDeleteBuffers(1, &colors);
+	//glDeleteBuffers(1, &texcoords);
 
-	GLuint texId = load_texture_2d("texture1.jpg");
+	
 	
 	//glDeleteBuffers(1, &normals);
 
@@ -422,6 +423,7 @@ int main() try
 		glUniformMatrix4fv(0, 1, GL_TRUE, projCameraWorld.v);
 		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
 		glUniformMatrix4fv(6, 1, GL_TRUE, world2camera.v);
+		glUniform1f(7, 0.f);
 		//Vec3f lightPos = { 3.f, 3.f, 3.f }; //light position
 		Vec3f lightColor = { 0.f , 0.f, 1.f };
 		Vec3f diffuseColor = lightColor * 0.7f;
@@ -446,6 +448,7 @@ int main() try
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[0].constant"), 1.0f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[0].linear"), 0.09f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[0].quadratic"), 0.032f);
+	        
 
 		lightColor = { 1.f , 1.f, 1.f };
 		diffuseColor = lightColor * 0.7f;
@@ -462,6 +465,7 @@ int main() try
 
 		OGL_CHECKPOINT_DEBUG();
 		//TODO: draw frame
+		
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glBindVertexArray(vao);
 		glDrawArrays(GL_TRIANGLES, 0, vertexCount);
@@ -470,12 +474,18 @@ int main() try
 		glBindVertexArray(vao3);
 		glDrawArrays(GL_TRIANGLES, 0, vertexCount3);
 
-		//test cube
+		/*
+		//textured cube example
+	        glUniform1f(7, 1.f);
+		
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texId);
 		glBindVertexArray(vaoTemp);
 		glDrawArrays(GL_TRIANGLES, 0, 6*6);
+		glBindTexture(GL_TEXTURE_2D, 0);
 
+	        glUniform1f(7, 1.f);
+		*/
 		OGL_CHECKPOINT_DEBUG();
 
 		glBindVertexArray(0);

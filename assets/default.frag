@@ -1,9 +1,10 @@
 #version 430
 in vec3 v2fColor;
 in vec3 v2fNormal;
-in vec2 v2fTexCoord;
 in vec3 v2fPos;
 in vec3 v2fView;
+in vec2 v2fTexCoord;
+in float oTex;
 
 //layout( location = 2 ) uniform vec3 uLightDir; // should be normalized! kuLightDirk = 1
 layout( location = 0 ) out vec3 oColor;
@@ -90,11 +91,12 @@ void main()
         	result += CalcPointLight(pointLights[i], normal, v2fPos, viewDir);
 	
 	
-	
-    	//oColor = result;
 
-	//if(texThis == 1){
+	if(oTex == 1.f){
 		oColor = texture( uTexture, v2fTexCoord ).rgb;
-	//}
+	}
+
+	else
+		oColor = result;
 
 }
