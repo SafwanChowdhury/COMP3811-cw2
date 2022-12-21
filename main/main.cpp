@@ -186,8 +186,8 @@ int main() try
 	// Other initialization & loading
 	// Load shader program
 	ShaderProgram prog({
-		{ GL_VERTEX_SHADER, "assets/default.vert" },
-		{ GL_FRAGMENT_SHADER, "assets/default.frag" }
+		{ GL_VERTEX_SHADER, "../assets/default.vert" },
+		{ GL_FRAGMENT_SHADER, "../assets/default.frag" }
 		});
 	state.prog = &prog;
 	state.camControl.radius = 10.f;
@@ -275,7 +275,7 @@ int main() try
 
 
 
-	auto rocket = load_wavefront_obj("external/Rocket/rocket.obj",
+	auto rocket = load_wavefront_obj("../external/Rocket/rocket.obj",
 		make_scaling(0.005f, 0.005f, 0.005f) *
 		make_rotation_x(3.141592f / -2.f) *
 		make_translation({ 350.f, 0.f, 600.f })
@@ -287,7 +287,7 @@ int main() try
 	std::size_t rocketVertex = rocket.positions.size();
 
 
-	auto launch = load_wavefront_obj("external/Scene/scene.obj", make_scaling(0.49f, 0.49f, 0.49f));
+	auto launch = load_wavefront_obj("../external/Scene/scene.obj", make_scaling(0.49f, 0.49f, 0.49f));
 	for (int i = 0; i < launch.positions.size(); i++) {
 		launch.positions[i] = launch.positions[i] + Vec3f{ 2.f, 0.f, 2.f };
 	}
