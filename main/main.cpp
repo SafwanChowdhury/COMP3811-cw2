@@ -46,7 +46,7 @@ namespace
 			float phi, theta;
 			float radius;
 
-			float lastX, lastY;
+			float lastX, lastY, x, y;
 		} camControl;
 
 		struct AnimCtrl_
@@ -298,8 +298,7 @@ int main() try
 	OGL_CHECKPOINT_ALWAYS();
 
 	// Main loop
-	float y = 0;
-	float x = 0;
+
 
 	while( !glfwWindowShouldClose( window ) )
 	{
@@ -351,68 +350,46 @@ int main() try
 			rktHeight = 0.f;
 		}
 
-		if (state.animControl.animation) {
-			for (auto& p : rocket.positions)
-			{
-				Vec4f p4{ p.x, p.y, p.z, 1.f };
-				Vec4f t = make_translation({ 0.f, rktHeight, 0.f }) * p4;
-				t /= t.w;
-				p = Vec3f{ t.x, t.y, t.z };
-			}
-
-			Mat33f const N = mat44_to_mat33(transpose(invert(make_translation({ 0.f, rktHeight, 0.f }))));
-
-			for (auto& n : rocket.normals)
-			{
-				Vec3f n4{ n.x, n.y, n.z };
-				Vec3f t = N * n4;
-				t = normalize(t);
-				n = Vec3f{ t.x, t.y, t.z };
-			}
-		}
 		// Update camera state
 		if (state.camControl.actionZoomIn) {
-			y += sin(state.camControl.theta) * kMovementPerSecond_ * dt;
-			x -= cos(state.camControl.theta) * sin(state.camControl.phi) * kMovementPerSecond_ * dt;
+			state.camControl.y += sin(state.camControl.theta) * kMovementPerSecond_ * dt;
+			state.camControl.x -= cos(state.camControl.theta) * sin(state.camControl.phi) * kMovementPerSecond_ * dt;
 			state.camControl.radius -= cos(state.camControl.theta) * cos(state.camControl.phi) * kMovementPerSecond_ * dt;
 		}
 		else if (state.camControl.actionZoomOut) {
-			y -= sin(state.camControl.theta) * kMovementPerSecond_ * dt;
-			x += cos(state.camControl.theta) * sin(state.camControl.phi) * kMovementPerSecond_ * dt;
+			state.camControl.y -= sin(state.camControl.theta) * kMovementPerSecond_ * dt;
+			state.camControl.x += cos(state.camControl.theta) * sin(state.camControl.phi) * kMovementPerSecond_ * dt;
 			state.camControl.radius += cos(state.camControl.theta) * cos(state.camControl.phi) * kMovementPerSecond_ * dt;
 
 		}
 		if (state.camControl.actionMoveL) {
-			x += cos(state.camControl.phi) * kMovementPerSecond_ * dt;
+			state.camControl.x += cos(state.camControl.phi) * kMovementPerSecond_ * dt;
 			state.camControl.radius -= sin(state.camControl.phi) * kMovementPerSecond_ * dt;
 		}
 		else if (state.camControl.actionMoveR) {
-			x -= cos(state.camControl.phi) * kMovementPerSecond_ * dt;
+			state.camControl.x -= cos(state.camControl.phi) * kMovementPerSecond_ * dt;
 			state.camControl.radius += sin(state.camControl.phi) * kMovementPerSecond_ * dt;
 
 		}
 		if (state.camControl.actionMoveU) {
-			y -= kMovementPerSecond_ * dt;
+			state.camControl.y -= kMovementPerSecond_ * dt;
 		}
 		else if (state.camControl.actionMoveD) {
-			y += kMovementPerSecond_ * dt;
+			state.camControl.y += kMovementPerSecond_ * dt;
 
 		}
 		//Compute matricies
 		Mat44f Rx = make_rotation_x(state.camControl.theta);
 		Mat44f Ry = make_rotation_y(state.camControl.phi);
-		Mat44f T = make_translation({ 0.f, 0.f, -state.camControl.radius });
-		Vec3f T2 = { x, y, 0.f };
+		Mat44f T = make_translation({ state.camControl.x, state.camControl.y, -state.camControl.radius });
 		Mat44f model2world = make_rotation_y(0);
-		Mat44f world2camera = (make_translation({ 0.f, 0.f, 0.f }) * Rx) * Ry * T;
-		world2camera = world2camera * make_translation(T2);
+		Mat44f world2camera = Rx * Ry * T;
 		Mat44f projection = make_perspective_projection(
 			60.f * 3.1415926f / 180.f,
 			fbwidth / float(fbheight),
 			0.1f, 100.0f
 		);
 		Mat33f normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
-		Mat44f projCameraWorld = projection * world2camera * model2world;
 		// Draw scene
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
@@ -423,12 +400,14 @@ int main() try
 
 		glUseProgram(prog.programId());
 		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
-		glUniformMatrix4fv(0, 1, GL_TRUE, projCameraWorld.v);
+		glUniformMatrix4fv(0, 1, GL_TRUE, projection.v);
+		glUniformMatrix4fv(4, 1, GL_TRUE, T.v);
+		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
 		glUniformMatrix4fv(6, 1, GL_TRUE, world2camera.v);
 		//Vec3f lightPos = { 3.f, 3.f, 3.f }; //light position
 		Vec3f lightColor = { 1.f , 1.f, 1.f };
-		Vec3f diffuseColor = lightColor * 0.05f;
-		Vec3f ambientColor = diffuseColor * 0.02f;
+		Vec3f diffuseColor = lightColor * 0.1f;
+		Vec3f ambientColor = diffuseColor * 0.06f;
 		//glUniform3f(glGetUniformLocation(prog.programId(), "uLightPos"), lightPos.x, lightPos.y, lightPos.z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "material.ambient"), 1.0f, 0.5f, 0.31f);
 		glUniform3f(glGetUniformLocation(prog.programId(), "material.diffuse"), 1.0f, 0.5f, 0.31f);
@@ -466,14 +445,21 @@ int main() try
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		//glBindVertexArray(vao);
 		//glDrawArrays(GL_TRIANGLES, 0, vertexCount);
-		glBindVertexArray(rocketVAO);
-		glDrawArrays(GL_TRIANGLES, 0, rocketVertex);
 		glBindVertexArray(launchVAO);
 		glDrawArrays(GL_TRIANGLES, 0, launchVertex);
 		glBindVertexArray(floodLight1Vao);
 		glDrawArrays(GL_TRIANGLES, 0, coneVertex);
 		glBindVertexArray(floodLight2Vao);
 		glDrawArrays(GL_TRIANGLES, 0, coneVertex2);
+
+		model2world = make_translation({ 0.f, rktHeight, 0.f });
+		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
+		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
+		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
+
+		glBindVertexArray(rocketVAO);
+		glDrawArrays(GL_TRIANGLES, 0, rocketVertex);
+		model2world = make_rotation_x(0.f);
 		OGL_CHECKPOINT_DEBUG();
 
 		glBindVertexArray(0);
