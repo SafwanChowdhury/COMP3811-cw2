@@ -528,16 +528,16 @@ namespace
 					glfwSetInputMode(aWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 			}
 
-			if (GLFW_KEY_1 == aKey)
+			if (GLFW_KEY_1 == aKey || GLFW_KEY_LEFT == aKey)
 			{
 				if (GLFW_PRESS == aAction) {
-					state->animControl.mod += 0.01;
+					state->animControl.mod -= 0.01;
 				}
 				else if (GLFW_RELEASE == aAction)
 					state->animControl.mod += 0;
 			}
 
-			if (GLFW_KEY_2 == aKey && GLFW_PRESS == aAction)
+			if ((GLFW_KEY_2 == aKey || GLFW_KEY_UP == aKey) && GLFW_PRESS == aAction)
 			{
 				state->animControl.animPlay = !state->animControl.animPlay;
 				if (state->animControl.animPlay) {
@@ -550,15 +550,15 @@ namespace
 				}
 			}
 
-			if (GLFW_KEY_3 == aKey && GLFW_PRESS == aAction)
+			if ((GLFW_KEY_3 == aKey || GLFW_KEY_DOWN == aKey) && GLFW_PRESS == aAction)
 			{
 				state->animControl.mod = 0;
 			}
 
-			if (GLFW_KEY_4 == aKey)
+			if (GLFW_KEY_4 == aKey || GLFW_KEY_RIGHT == aKey)
 			{
 				if (GLFW_PRESS == aAction) {
-					state->animControl.mod -= 0.01;
+					state->animControl.mod += 0.01;
 				}
 				else if (GLFW_RELEASE == aAction)
 					state->animControl.mod += 0;
