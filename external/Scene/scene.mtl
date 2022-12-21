@@ -1,0 +1,154 @@
+# Blender 3.4.1 MTL File: 'scene.blend'
+# www.blender.org
+
+newmtl Material.001
+Ns 224.999985
+Ka 1.000000 1.000000 1.000000
+Kd 0.273831 0.007914 0.003252
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+
+newmtl Material.002
+Ns 224.999985
+Ka 1.000000 1.000000 1.000000
+Kd 0.037410 0.037410 0.037410
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+
+newmtl Material.003
+Ns 224.999985
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.457182 0.000677
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+
+newmtl Material.004
+Ns 224.999985
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+
+newmtl Material.006
+Ns 224.999985
+Ka 1.000000 1.000000 1.000000
+Kd 0.000000 0.000000 0.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+
+newmtl Material.007
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+# map_Kd C:/Users/safwa/OneDrive - University of Leeds/CompSci/Y3/COMP3811 - Computer Graphics/cw2/external/Fence/fence_DefaultMaterial_BaseColor.png
+# map_Ns C:/Users/safwa/OneDrive - University of Leeds/CompSci/Y3/COMP3811 - Computer Graphics/cw2/external/Fence/fence_DefaultMaterial_Roughness.png
+# map_refl C:/Users/safwa/OneDrive - University of Leeds/CompSci/Y3/COMP3811 - Computer Graphics/cw2/external/Fence/fence_DefaultMaterial_Metallic.png
+# map_d C:/Users/safwa/OneDrive - University of Leeds/CompSci/Y3/COMP3811 - Computer Graphics/cw2/external/Fence/fence_DefaultMaterial_opacity.png
+# map_Bump -bm 1.000000 C:/Users/safwa/OneDrive - University of Leeds/CompSci/Y3/COMP3811 - Computer Graphics/cw2/external/Fence/fence_DefaultMaterial_Normal.png
+
+newmtl Material.008
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+# map_Kd C:/Users/safwa/OneDrive - University of Leeds/CompSci/Y3/COMP3811 - Computer Graphics/cw2/external/Fence/fence_DefaultMaterial_BaseColor.png
+# map_Ns C:/Users/safwa/OneDrive - University of Leeds/CompSci/Y3/COMP3811 - Computer Graphics/cw2/external/Fence/fence_DefaultMaterial_Roughness.png
+# map_refl C:/Users/safwa/OneDrive - University of Leeds/CompSci/Y3/COMP3811 - Computer Graphics/cw2/external/Fence/fence_DefaultMaterial_Metallic.png
+# map_d C:/Users/safwa/OneDrive - University of Leeds/CompSci/Y3/COMP3811 - Computer Graphics/cw2/external/Fence/fence_DefaultMaterial_opacity.png
+# map_Bump -bm 1.000000 C:/Users/safwa/OneDrive - University of Leeds/CompSci/Y3/COMP3811 - Computer Graphics/cw2/external/Fence/fence_DefaultMaterial_Normal.png
+
+newmtl Material.009
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+# map_Kd C:/Users/safwa/OneDrive - University of Leeds/CompSci/Y3/COMP3811 - Computer Graphics/cw2/external/Fence/fence_DefaultMaterial_BaseColor.png
+# map_Ns C:/Users/safwa/OneDrive - University of Leeds/CompSci/Y3/COMP3811 - Computer Graphics/cw2/external/Fence/fence_DefaultMaterial_Roughness.png
+# map_refl C:/Users/safwa/OneDrive - University of Leeds/CompSci/Y3/COMP3811 - Computer Graphics/cw2/external/Fence/fence_DefaultMaterial_Metallic.png
+# map_d C:/Users/safwa/OneDrive - University of Leeds/CompSci/Y3/COMP3811 - Computer Graphics/cw2/external/Fence/fence_DefaultMaterial_opacity.png
+# map_Bump -bm 1.000000 C:/Users/safwa/OneDrive - University of Leeds/CompSci/Y3/COMP3811 - Computer Graphics/cw2/external/Fence/fence_DefaultMaterial_Normal.png
+
+newmtl Material.010
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+# map_Kd C:/Users/safwa/OneDrive - University of Leeds/CompSci/Y3/COMP3811 - Computer Graphics/cw2/external/Fence/fence_DefaultMaterial_BaseColor.png
+# map_Ns C:/Users/safwa/OneDrive - University of Leeds/CompSci/Y3/COMP3811 - Computer Graphics/cw2/external/Fence/fence_DefaultMaterial_Roughness.png
+# map_refl C:/Users/safwa/OneDrive - University of Leeds/CompSci/Y3/COMP3811 - Computer Graphics/cw2/external/Fence/fence_DefaultMaterial_Metallic.png
+# map_d C:/Users/safwa/OneDrive - University of Leeds/CompSci/Y3/COMP3811 - Computer Graphics/cw2/external/Fence/fence_DefaultMaterial_opacity.png
+# map_Bump -bm 1.000000 C:/Users/safwa/OneDrive - University of Leeds/CompSci/Y3/COMP3811 - Computer Graphics/cw2/external/Fence/fence_DefaultMaterial_Normal.png
+
+newmtl Material.011
+Ns 224.999985
+Ka 1.000000 1.000000 1.000000
+Kd 0.401969 0.401969 0.401969
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+
+newmtl Material.013
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+# map_Kd C:/Users/safwa/OneDrive - University of Leeds/CompSci/Y3/COMP3811 - Computer Graphics/cw2/external/Fence/fence_DefaultMaterial_BaseColor.png
+# map_Ns C:/Users/safwa/OneDrive - University of Leeds/CompSci/Y3/COMP3811 - Computer Graphics/cw2/external/Fence/fence_DefaultMaterial_Roughness.png
+# map_refl C:/Users/safwa/OneDrive - University of Leeds/CompSci/Y3/COMP3811 - Computer Graphics/cw2/external/Fence/fence_DefaultMaterial_Metallic.png
+# map_d C:/Users/safwa/OneDrive - University of Leeds/CompSci/Y3/COMP3811 - Computer Graphics/cw2/external/Fence/fence_DefaultMaterial_opacity.png
+# map_Bump -bm 1.000000 C:/Users/safwa/OneDrive - University of Leeds/CompSci/Y3/COMP3811 - Computer Graphics/cw2/external/Fence/fence_DefaultMaterial_Normal.png
+
+newmtl Material.014
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+# map_Kd C:/Users/safwa/OneDrive - University of Leeds/CompSci/Y3/COMP3811 - Computer Graphics/cw2/external/Fence/fence_DefaultMaterial_BaseColor.png
+# map_Ns C:/Users/safwa/OneDrive - University of Leeds/CompSci/Y3/COMP3811 - Computer Graphics/cw2/external/Fence/fence_DefaultMaterial_Roughness.png
+# map_refl C:/Users/safwa/OneDrive - University of Leeds/CompSci/Y3/COMP3811 - Computer Graphics/cw2/external/Fence/fence_DefaultMaterial_Metallic.png
+# map_d C:/Users/safwa/OneDrive - University of Leeds/CompSci/Y3/COMP3811 - Computer Graphics/cw2/external/Fence/fence_DefaultMaterial_opacity.png
+# map_Bump -bm 1.000000 C:/Users/safwa/OneDrive - University of Leeds/CompSci/Y3/COMP3811 - Computer Graphics/cw2/external/Fence/fence_DefaultMaterial_Normal.png
+
+newmtl Material.015
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+
+newmtl None
+Ns 499.999969
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.800000 0.800000 0.800000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2

@@ -48,6 +48,15 @@ namespace
 
 			float lastX, lastY;
 		} camControl;
+
+		struct AnimCtrl_
+		{
+			bool animation = false;
+			bool animPlay, animFWD, animRWD;
+
+			float mod;
+
+		} animControl;
 	};
 	//end
 
@@ -247,7 +256,7 @@ int main() try
 	std::size_t rocketVertex = rocket.positions.size();
 
 
-	auto launch = load_wavefront_obj("external/Launchpad/Launchpad.obj", make_scaling(0.49f, 0.49f, 0.49f));
+	auto launch = load_wavefront_obj("external/Scene/scene.obj", make_scaling(0.49f, 0.49f, 0.49f));
 	for (int i = 0; i < launch.positions.size(); i++) {
 		launch.positions[i] = launch.positions[i] + Vec3f{ 2.f, 0.f, 2.f };
 	}
@@ -292,7 +301,7 @@ int main() try
 		auto const now = Clock::now();
 		float dt = std::chrono::duration_cast<Secondsf>(now - last).count();
 		last = now;
-		rktHeight += 0.001f;
+
 		angle += dt * kPi_ * 0.3f;
 		if (angle >= 2.f * kPi_)
 			angle -= 2.f * kPi_;
@@ -302,25 +311,37 @@ int main() try
 			make_rotation_y(angle)
 			* make_scaling(8.f, 2.f, 2.f)
 		);
-
-		for (auto& p : rocket.positions)
-		{
-			Vec4f p4{ p.x, p.y, p.z, 1.f };
-			Vec4f t = make_translation({ 0.f, rktHeight, 0.f }) * p4;
-			t /= t.w;
-			p = Vec3f{ t.x, t.y, t.z };
+		float rktLast = 0.f;
+		if (state.animControl.animation) {
+			rktHeight += 0.001f + rktLast + state.animControl.mod;
+			if (rktHeight < 0) {
+				rktHeight = 0.000000001;
+			}
+		}
+		else {
+			float rktLast = rktHeight;
+			rktHeight = 0.f;
 		}
 
-		Mat33f const N = mat44_to_mat33(transpose(invert(make_translation({ 0.f, rktHeight, 0.f}))));
+		if (state.animControl.animation) {
+			for (auto& p : rocket.positions)
+			{
+				Vec4f p4{ p.x, p.y, p.z, 1.f };
+				Vec4f t = make_translation({ 0.f, rktHeight, 0.f }) * p4;
+				t /= t.w;
+				p = Vec3f{ t.x, t.y, t.z };
+			}
 
-		for (auto& n : rocket.normals)
-		{
-			Vec3f n4{ n.x, n.y, n.z };
-			Vec3f t = N * n4;
-			t = normalize(t);
-			n = Vec3f{ t.x, t.y, t.z };
+			Mat33f const N = mat44_to_mat33(transpose(invert(make_translation({ 0.f, rktHeight, 0.f }))));
+
+			for (auto& n : rocket.normals)
+			{
+				Vec3f n4{ n.x, n.y, n.z };
+				Vec3f t = N * n4;
+				t = normalize(t);
+				n = Vec3f{ t.x, t.y, t.z };
+			}
 		}
-
 		GLuint rocketVAO = create_vao(rocket);
 
 		GLuint vao = create_vao(testCylinder);
@@ -505,6 +526,42 @@ namespace
 					glfwSetInputMode(aWindow, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 				else
 					glfwSetInputMode(aWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			}
+
+			if (GLFW_KEY_1 == aKey)
+			{
+				if (GLFW_PRESS == aAction) {
+					state->animControl.mod += 0.01;
+				}
+				else if (GLFW_RELEASE == aAction)
+					state->animControl.mod += 0;
+			}
+
+			if (GLFW_KEY_2 == aKey && GLFW_PRESS == aAction)
+			{
+				state->animControl.animPlay = !state->animControl.animPlay;
+				if (state->animControl.animPlay) {
+					printf("off\n");
+					state->animControl.animation = 0;
+				}
+				else {
+					printf("on\n");
+					state->animControl.animation = 1;
+				}
+			}
+
+			if (GLFW_KEY_3 == aKey && GLFW_PRESS == aAction)
+			{
+				state->animControl.mod = 0;
+			}
+
+			if (GLFW_KEY_4 == aKey)
+			{
+				if (GLFW_PRESS == aAction) {
+					state->animControl.mod -= 0.01;
+				}
+				else if (GLFW_RELEASE == aAction)
+					state->animControl.mod += 0;
 			}
 
 			// Camera controls if camera is active
