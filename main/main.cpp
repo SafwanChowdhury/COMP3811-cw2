@@ -63,9 +63,9 @@ namespace
 			bool displayCoords = false;
 			bool objFWD, objBKD, objLFT, objRGT, objUP, objDWN;
 
-			float x;
-			float y;
-			float z;
+			float x ,y ,z, x1, y1, z1;
+
+			Mat44f storePos{};
 
 		} objControl;
 
@@ -204,51 +204,80 @@ int main() try
 
 	// TODO: 
 
-	auto xcyl = make_cylinder(true, 16, { 0.f, 1.f, 0.f },
-		make_scaling(5.f, 0.1f, 0.1f) // scale X by 5, Y and Z by 0.1
+	GLuint VBOPosition = 0;
+	glGenBuffers(1, &VBOPosition);
+	glBindBuffer(GL_ARRAY_BUFFER, VBOPosition);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(kCubePositions), kCubePositions, GL_STATIC_DRAW);
+
+	GLuint VBONormal = 0;
+	glGenBuffers(1, &VBONormal);
+	glBindBuffer(GL_ARRAY_BUFFER, VBONormal);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(kCubeNormals), kCubeNormals, GL_STATIC_DRAW);
+
+	GLuint VBOColor = 0;
+	glGenBuffers(1, &VBOColor);
+	glBindBuffer(GL_ARRAY_BUFFER, VBOColor);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(kCubeColors), kCubeColors, GL_STATIC_DRAW);
+
+	GLuint cube = 0;
+	glGenVertexArrays(1, &cube);
+	glBindVertexArray(cube);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBOPosition);
+
+	glVertexAttribPointer(
+		0, // location = 0 in vertex shader
+		3, GL_FLOAT, GL_FALSE,
+		0, // stride = 0 indicates that there is no padding between inputs
+		0 // data starts at offset 0 in the VBO
+	);
+	glEnableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBOColor);
+
+	glVertexAttribPointer(
+		1, // location = 1 in vertex shader
+		3, GL_FLOAT, GL_FALSE,
+		0, // see above
+		0
+	);
+	glEnableVertexAttribArray(1);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBONormal);
+
+	glVertexAttribPointer(
+		2, // location = 1 in vertex shader
+		3, GL_FLOAT, GL_FALSE,
+		0, // see above
+		0
 	);
 
-	auto xcone = make_cone(true, 16, { 0.f, 0.f, 0.f },
-		make_scaling(1.f, 0.3f, 0.3f) *
-		make_translation({ 5.f, 0.f, 0.f })
-	);
-	auto xarrow = concatenate(std::move(xcyl), xcone);
+	glEnableVertexAttribArray(2);
 
-	auto ycyl = make_cylinder(true, 16, { 1.f, 0.f, 0.f },
-		make_rotation_y(3.141592f / -2.f) *
-		make_scaling(5.f, 0.1f, 0.1f) // scale X by 5, Y and Z by 0.1
-	);
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glDeleteBuffers(1, &VBOPosition);
+	glDeleteBuffers(1, &VBONormal);
+	glDeleteBuffers(1, &VBOColor);
 
-	auto ycone = make_cone(true, 16, { 0.f, 0.f, 0.f },
-		make_rotation_y(3.141592f / -2.f) *
-		make_scaling(1.f, 0.3f, 0.3f) *
-		make_translation({ 5.f, 0.f, 0.f })
-	);
-	auto yarrow = concatenate(std::move(ycyl), ycone);
+	state.objControl.x = 0.f;
+	state.objControl.y = 0.f;
+	state.objControl.z = 0.f;
+	state.objControl.x1 = 0.f;
+	state.objControl.y1 = 0.f;
+	state.objControl.z1 = 0.f;
 
-	auto zcyl = make_cylinder(true, 16, { 0.f, 0.f, 1.f },
+
+
+
+	auto testCyclinder = make_cylinder(true, 16, { 0.f, 1.f, 0.f },
 		make_rotation_z(3.141592f / 2.f) *
-		make_scaling(5.f, 0.1f, 0.1f) // scale X by 5, Y and Z by 0.1
+		make_scaling(0.08f, 0.02f, 0.02f) *
+		make_translation({ 0.f, 0.f, 0.f })
 	);
 
-	auto zcone = make_cone(true, 16, { 0.f, 0.f, 0.f },
-		make_rotation_z(3.141592f / 2.f) *
-		make_scaling(1.f, 0.3f, 0.3f) *
-		make_translation({ 5.f, 0.f, 0.f })
-	);
-	auto zarrow = concatenate(std::move(zcyl), zcone);
-
-
-	auto xy = concatenate(xarrow, yarrow);
-	auto xyz = concatenate(xy, zarrow);
-	GLuint vao3 = create_vao(xyz);
-	std::size_t vertexCount3 = xyz.positions.size();
-	 
-
-
-	state.objControl.x = 13.1f;
-	state.objControl.y = 98.6f;
-	state.objControl.z = 15.1f;
+	GLuint cyl = create_vao(testCyclinder);
+	std::size_t cylVertex = testCyclinder.positions.size();
 
 	Vec3f pointLightPositions[] = {
 		Vec3f{ 13.1f, 98.6f, 24.7f },
@@ -300,32 +329,32 @@ int main() try
 	// Main loop
 
 
-	while( !glfwWindowShouldClose( window ) )
+	while (!glfwWindowShouldClose(window))
 	{
 		// Let GLFW process events
 		glfwPollEvents();
-		
+
 		// Check if window was resized.
 		float fbwidth, fbheight;
 		{
 			int nwidth, nheight;
-			glfwGetFramebufferSize( window, &nwidth, &nheight );
+			glfwGetFramebufferSize(window, &nwidth, &nheight);
 
 			fbwidth = float(nwidth);
 			fbheight = float(nheight);
 
-			if( 0 == nwidth || 0 == nheight )
+			if (0 == nwidth || 0 == nheight)
 			{
 				// Window minimized? Pause until it is unminimized.
 				// This is a bit of a hack.
 				do
 				{
 					glfwWaitEvents();
-					glfwGetFramebufferSize( window, &nwidth, &nheight );
-				} while( 0 == nwidth || 0 == nheight );
+					glfwGetFramebufferSize(window, &nwidth, &nheight);
+				} while (0 == nwidth || 0 == nheight);
 			}
 
-			glViewport( 0, 0, iwidth, iheight );
+			glViewport(0, 0, iwidth, iheight);
 		}
 
 		// Update state
@@ -348,6 +377,10 @@ int main() try
 		else {
 			float rktLast = rktHeight;
 			rktHeight = 0.f;
+		}
+
+		if (state.objControl.displayCoords) {
+			printf("x: %f, y: %f, z: %f\n", state.objControl.x, state.objControl.y, state.objControl.z);
 		}
 
 		// Update camera state
@@ -378,7 +411,7 @@ int main() try
 			state.camControl.y += kMovementPerSecond_ * dt;
 
 		}
-		//Compute matricies
+		//Compute matricies-
 		Mat44f Rx = make_rotation_x(state.camControl.theta);
 		Mat44f Ry = make_rotation_y(state.camControl.phi);
 		Mat44f T = make_translation({ state.camControl.x, state.camControl.y, -state.camControl.radius });
@@ -443,8 +476,6 @@ int main() try
 		OGL_CHECKPOINT_DEBUG();
 		//TODO: draw frame
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		//glBindVertexArray(vao);
-		//glDrawArrays(GL_TRIANGLES, 0, vertexCount);
 		glBindVertexArray(launchVAO);
 		glDrawArrays(GL_TRIANGLES, 0, launchVertex);
 		glBindVertexArray(floodLight1Vao);
@@ -460,6 +491,8 @@ int main() try
 		glBindVertexArray(rocketVAO);
 		glDrawArrays(GL_TRIANGLES, 0, rocketVertex);
 		model2world = make_rotation_x(0.f);
+
+
 		OGL_CHECKPOINT_DEBUG();
 
 		glBindVertexArray(0);
@@ -695,6 +728,55 @@ namespace
 				}
 				else if (GLFW_RELEASE == aAction)
 					state->objControl.displayCoords = 0;
+			}
+
+			if (GLFW_KEY_U== aKey)
+			{
+				if (GLFW_PRESS == aAction) {
+					state->objControl.x1 -= (dc/10);
+				}
+				else if (GLFW_RELEASE == aAction)
+					state->objControl.x1 += 0;
+			}
+			else if (GLFW_KEY_I == aKey)
+			{
+				if (GLFW_PRESS == aAction) {
+					state->objControl.x1 += (dc/10);
+				}
+				else if (GLFW_RELEASE == aAction)
+					state->objControl.x1 += 0;
+			}
+			if (GLFW_KEY_J == aKey)
+			{
+				if (GLFW_PRESS == aAction) {
+					state->objControl.y1 -= (dc/10);
+				}
+				else if (GLFW_RELEASE == aAction)
+					state->objControl.y1 += 0;
+			}
+			else if (GLFW_KEY_K == aKey)
+			{
+				if (GLFW_PRESS == aAction) {
+					state->objControl.y1 += (dc/10);
+				}
+				else if (GLFW_RELEASE == aAction)
+					state->objControl.y1 += 0;
+			}
+			if (GLFW_KEY_N == aKey)
+			{
+				if (GLFW_PRESS == aAction) {
+					state->objControl.z1 -= (dc/10);
+				}
+				else if (GLFW_RELEASE == aAction)
+					state->objControl.z1 += 0;
+			}
+			else if (GLFW_KEY_M == aKey)
+			{
+				if (GLFW_PRESS == aAction) {
+					state->objControl.z1 += (dc/10);
+				}
+				else if (GLFW_RELEASE == aAction)
+					state->objControl.z1 += 0;
 			}
 		}
 	}

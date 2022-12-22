@@ -47,6 +47,52 @@ constexpr float const kCubePositions[] = {
 	+1.f, -1.f, -1.f,
 };
 
+
+constexpr float const kCubeNormals[] = {
+	0.f, +1.f, 0.f,
+	0.f, +1.f, 0.f,
+	0.f, +1.f, 0.f,
+	0.f, +1.f, 0.f,
+	0.f, +1.f, 0.f,
+	0.f, +1.f, 0.f,
+
+	0.f, 0.f, +1.f,
+	0.f, 0.f, +1.f,
+	0.f, 0.f, +1.f,
+	0.f, 0.f, +1.f,
+	0.f, 0.f, +1.f,
+	0.f, 0.f, +1.f,
+
+	-1.f, 0.f, 0.f,
+	-1.f, 0.f, 0.f,
+	-1.f, 0.f, 0.f,
+	-1.f, 0.f, 0.f,
+	-1.f, 0.f, 0.f,
+	-1.f, 0.f, 0.f,
+
+	0.f, -1.f, 0.f,
+	0.f, -1.f, 0.f,
+	0.f, -1.f, 0.f,
+	0.f, -1.f, 0.f,
+	0.f, -1.f, 0.f,
+	0.f, -1.f, 0.f,
+
+	+1.f, 0.f, 0.f,
+	+1.f, 0.f, 0.f,
+	+1.f, 0.f, 0.f,
+	+1.f, 0.f, 0.f,
+	+1.f, 0.f, 0.f,
+	+1.f, 0.f, 0.f,
+
+	0.f, 0.f, -1.f,
+	0.f, 0.f, -1.f,
+	0.f, 0.f, -1.f,
+	0.f, 0.f, -1.f,
+	0.f, 0.f, -1.f,
+	0.f, 0.f, -1.f,
+};
+
+
 constexpr float const kCubeColors[] = {
 	+1.f, +0.f, +0.f,
 	+1.f, +0.f, +0.f,
