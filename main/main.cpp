@@ -64,14 +64,13 @@ namespace
 			bool objFWD, objBKD, objLFT, objRGT, objUP, objDWN;
 
 			float x ,y ,z, x1, y1, z1;
-
+			bool pressed = false;
 			Mat44f storePos{};
 
 		} objControl;
 
 	};
 	//end
-
 
 	void glfw_callback_error_( int, char const* );
 
@@ -272,17 +271,13 @@ int main() try
 
 	auto testCyclinder = make_cylinder(true, 16, { 0.f, 1.f, 0.f },
 		make_rotation_z(3.141592f / 2.f) *
-		make_scaling(0.08f, 0.02f, 0.02f) *
+		make_scaling(0.1f, 0.02f, 0.02f) *
 		make_translation({ 0.f, 0.f, 0.f })
 	);
 
 	GLuint cyl = create_vao(testCyclinder);
 	std::size_t cylVertex = testCyclinder.positions.size();
 
-	Vec3f pointLightPositions[] = {
-		Vec3f{ 13.1f, 98.6f, 24.7f },
-		Vec3f{13.1f, 98.6f, 15.1f}
-	};
 
 	auto cone2 = make_cone(true, 16, { 0.f, 0.f, 0.f },
 		make_scaling(0.2f, 0.1f, 0.1f) *
@@ -328,7 +323,7 @@ int main() try
 
 	// Main loop
 
-
+	int tog = 0;
 	while (!glfwWindowShouldClose(window))
 	{
 		// Let GLFW process events
@@ -379,9 +374,23 @@ int main() try
 			rktHeight = 0.f;
 		}
 
-		if (state.objControl.displayCoords) {
-			printf("x: %f, y: %f, z: %f\n", state.objControl.x, state.objControl.y, state.objControl.z);
+
+		//printf("%d ", state.objControl.displayCoords);
+		if (state.objControl.displayCoords == 1 && tog == 0) {
+			printf("T = %f %f %f\n", state.objControl.x, state.objControl.y, state.objControl.z);
+			printf("S = %f %f %f\n", state.objControl.x1, state.objControl.y1, state.objControl.z1);
+			tog = 1;
 		}
+		if (state.objControl.displayCoords == 0)
+		{
+			tog = 0;
+		}
+
+		Vec3f pointLightPositions[] = {
+			Vec3f{ 2.7f, 10.f, 1.5f },
+			Vec3f{2.5f, 9.9f, 2.5f},
+			Vec3f{19.7f, 17.7f, 23.8f}
+		};
 
 		// Update camera state
 		if (state.camControl.actionZoomIn) {
@@ -437,24 +446,17 @@ int main() try
 		glUniformMatrix4fv(4, 1, GL_TRUE, T.v);
 		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
 		glUniformMatrix4fv(6, 1, GL_TRUE, world2camera.v);
-		//Vec3f lightPos = { 3.f, 3.f, 3.f }; //light position
-		Vec3f lightColor = { 1.f , 1.f, 1.f };
-		Vec3f diffuseColor = lightColor * 0.1f;
-		Vec3f ambientColor = diffuseColor * 0.06f;
+
 		//glUniform3f(glGetUniformLocation(prog.programId(), "uLightPos"), lightPos.x, lightPos.y, lightPos.z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "material.ambient"), 1.0f, 0.5f, 0.31f);
 		glUniform3f(glGetUniformLocation(prog.programId(), "material.diffuse"), 1.0f, 0.5f, 0.31f);
 		glUniform3f(glGetUniformLocation(prog.programId(), "material.specular"), 0.5f, 0.5f, 0.5f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "material.shininess"), 10.f);
 
-		glUniform3f(glGetUniformLocation(prog.programId(), "dirLight.direction"), 10.f, 20.f, 10.f);
-		glUniform3f(glGetUniformLocation(prog.programId(), "dirLight.ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
-		glUniform3f(glGetUniformLocation(prog.programId(), "dirLight.diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
-		glUniform3f(glGetUniformLocation(prog.programId(), "dirLight.specular"), 1.0f, 1.0f, 1.0f);
 
-		lightColor = { 1.f , 1.f, 1.f };
-		diffuseColor = lightColor * 0.3f;
-		ambientColor = diffuseColor * 0.1f;
+		Vec3f lightColor = { 0.f, 0.f, 1.f };
+		Vec3f diffuseColor = lightColor * 0.2f;
+		Vec3f ambientColor = diffuseColor * 0.01f;
 
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[0].position"), pointLightPositions[0].x, pointLightPositions[0].y, pointLightPositions[0].z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[0].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
@@ -464,6 +466,10 @@ int main() try
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[0].linear"), 0.09f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[0].quadratic"), 0.032f);
 
+		lightColor = { 1.f, 0.f, 0.f };
+		diffuseColor = lightColor * 0.2f;
+		ambientColor = diffuseColor * 0.01f;
+
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[1].position"), pointLightPositions[1].x, pointLightPositions[1].y, pointLightPositions[1].z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[1].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[1].diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
@@ -472,6 +478,17 @@ int main() try
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[1].linear"), 0.09f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[1].quadratic"), 0.032f);
 
+		lightColor = { 1.f, 1.f, 1.f };
+		diffuseColor = lightColor * 0.4f;
+		ambientColor = diffuseColor * 0.01f;
+
+		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[2].position"), pointLightPositions[2].x, pointLightPositions[2].y, pointLightPositions[2].z);
+		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[2].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
+		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[2].diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
+		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[2].specular"), 0.5f, 0.5f, 0.5f);
+		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[2].constant"), 1.0f);
+		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[2].linear"), 0.09f);
+		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[2].quadratic"), 0.032f);
 
 		OGL_CHECKPOINT_DEBUG();
 		//TODO: draw frame
@@ -492,7 +509,72 @@ int main() try
 		glDrawArrays(GL_TRIANGLES, 0, rocketVertex);
 		model2world = make_rotation_x(0.f);
 
+		model2world = make_translation({ 4.4f, 0.86f, 21.45f });
+		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
+		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
+		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
+		glBindVertexArray(cyl);
+		glDrawArrays(GL_TRIANGLES, 0, cylVertex);
 
+
+		model2world = make_translation({ 4.4f, 0.9f, 21.45f });
+		model2world = model2world * make_rotation_z(3.141592f / 4.f);
+		model2world = model2world * make_scaling(1, 1.5, 1);
+		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
+		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
+		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
+		glBindVertexArray(cyl);
+		glDrawArrays(GL_TRIANGLES, 0, cylVertex);
+
+		model2world = make_translation({ 4.4f, 0.9f, 21.45f });
+		model2world = model2world * make_rotation_z(3.141592f / -4.f);
+		model2world = model2world * make_scaling(1, 1.5, 1);
+		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
+		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
+		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
+		glBindVertexArray(cyl);
+		glDrawArrays(GL_TRIANGLES, 0, cylVertex);
+
+		model2world = make_translation({ 4.3f, 1.f, 21.45 });
+		model2world = model2world * make_rotation_x(3.141592f / 2.f);
+		model2world = model2world * make_scaling(1, 0.5, 1);
+		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
+		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
+		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
+		glBindVertexArray(cyl);
+		glDrawArrays(GL_TRIANGLES, 0, cylVertex);
+
+		model2world = make_translation({ 4.5f, 1.f, 21.45 });
+		model2world = model2world * make_rotation_x(3.141592f / 2.f);
+		model2world = model2world * make_scaling(1, 0.5, 1);
+		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
+		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
+		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
+		glBindVertexArray(cyl);
+		glDrawArrays(GL_TRIANGLES, 0, cylVertex);
+
+
+		model2world = make_translation({ 4.27f, 1.f, 21.5f });
+		model2world = model2world * make_scaling(0.1,0.07,0.02);
+		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
+		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
+		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
+		glBindVertexArray(cube);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+
+		model2world = make_translation({ 4.53f, 1.f, 21.5f });
+		model2world = model2world * make_scaling(0.1, 0.07, 0.02);
+		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
+		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
+		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
+		glBindVertexArray(cube);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+
+
+
+		model2world = make_rotation_x(0.f);
 		OGL_CHECKPOINT_DEBUG();
 
 		glBindVertexArray(0);
@@ -677,49 +759,67 @@ namespace
 			{
 				if (GLFW_PRESS == aAction) {
 					state->objControl.x -= dc;
+					state->objControl.pressed = 1;
 				}
-				else if (GLFW_RELEASE == aAction)
+				else if (GLFW_RELEASE == aAction) {
 					state->objControl.x += 0;
+					state->objControl.pressed = 0;
+				}
 			}
 			else if (GLFW_KEY_KP_6 == aKey)
 			{
 				if (GLFW_PRESS == aAction) {
 					state->objControl.x += dc;
+					state->objControl.pressed = 1;
 				}
-				else if (GLFW_RELEASE == aAction)
+				else if (GLFW_RELEASE == aAction) {
 					state->objControl.x += 0;
+					state->objControl.pressed = 0;
+				}
 			}
 			if (GLFW_KEY_KP_2 == aKey)
 			{
 				if (GLFW_PRESS == aAction) {
 					state->objControl.y -= dc;
+					state->objControl.pressed = 1;
 				}
-				else if (GLFW_RELEASE == aAction)
+				else if (GLFW_RELEASE == aAction) {
 					state->objControl.y += 0;
+					state->objControl.pressed = 0;
+				}
 			}
 			else if (GLFW_KEY_KP_8 == aKey)
 			{
 				if (GLFW_PRESS == aAction) {
 					state->objControl.y += dc;
+					state->objControl.pressed = 1;
 				}
-				else if (GLFW_RELEASE == aAction)
+				else if (GLFW_RELEASE == aAction) {
 					state->objControl.y += 0;
+					state->objControl.pressed = 0;
+				}
 			}
 			if (GLFW_KEY_KP_7 == aKey)
 			{
 				if (GLFW_PRESS == aAction) {
 					state->objControl.z -= dc;
+					state->objControl.pressed = 1;
 				}
-				else if (GLFW_RELEASE == aAction)
+				else if (GLFW_RELEASE == aAction) {
 					state->objControl.z += 0;
+					state->objControl.pressed = 0;
+				}
 			}
 			else if (GLFW_KEY_KP_9 == aKey)
 			{
 				if (GLFW_PRESS == aAction) {
 					state->objControl.z += dc;
+					state->objControl.pressed = 1;
 				}
-				else if (GLFW_RELEASE == aAction)
+				else if (GLFW_RELEASE == aAction) {
 					state->objControl.z += 0;
+					state->objControl.pressed = 0;
+				}
 			}
 			if (GLFW_KEY_KP_5 == aKey)
 			{

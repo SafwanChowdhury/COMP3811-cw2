@@ -19,13 +19,6 @@ struct Material {
   
 uniform Material material;
 
-struct DirLight {
-    vec3 direction;
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
-};  
-
 struct PointLight {    
     vec3 position;
     
@@ -38,38 +31,24 @@ struct PointLight {
     vec3 specular;
 }; 
 
-#define NR_POINT_LIGHTS 2  
+#define NR_POINT_LIGHTS 3 
 uniform PointLight pointLights[NR_POINT_LIGHTS];
 
-uniform DirLight dirLight;
-
-vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
-{
-    vec3 ambient = light.ambient * material.ambient;
-
-	vec3 lightDir = normalize(-light.direction);
-	float nDotL = max( 0.0, dot(normal, lightDir ) );
-	vec3 diffuse = light.diffuse * (nDotL * material.diffuse);
-	vec3 reflectDir = reflect(normal,-lightDir);
-	float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-	vec3 specular = light.specular * (material.specular * spec); 
-
-	return (ambient + diffuse + specular) * v2fColor; 
-
-};
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 v2fPos, vec3 viewDir)
 {
 	vec3 lightDir = normalize(light.position - v2fPos);
-	float nDotL = max( 0.0, dot(normal, lightDir ) );
+	float diff = max( 0.0, dot(normal, lightDir ) );
     vec3 reflectDir = reflect(normal,-lightDir);
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
     float distance    = length(light.position - v2fPos);
     float attenuation = 1.0 / (light.constant + light.linear * distance + 
   			     light.quadratic * (distance * distance));    
+
+
 	vec3 ambient = light.ambient * material.ambient;
-	vec3 diffuse = light.diffuse * (nDotL * material.diffuse);
-	vec3 specular = light.specular * (material.specular * spec);  
+	vec3 diffuse = light.diffuse * diff * material.diffuse;
+	vec3 specular = light.specular * material.specular * spec;  
     ambient  *= attenuation;
     diffuse  *= attenuation;
     specular *= attenuation;
@@ -81,8 +60,7 @@ void main()
 	vec3 normal = normalize(v2fNormal);
 	vec3 viewDir = normalize(v2fView - v2fPos);
 	
-    vec3 result = CalcDirLight(dirLight, normal, viewDir);
-
+    vec3 result;
     for(int i = 0; i < NR_POINT_LIGHTS; i++)
         result += CalcPointLight(pointLights[i], normal, v2fPos, viewDir);
 

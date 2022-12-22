@@ -84,6 +84,21 @@ Vec4f operator*(Mat44f const& aLeft, Vec4f const& aRight) noexcept
 	return Vec4f{ newVector };
 }
 
+constexpr
+Mat44f operator+(Mat44f const& aLeft, Mat44f const& aRight) noexcept
+{
+	Mat44f newMat{};
+	for (int i = 0; i < 4; ++i)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			newMat(i,j) = aRight(i,j) + aLeft(i, j);
+		}
+	}
+	return Mat44f{ newMat };
+}
+
+
 // Functions:
 
 Mat44f invert(Mat44f const& aM) noexcept;
