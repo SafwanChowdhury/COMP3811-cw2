@@ -3,12 +3,15 @@ in vec3 v2fColor;
 in vec3 v2fNormal;
 in vec3 v2fPos;
 in vec3 v2fView;
+in vec2 v2fTexCoord;
+in float oTex;
 
 //layout( location = 2 ) uniform vec3 uLightDir; // should be normalized! kuLightDirk = 1
 layout( location = 0 ) out vec3 oColor;
 
 float specularStrength = 0.5;
 
+layout( binding = 0 ) uniform sampler2D uTexture;
 
 struct Material {
     vec3 ambient;
@@ -54,7 +57,11 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
 	vec3 specular = light.specular * (material.specular * spec); 
 
-	return (ambient + diffuse + specular) * v2fColor; 
+	if(oTex == 1.f){
+		return (ambient + diffuse + specular) * texture( uTexture, v2fTexCoord ).rgb;
+	}
+	
+    	return (ambient + diffuse + specular) * v2fColor;
 
 };
 
@@ -73,6 +80,11 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 v2fPos, vec3 viewDir)
     ambient  *= attenuation;
     diffuse  *= attenuation;
     specular *= attenuation;
+    
+    if(oTex == 1.f){
+	return (ambient + diffuse + specular) * texture( uTexture, v2fTexCoord ).rgb;
+	}
+	
     return (ambient + diffuse + specular) * v2fColor;
 } 
 
@@ -85,7 +97,14 @@ void main()
 
     for(int i = 0; i < NR_POINT_LIGHTS; i++)
         result += CalcPointLight(pointLights[i], normal, v2fPos, viewDir);
+//this if statement is temporary
+//if (oTex == 1.f) {
+//	oColor = texture( uTexture, v2fTexCoord ).rgb;
+//}
+//else{
+	oColor = result;
+//}
 
-    oColor = result;
+
 
 }

@@ -29,6 +29,11 @@ SimpleMeshData load_wavefront_obj( char const* aPath, Mat44f aPreTransform)
 				result.attributes.normals[idx.normal_index * 3 + 2],
 				});
 
+			ret.texcoords.emplace_back(Vec2f{
+			        result.attributes.texcoords[idx.texcoord_index * 3 + 0],
+				result.attributes.texcoords[idx.texcoord_index * 3 + 1],
+			  });
+			
 			auto const& mat = result.materials[shape.mesh.material_ids[i / 3]];
 			ret.colors.emplace_back(Vec3f{
 				mat.ambient[0],

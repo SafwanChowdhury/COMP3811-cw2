@@ -88,6 +88,7 @@ namespace
 	};
 }
 
+using namespace std;
 int main() try
 {
 	// Initialize GLFW
@@ -186,8 +187,8 @@ int main() try
 	// Other initialization & loading
 	// Load shader program
 	ShaderProgram prog({
-		{ GL_VERTEX_SHADER, "../assets/default.vert" },
-		{ GL_FRAGMENT_SHADER, "../assets/default.frag" }
+		{ GL_VERTEX_SHADER, "assets/default.vert" },
+		{ GL_FRAGMENT_SHADER, "assets/default.frag" }
 		});
 	state.prog = &prog;
 	state.camControl.radius = 10.f;
@@ -275,7 +276,7 @@ int main() try
 
 
 
-	auto rocket = load_wavefront_obj("../external/Rocket/rocket.obj",
+	auto rocket = load_wavefront_obj("external/Rocket/rocket.obj",
 		make_scaling(0.005f, 0.005f, 0.005f) *
 		make_rotation_x(3.141592f / -2.f) *
 		make_translation({ 350.f, 0.f, 600.f })
@@ -283,11 +284,20 @@ int main() try
 	for (int i = 0; i < rocket.positions.size(); i++) {
 		rocket.positions[i] = rocket.positions[i] + Vec3f{ 2.f, 0.f, 2.f };
 	}
+	
+	
 	GLuint rocketVAO = create_vao(rocket);
+	
+	GLuint textureObjectId = load_texture_2d("external/Rocket/rocket.jpg");
+	/*
+	if(textureObjectId == 0){
+	  cout<<"Error"<<endl;
+	}
+	*/
 	std::size_t rocketVertex = rocket.positions.size();
+	
 
-
-	auto launch = load_wavefront_obj("../external/Scene/scene.obj", make_scaling(0.49f, 0.49f, 0.49f));
+	auto launch = load_wavefront_obj("external/Scene/scene.obj", make_scaling(0.49f, 0.49f, 0.49f));
 	for (int i = 0; i < launch.positions.size(); i++) {
 		launch.positions[i] = launch.positions[i] + Vec3f{ 2.f, 0.f, 2.f };
 	}
@@ -456,14 +466,20 @@ int main() try
 		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
 		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
 		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
-
+		
+		
+		//rocket
+		glUniform1f(7, 1.f);
 		glBindVertexArray(rocketVAO);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D,textureObjectId);
 		glDrawArrays(GL_TRIANGLES, 0, rocketVertex);
 		model2world = make_rotation_x(0.f);
 		OGL_CHECKPOINT_DEBUG();
-
+		glUniform1f(7, 0.f);
+		glBindTexture(GL_TEXTURE_2D,0);
 		glBindVertexArray(0);
-
+		
 		OGL_CHECKPOINT_DEBUG();
 
 		// Display results
