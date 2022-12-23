@@ -203,61 +203,66 @@ int main() try
 
 	// TODO: 
 
-	GLuint VBOPosition = 0;
-	glGenBuffers(1, &VBOPosition);
-	glBindBuffer(GL_ARRAY_BUFFER, VBOPosition);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(kCubePositions), kCubePositions, GL_STATIC_DRAW);
-
-	GLuint VBONormal = 0;
-	glGenBuffers(1, &VBONormal);
-	glBindBuffer(GL_ARRAY_BUFFER, VBONormal);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(kCubeNormals), kCubeNormals, GL_STATIC_DRAW);
-
-	GLuint VBOColor = 0;
-	glGenBuffers(1, &VBOColor);
-	glBindBuffer(GL_ARRAY_BUFFER, VBOColor);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(kCubeColors), kCubeColors, GL_STATIC_DRAW);
-
-	GLuint cube = 0;
-	glGenVertexArrays(1, &cube);
-	glBindVertexArray(cube);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBOPosition);
-
-	glVertexAttribPointer(
-		0, // location = 0 in vertex shader
-		3, GL_FLOAT, GL_FALSE,
-		0, // stride = 0 indicates that there is no padding between inputs
-		0 // data starts at offset 0 in the VBO
-	);
-	glEnableVertexAttribArray(0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBOColor);
-
-	glVertexAttribPointer(
-		1, // location = 1 in vertex shader
-		3, GL_FLOAT, GL_FALSE,
-		0, // see above
-		0
-	);
-	glEnableVertexAttribArray(1);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBONormal);
-
-	glVertexAttribPointer(
-		2, // location = 1 in vertex shader
-		3, GL_FLOAT, GL_FALSE,
-		0, // see above
-		0
+	auto cube = make_cube(1, { 0.f, 1.f, 0.f }, 
+		make_scaling(0.1f, 0.02f, 0.02f)
 	);
 
-	glEnableVertexAttribArray(2);
 
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glDeleteBuffers(1, &VBOPosition);
-	glDeleteBuffers(1, &VBONormal);
-	glDeleteBuffers(1, &VBOColor);
+	GLuint cube1 = create_vao(cube);
+	std::size_t cubeVertex = cube.positions.size();
+
+	auto baseCyl = make_cylinder(true, 16, { 0.f, 1.f, 0.f },
+		make_rotation_z(3.141592f / 2.f) *
+		make_scaling(0.1f, 0.02f, 0.02f) *
+		make_translation({ 0.f, 0.f, 0.f })
+	);
+
+
+	auto cylL = make_cylinder(true, 16, { 0.f, 1.f, 0.f },
+		make_rotation_z(3.141592f / 2.f) *
+		make_scaling(0.1f, 0.03f, 0.02f) *
+		make_translation({ 0.f, 0.04f, 0.f }) *
+		make_rotation_z(3.141592f / 4.f)
+
+	);
+
+
+	auto cylR = make_cylinder(true, 16, { 0.f, 1.f, 0.f },
+		make_rotation_z(3.141592f / 2.f) *
+		make_scaling(0.1f, 0.03f, 0.02f) *
+		make_translation({ 0.f, 0.04f, 0.f }) *
+		make_rotation_z(3.141592f / -4.f)
+	);
+
+
+
+	auto cylL2 = make_cylinder(true, 16, { 0.f, 1.f, 0.f },
+		make_rotation_z(3.141592f / 2.f) *
+		make_scaling(0.1f, 0.01f, 0.02f) *
+		make_translation({ -0.1f, 0.14f, 0.f }) *
+		make_rotation_x(3.141592f / 2.f)
+	);
+
+
+
+	auto cylR2 = make_cylinder(true, 16, { 0.f, 1.f, 0.f },
+		make_rotation_z(3.141592f / 2.f) *
+		make_scaling(0.1f, 0.01f, 0.02f) *
+		make_translation({ 0.1f, 0.14f, 0.f }) *
+		make_rotation_x(3.141592f / 2.f) 
+	);
+
+
+
+	auto LeftArm = concatenate(cylL, cylL2);
+	auto RightArm = concatenate(cylR, cylR2);
+	auto MonitorArms = concatenate(LeftArm, RightArm);
+	auto MonitorStand = concatenate(baseCyl, MonitorArms);
+	
+	GLuint Monitors = create_vao(MonitorStand);
+	std::size_t MonitorsVertex = MonitorStand.positions.size();
+
+
 
 	state.objControl.x = 0.f;
 	state.objControl.y = 0.f;
@@ -269,14 +274,7 @@ int main() try
 
 
 
-	auto testCyclinder = make_cylinder(true, 16, { 0.f, 1.f, 0.f },
-		make_rotation_z(3.141592f / 2.f) *
-		make_scaling(0.1f, 0.02f, 0.02f) *
-		make_translation({ 0.f, 0.f, 0.f })
-	);
 
-	GLuint cyl = create_vao(testCyclinder);
-	std::size_t cylVertex = testCyclinder.positions.size();
 
 
 	auto cone2 = make_cone(true, 16, { 0.f, 0.f, 0.f },
@@ -509,72 +507,10 @@ int main() try
 		glDrawArrays(GL_TRIANGLES, 0, rocketVertex);
 		model2world = make_rotation_x(0.f);
 
-		model2world = make_translation({ 4.4f, 0.86f, 21.45f });
-		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
-		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
-		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
-		glBindVertexArray(cyl);
-		glDrawArrays(GL_TRIANGLES, 0, cylVertex);
 
+		glBindVertexArray(cube1);
+		glDrawArrays(GL_TRIANGLES, 0, cubeVertex);
 
-		model2world = make_translation({ 4.4f, 0.9f, 21.45f });
-		model2world = model2world * make_rotation_z(3.141592f / 4.f);
-		model2world = model2world * make_scaling(1, 1.5, 1);
-		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
-		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
-		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
-		glBindVertexArray(cyl);
-		glDrawArrays(GL_TRIANGLES, 0, cylVertex);
-
-		model2world = make_translation({ 4.4f, 0.9f, 21.45f });
-		model2world = model2world * make_rotation_z(3.141592f / -4.f);
-		model2world = model2world * make_scaling(1, 1.5, 1);
-		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
-		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
-		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
-		glBindVertexArray(cyl);
-		glDrawArrays(GL_TRIANGLES, 0, cylVertex);
-
-		model2world = make_translation({ 4.3f, 1.f, 21.45 });
-		model2world = model2world * make_rotation_x(3.141592f / 2.f);
-		model2world = model2world * make_scaling(1, 0.5, 1);
-		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
-		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
-		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
-		glBindVertexArray(cyl);
-		glDrawArrays(GL_TRIANGLES, 0, cylVertex);
-
-		model2world = make_translation({ 4.5f, 1.f, 21.45 });
-		model2world = model2world * make_rotation_x(3.141592f / 2.f);
-		model2world = model2world * make_scaling(1, 0.5, 1);
-		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
-		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
-		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
-		glBindVertexArray(cyl);
-		glDrawArrays(GL_TRIANGLES, 0, cylVertex);
-
-
-		model2world = make_translation({ 4.27f, 1.f, 21.5f });
-		model2world = model2world * make_scaling(0.1,0.07,0.02);
-		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
-		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
-		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
-		glBindVertexArray(cube);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-
-
-		model2world = make_translation({ 4.53f, 1.f, 21.5f });
-		model2world = model2world * make_scaling(0.1, 0.07, 0.02);
-		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
-		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
-		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
-		glBindVertexArray(cube);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-
-
-
-
-		model2world = make_rotation_x(0.f);
 		OGL_CHECKPOINT_DEBUG();
 
 		glBindVertexArray(0);

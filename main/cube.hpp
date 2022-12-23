@@ -3,143 +3,23 @@
 
 // This defines the vertex data for a colored unit cube.
 
-constexpr float const kCubePositions[] = {
-	+1.f, +1.f, -1.f,
-	-1.f, +1.f, -1.f,
-	-1.f, +1.f, +1.f,
-	+1.f, +1.f, -1.f,
-	-1.f, +1.f, +1.f,
-	+1.f, +1.f, +1.f,
 
-	+1.f, -1.f, +1.f,
-	+1.f, +1.f, +1.f,
-	-1.f, +1.f, +1.f,
-	+1.f, -1.f, +1.f,
-	-1.f, +1.f, +1.f,
-	-1.f, -1.f, +1.f,
+#include <vector>
 
-	-1.f, -1.f, +1.f,
-	-1.f, +1.f, +1.f,
-	-1.f, +1.f, -1.f,
-	-1.f, -1.f, +1.f,
-	-1.f, +1.f, -1.f,
-	-1.f, -1.f, -1.f,
+#include <cstdlib>
 
-	-1.f, -1.f, -1.f,
-	+1.f, -1.f, -1.f,
-	+1.f, -1.f, +1.f,
-	-1.f, -1.f, -1.f,
-	+1.f, -1.f, +1.f,
-	-1.f, -1.f, +1.f,
+#include "simple_mesh.hpp"
 
-	+1.f, -1.f, -1.f,
-	+1.f, +1.f, -1.f,
-	+1.f, +1.f, +1.f,
-	+1.f, -1.f, -1.f,
-	+1.f, +1.f, +1.f,
-	+1.f, -1.f, +1.f,
-
-	-1.f, -1.f, -1.f,
-	-1.f, +1.f, -1.f,
-	+1.f, +1.f, -1.f,
-	-1.f, -1.f, -1.f,
-	+1.f, +1.f, -1.f,
-	+1.f, -1.f, -1.f,
-};
+#include "../vmlib/vec3.hpp"
+#include "../vmlib/mat44.hpp"
 
 
-constexpr float const kCubeNormals[] = {
-	0.f, +1.f, 0.f,
-	0.f, +1.f, 0.f,
-	0.f, +1.f, 0.f,
-	0.f, +1.f, 0.f,
-	0.f, +1.f, 0.f,
-	0.f, +1.f, 0.f,
-
-	0.f, 0.f, +1.f,
-	0.f, 0.f, +1.f,
-	0.f, 0.f, +1.f,
-	0.f, 0.f, +1.f,
-	0.f, 0.f, +1.f,
-	0.f, 0.f, +1.f,
-
-	-1.f, 0.f, 0.f,
-	-1.f, 0.f, 0.f,
-	-1.f, 0.f, 0.f,
-	-1.f, 0.f, 0.f,
-	-1.f, 0.f, 0.f,
-	-1.f, 0.f, 0.f,
-
-	0.f, -1.f, 0.f,
-	0.f, -1.f, 0.f,
-	0.f, -1.f, 0.f,
-	0.f, -1.f, 0.f,
-	0.f, -1.f, 0.f,
-	0.f, -1.f, 0.f,
-
-	+1.f, 0.f, 0.f,
-	+1.f, 0.f, 0.f,
-	+1.f, 0.f, 0.f,
-	+1.f, 0.f, 0.f,
-	+1.f, 0.f, 0.f,
-	+1.f, 0.f, 0.f,
-
-	0.f, 0.f, -1.f,
-	0.f, 0.f, -1.f,
-	0.f, 0.f, -1.f,
-	0.f, 0.f, -1.f,
-	0.f, 0.f, -1.f,
-	0.f, 0.f, -1.f,
-};
+SimpleMeshData make_cube(
+	float x = 1,
+	Vec3f aColor = { 1.f, 1.f, 1.f },
+	Mat44f aPreTransform = kIdentity44f
+);
 
 
-constexpr float const kCubeColors[] = {
-	+1.f, +0.f, +0.f,
-	+1.f, +0.f, +0.f,
-	+1.f, +0.f, +0.f,
-	+1.f, +0.f, +0.f,
-	+1.f, +0.f, +0.f,
-	+1.f, +0.f, +0.f,
-
-	+0.f, +1.f, +0.f,
-	+0.f, +1.f, +0.f,
-	+0.f, +1.f, +0.f,
-	+0.f, +1.f, +0.f,
-	+0.f, +1.f, +0.f,
-	+0.f, +1.f, +0.f,
-
-	+0.f, +0.f, +1.f,
-	+0.f, +0.f, +1.f,
-	+0.f, +0.f, +1.f,
-	+0.f, +0.f, +1.f,
-	+0.f, +0.f, +1.f,
-	+0.f, +0.f, +1.f,
-
-	+1.f, +0.f, +1.f,
-	+1.f, +0.f, +1.f,
-	+1.f, +0.f, +1.f,
-	+1.f, +0.f, +1.f,
-	+1.f, +0.f, +1.f,
-	+1.f, +0.f, +1.f,
-
-	+1.f, +1.f, +0.f,
-	+1.f, +1.f, +0.f,
-	+1.f, +1.f, +0.f,
-	+1.f, +1.f, +0.f,
-	+1.f, +1.f, +0.f,
-	+1.f, +1.f, +0.f,
-
-	+0.f, +1.f, +1.f,
-	+0.f, +1.f, +1.f,
-	+0.f, +1.f, +1.f,
-	+0.f, +1.f, +1.f,
-	+0.f, +1.f, +1.f,
-	+0.f, +1.f, +1.f
-};
-
-
-static_assert(sizeof(kCubeColors) == sizeof(kCubePositions),
-	"Size of cube colors and cube positions do not match. Both are 3D vectors."
-	);
 
 #endif // CUBE_HPP_6874B39C_112D_4D34_BD85_AB81A730955B
