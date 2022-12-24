@@ -8,7 +8,7 @@ in vec3 v2fView;
 layout( location = 0 ) out vec3 oColor;
 
 float specularStrength = 0.5;
-
+vec3 result;
 
 struct Material {
     vec3 ambient;
@@ -60,7 +60,6 @@ void main()
 	vec3 normal = normalize(v2fNormal);
 	vec3 viewDir = normalize(v2fView - v2fPos);
 	
-    vec3 result;
     for(int i = 0; i < NR_POINT_LIGHTS; i++)
         result += CalcPointLight(pointLights[i], normal, v2fPos, viewDir);
 
