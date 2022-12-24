@@ -302,10 +302,12 @@ int main() try
 		make_rotation_x(3.141592f / -2.f) *
 		make_translation({ 350.f, 0.f, 600.f })
 	);
+	GLuint textureID = load_texture_2d("../external/Rocket/rocket.jpg");
 	for (int i = 0; i < rocket.positions.size(); i++) {
 		rocket.positions[i] = rocket.positions[i] + Vec3f{ 2.f, 0.f, 2.f };
 	}
 	GLuint rocketVAO = create_vao(rocket);
+
 	std::size_t rocketVertex = rocket.positions.size();
 
 
@@ -477,7 +479,7 @@ int main() try
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[1].quadratic"), 0.032f);
 
 		lightColor = { 1.f, 1.f, 1.f };
-		diffuseColor = lightColor * 0.4f;
+		diffuseColor = lightColor * 0.05f;
 		ambientColor = diffuseColor * 0.01f;
 
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[2].position"), pointLightPositions[2].x, pointLightPositions[2].y, pointLightPositions[2].z);
@@ -502,11 +504,15 @@ int main() try
 		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
 		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
 		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
-
+		
+		glUniform1f(3, 0.f);
 		glBindVertexArray(rocketVAO);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, textureID);
 		glDrawArrays(GL_TRIANGLES, 0, rocketVertex);
 		model2world = make_rotation_x(0.f);
-
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glUniform1f(3, 0.f);
 
 		glBindVertexArray(cube1);
 		glDrawArrays(GL_TRIANGLES, 0, cubeVertex);

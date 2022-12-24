@@ -1,10 +1,12 @@
 #include "simple_mesh.hpp"
+#include "..\support\error.hpp"
 
 SimpleMeshData concatenate(SimpleMeshData aM, SimpleMeshData const& aN)
 {
 	aM.positions.insert(aM.positions.end(), aN.positions.begin(), aN.positions.end());
 	aM.colors.insert(aM.colors.end(), aN.colors.begin(), aN.colors.end());
 	aM.normals.insert(aM.normals.end(), aN.normals.begin(), aN.normals.end());
+	aM.texcoords.insert(aM.texcoords.end(), aN.texcoords.begin(), aN.texcoords.end());
 	return aM;
 }
 
@@ -26,6 +28,11 @@ GLuint create_vao(SimpleMeshData const& aMeshData)
 	glGenBuffers(1, &normals);
 	glBindBuffer(GL_ARRAY_BUFFER, normals);
 	glBufferData(GL_ARRAY_BUFFER, aMeshData.normals.size() * sizeof(Vec3f), aMeshData.normals.data(), GL_STATIC_DRAW);
+
+	GLuint texcoords = 0;
+	glGenBuffers(1, &texcoords);
+	glBindBuffer(GL_ARRAY_BUFFER, texcoords);
+	glBufferData(GL_ARRAY_BUFFER, aMeshData.texcoords.size() * sizeof(Vec2f), aMeshData.texcoords.data(), GL_STATIC_DRAW);
 
 	GLuint vao = 0;
 	glGenVertexArrays(1, &vao);
@@ -62,14 +69,50 @@ GLuint create_vao(SimpleMeshData const& aMeshData)
 	);
 	glEnableVertexAttribArray(2);
 
-	
+	glBindBuffer(GL_ARRAY_BUFFER, texcoords);
+
+	glVertexAttribPointer(
+		3, // location = 0 in vertex shader
+		2, GL_FLOAT, GL_FALSE,
+		0, // stride = 0 indicates that there is no padding between inputs
+		nullptr // data starts at offset 0 in the VBO
+	);
+	glEnableVertexAttribArray(3);
 
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glDeleteBuffers(1, &position);
 	glDeleteBuffers(1, &colors);
 	glDeleteBuffers(1, &normals);
+	glDeleteBuffers(1, &texcoords);
 
 	return vao;
 }
 
+GLuint load_texture_2d(char const* aPath)
+{
+	assert(aPath);
+	stbi_set_flip_vertically_on_load(true);
+	int w, h, channels;
+
+	stbi_uc* ptr = stbi_load(aPath, &w, &h, &channels, 4);
+
+	if (!ptr)
+		throw Error("Unable to load image ’%s’\n", aPath);
+
+	//Generate Texture Object + initialise texture with image.
+	GLuint tex = 0;
+	glGenTextures(1, &tex);
+	glBindTexture(GL_TEXTURE_2D, tex);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, ptr);
+
+	stbi_image_free(ptr);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, 6.f);
+	
+	return tex;
+}

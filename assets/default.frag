@@ -3,9 +3,11 @@ in vec3 v2fColor;
 in vec3 v2fNormal;
 in vec3 v2fPos;
 in vec3 v2fView;
+in vec2 v2fTexCoord;
+in float v2fTexBool;
 
-//layout( location = 2 ) uniform vec3 uLightDir; // should be normalized! kuLightDirk = 1
 layout( location = 0 ) out vec3 oColor;
+layout( binding = 0 ) uniform sampler2D uTexture;
 
 float specularStrength = 0.5;
 
@@ -33,7 +35,6 @@ struct PointLight {
 
 #define NR_POINT_LIGHTS 3 
 uniform PointLight pointLights[NR_POINT_LIGHTS];
-
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 v2fPos, vec3 viewDir)
 {
@@ -63,7 +64,9 @@ void main()
     vec3 result;
     for(int i = 0; i < NR_POINT_LIGHTS; i++)
         result += CalcPointLight(pointLights[i], normal, v2fPos, viewDir);
-
-    oColor = result;
-
+    
+    if (v2fTexBool == 1.f)
+        oColor = texture( uTexture, v2fTexCoord ).rgb;
+    else
+        oColor = result;
 }
