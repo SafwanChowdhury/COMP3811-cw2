@@ -65,8 +65,8 @@ void main()
     for(int i = 0; i < NR_POINT_LIGHTS; i++)
         result += CalcPointLight(pointLights[i], normal, v2fPos, viewDir);
     
-    if (v2fTexBool == 1.f)
-        oColor = texture( uTexture, v2fTexCoord ).rgb;
-    else
+//    if (v2fTexBool == 1.f)
+//        oColor = texture( uTexture, v2fTexCoord ).rgb;
+//    else
         oColor = result;
 }

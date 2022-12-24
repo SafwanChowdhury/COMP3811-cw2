@@ -349,7 +349,7 @@ int main() try
 				} while (0 == nwidth || 0 == nheight);
 			}
 
-			glViewport(0, 0, iwidth, iheight);
+			glViewport(0, 0, fbwidth, fbheight);
 		}
 
 		// Update state
