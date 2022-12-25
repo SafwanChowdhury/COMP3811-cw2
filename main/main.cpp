@@ -203,99 +203,99 @@ int main() try{
 	// TODO: 
 
 
-	auto baseCyl = make_cylinder(true, 16, { 0.f, 1.f, 0.f },
-		make_rotation_z(3.141592f / 2.f) *
-		make_scaling(0.1f, 0.02f, 0.02f) *
-		make_translation({ 0.f, 0.f, 0.f })
-	);
+	//auto baseCyl = make_cylinder(true, 16, { 0.f, 1.f, 0.f },
+	//	make_rotation_z(3.141592f / 2.f) *
+	//	make_scaling(0.1f, 0.02f, 0.02f) *
+	//	make_translation({ 0.f, 0.f, 0.f })
+	//);
 
 
-	auto cylR = make_cylinder(true, 16, { 0.f, 1.f, 0.f },
-		make_rotation_z(45.f / (180.f / 3.141592f)) *
-		make_scaling(0.115f, 0.02f, 0.02f) *
-		make_translation({ 0.3f, 1.7f, 0.f })
+	//auto cylR = make_cylinder(true, 16, { 0.f, 1.f, 0.f },
+	//	make_rotation_z(45.f / (180.f / 3.141592f)) *
+	//	make_scaling(0.115f, 0.02f, 0.02f) *
+	//	make_translation({ 0.3f, 1.7f, 0.f })
 
-	);
-
-
-	auto cylL = make_cylinder(true, 16, { 0.f, 1.f, 0.f },
-		make_rotation_z(135.f/(180.f/3.141592f))*
-		make_scaling(0.115f, 0.02f, 0.02f)*
-		make_translation({ 0.3f, -1.7f, 0.f })
-	);
+	//);
 
 
-
-	auto cylR2 = make_cylinder(true, 16, { 0.f, 1.f, 0.f }, 
-		make_rotation_y(270.f / (180.f / 3.141592f)) *
-		make_scaling(0.06f, 0.02f, 0.02f) *
-		make_translation({ 0.f, 5.7f, 3.3f })
-	);
+	//auto cylL = make_cylinder(true, 16, { 0.f, 1.f, 0.f },
+	//	make_rotation_z(135.f/(180.f/3.141592f))*
+	//	make_scaling(0.115f, 0.02f, 0.02f)*
+	//	make_translation({ 0.3f, -1.7f, 0.f })
+	//);
 
 
 
-	auto cylL2 = make_cylinder(true, 16, { 0.f, 1.f, 0.f },
-		make_rotation_y(270.f / (180.f / 3.141592f))*
-		make_scaling(0.06f, 0.02f, 0.02f)*
-		make_translation({ 0.f, 5.7f, -3.3f })
-	);
-
-	auto cube = make_cube(1, { 0.f, 1.f, 0.f },
-		make_scaling(0.1f, 0.07f, 0.02f)*
-		make_translation({ -1.2f, 1.7f, 4.f })
-	);
-
-	auto cube2 = make_cube(1, { 0.f, 1.f, 0.f },
-		make_scaling(0.1f, 0.07f, 0.02f)*
-		make_translation({ 1.2f, 1.7f, 4.f })
-	);
-
-
-	
-
-	auto RightArm = concatenate(baseCyl, cylR);
-	auto MonitorArms = concatenate(RightArm, cylL);
-	auto MonitorArms1 = concatenate(MonitorArms, cylR2);
-	auto MonitorArms2 = concatenate(MonitorArms1, cylL2);
-	auto MonitorScreen1 = concatenate(MonitorArms2, cube);
-	auto Monitors = concatenate(MonitorScreen1, cube2);
-	GLuint MonitorsVao = create_vao(Monitors);
-	std::size_t MonitorsVert = Monitors.positions.size();
-
-
-	state.objControl.x = 0.f;
-	state.objControl.y = 0.f;
-	state.objControl.z = 0.f;
-	state.objControl.x1 = 0.f;
-	state.objControl.y1 = 0.f;
-	state.objControl.z1 = 0.f;
-	state.camControl.x = -0.13f;
-	state.camControl.y = 0.02f;
-	state.camControl.radius = 0.99f;
+	//auto cylR2 = make_cylinder(true, 16, { 0.f, 1.f, 0.f }, 
+	//	make_rotation_y(270.f / (180.f / 3.141592f)) *
+	//	make_scaling(0.06f, 0.02f, 0.02f) *
+	//	make_translation({ 0.f, 5.7f, 3.3f })
+	//);
 
 
 
+	//auto cylL2 = make_cylinder(true, 16, { 0.f, 1.f, 0.f },
+	//	make_rotation_y(270.f / (180.f / 3.141592f))*
+	//	make_scaling(0.06f, 0.02f, 0.02f)*
+	//	make_translation({ 0.f, 5.7f, -3.3f })
+	//);
+
+	//auto cube = make_cube(1, { 0.f, 1.f, 0.f },
+	//	make_scaling(0.1f, 0.07f, 0.02f)*
+	//	make_translation({ -1.2f, 1.7f, 4.f })
+	//);
+
+	//auto cube2 = make_cube(1, { 0.f, 1.f, 0.f },
+	//	make_scaling(0.1f, 0.07f, 0.02f)*
+	//	make_translation({ 1.2f, 1.7f, 4.f })
+	//);
+
+
+	//
+
+	//auto RightArm = concatenate(baseCyl, cylR);
+	//auto MonitorArms = concatenate(RightArm, cylL);
+	//auto MonitorArms1 = concatenate(MonitorArms, cylR2);
+	//auto MonitorArms2 = concatenate(MonitorArms1, cylL2);
+	//auto MonitorScreen1 = concatenate(MonitorArms2, cube);
+	//auto Monitors = concatenate(MonitorScreen1, cube2);
+	//GLuint MonitorsVao = create_vao(Monitors);
+	//std::size_t MonitorsVert = Monitors.positions.size();
+
+
+	//state.objControl.x = 0.f;
+	//state.objControl.y = 0.f;
+	//state.objControl.z = 0.f;
+	//state.objControl.x1 = 0.f;
+	//state.objControl.y1 = 0.f;
+	//state.objControl.z1 = 0.f;
+	//state.camControl.x = -0.13f;
+	//state.camControl.y = 0.02f;
+	//state.camControl.radius = 0.99f;
 
 
 
 
-	auto cone2 = make_cone(true, 16, { 0.f, 0.f, 0.f },
-		make_scaling(0.2f, 0.1f, 0.1f) *
-		make_translation({ 13.1f, 98.6f, 15.1f }) *
-		make_rotation_z(3.141592f * 0.8)
-	);
 
-	GLuint floodLight1Vao = create_vao(cone2);
-	std::size_t coneVertex = cone2.positions.size();
 
-	auto cone3 = make_cone(true, 16, { 0.f, 0.f, 0.f },
-		make_scaling(0.2f, 0.1f, 0.1f) *
-		make_translation({ 13.1f, 98.6f, 24.7f }) *
-		make_rotation_z(3.141592f * 0.8)
-	);
 
-	GLuint floodLight2Vao = create_vao(cone3);
-	std::size_t coneVertex2 = cone3.positions.size();
+	//auto cone2 = make_cone(true, 16, { 0.f, 0.f, 0.f },
+	//	make_scaling(0.2f, 0.1f, 0.1f) *
+	//	make_translation({ 13.1f, 98.6f, 15.1f }) *
+	//	make_rotation_z(3.141592f * 0.8)
+	//);
+
+	//GLuint floodLight1Vao = create_vao(cone2);
+	//std::size_t coneVertex = cone2.positions.size();
+
+	//auto cone3 = make_cone(true, 16, { 0.f, 0.f, 0.f },
+	//	make_scaling(0.2f, 0.1f, 0.1f) *
+	//	make_translation({ 13.1f, 98.6f, 24.7f }) *
+	//	make_rotation_z(3.141592f * 0.8)
+	//);
+
+	//GLuint floodLight2Vao = create_vao(cone3);
+	//std::size_t coneVertex2 = cone3.positions.size();
 
 
 
@@ -448,12 +448,6 @@ int main() try{
 		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
 		glUniformMatrix4fv(6, 1, GL_TRUE, world2camera.v);
 
-		//glUniform3f(glGetUniformLocation(prog.programId(), "uLightPos"), lightPos.x, lightPos.y, lightPos.z);
-		glUniform3f(glGetUniformLocation(prog.programId(), "material.ambient"), 1.0f, 0.5f, 0.31f);
-		glUniform3f(glGetUniformLocation(prog.programId(), "material.diffuse"), 1.0f, 0.5f, 0.31f);
-		glUniform3f(glGetUniformLocation(prog.programId(), "material.specular"), 0.5f, 0.5f, 0.5f);
-		glUniform1f(glGetUniformLocation(prog.programId(), "material.shininess"), 10.f);
-
 
 		Vec3f lightColor = { 0.f, 0.f, 1.f };
 		Vec3f diffuseColor = lightColor * 0.2f;
@@ -496,10 +490,10 @@ int main() try{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glBindVertexArray(launchVAO);
 		glDrawArrays(GL_TRIANGLES, 0, launchVertex);
-		glBindVertexArray(floodLight1Vao);
-		glDrawArrays(GL_TRIANGLES, 0, coneVertex);
-		glBindVertexArray(floodLight2Vao);
-		glDrawArrays(GL_TRIANGLES, 0, coneVertex2);
+		//glBindVertexArray(floodLight1Vao);
+		//glDrawArrays(GL_TRIANGLES, 0, coneVertex);
+		//glBindVertexArray(floodLight2Vao);
+		//glDrawArrays(GL_TRIANGLES, 0, coneVertex2);
 
 		model2world = make_translation({ 0.f, rktHeight, 0.f });
 		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
@@ -511,12 +505,12 @@ int main() try{
 		model2world = make_rotation_x(0.f);
 
 
-		model2world = make_translation({ 4.4f, 0.86f, 21.45f });
-		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
-		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
-		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
-		glBindVertexArray(MonitorsVao);
-		glDrawArrays(GL_TRIANGLES, 0, MonitorsVert);
+		//model2world = make_translation({ 4.4f, 0.86f, 21.45f });
+		//glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
+		//normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
+		//glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
+		//glBindVertexArray(MonitorsVao);
+		//glDrawArrays(GL_TRIANGLES, 0, MonitorsVert);
 
 		OGL_CHECKPOINT_DEBUG();
 
