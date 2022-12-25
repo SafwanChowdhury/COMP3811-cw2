@@ -30,11 +30,31 @@ SimpleMeshData load_wavefront_obj( char const* aPath, Mat44f aPreTransform)
 				});
 
 			auto const& mat = result.materials[shape.mesh.material_ids[i / 3]];
-			ret.colors.emplace_back(Vec3f{
+			ret.material.ambient.emplace_back(Vec3f{
 				mat.ambient[0],
 				mat.ambient[1],
 				mat.ambient[2]
 			});
+
+			ret.material.diffuse.emplace_back(Vec3f{
+				mat.diffuse[0],
+				mat.diffuse[1],
+				mat.diffuse[2]
+				});
+
+			ret.material.specular.emplace_back(Vec3f{
+				mat.specular[0],
+				mat.specular[1],
+				mat.specular[2]
+				});
+
+			ret.material.shininess.emplace_back(float{
+				mat.shininess
+				});
+
+			ret.material.alpha.emplace_back(float{
+				1.f
+				});
 		}
 	}
 	Mat33f const N = mat44_to_mat33(transpose(invert(aPreTransform)));

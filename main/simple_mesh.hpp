@@ -7,12 +7,23 @@
 
 #include "../vmlib/vec3.hpp"
 
+struct Materials
+{
+	std::vector<Vec3f> ambient;
+	std::vector<Vec3f> diffuse;
+	std::vector<Vec3f> specular;
+	std::vector<float> shininess;
+	std::vector<float> alpha;
+};
+
 struct SimpleMeshData
 {
 	std::vector<Vec3f> positions;
-	std::vector<Vec3f> colors;
 	std::vector<Vec3f> normals;
+	Materials material;
 };
+
+
 
 SimpleMeshData concatenate(SimpleMeshData, SimpleMeshData const&);
 
