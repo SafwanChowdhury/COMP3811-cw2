@@ -28,7 +28,7 @@
 namespace
 {
 	constexpr char const* kWindowTitle = "COMP3811 - Coursework 2";
-	
+
 	//Camera Initialisers from Ex3
 	constexpr float kPi_ = 3.1415926f;
 	constexpr float kMovementPerSecond_ = 5.f; // units per second
@@ -190,7 +190,7 @@ int main() try{
 	state.prog = &prog;
 	state.camControl.radius = 10.f;
 
-	
+
 
 	// Animation state
 	auto last = Clock::now();
@@ -198,9 +198,9 @@ int main() try{
 	float angle = 0.f;
 	float rktHeight = 0.f;
 	OGL_CHECKPOINT_ALWAYS();
-	
 
-	// TODO: 
+
+	// TODO:
 
 
 	auto baseCyl = make_cylinder(true, 16, { 0.f, 1.f, 0.f }, {1.0f, 0.5f, 0.31f}, {0.5f,0.5f,0.5f}, 32.f, 1.f,
@@ -251,7 +251,7 @@ int main() try{
 	);
 
 
-	
+
 
 	auto RightArm = concatenate(baseCyl, cylR);
 	auto MonitorArms = concatenate(RightArm, cylL);
@@ -307,7 +307,11 @@ int main() try{
 	for (int i = 0; i < rocket.positions.size(); i++) {
 		rocket.positions[i] = rocket.positions[i] + Vec3f{ 2.f, 0.f, 2.f };
 	}
+
+
 	GLuint rocketVAO = create_vao(rocket);
+
+	GLuint textureObjectId = load_texture_2d("external/Rocket/rocket.jpg");
 	std::size_t rocketVertex = rocket.positions.size();
 
 
@@ -435,9 +439,9 @@ int main() try{
 		Mat33f normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
 		// Draw scene
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
-		
-		
+
+
+
 		// Clear color buffer to specified clear color (glClearColor())
 		// We want to draw with our program..
 
@@ -500,7 +504,12 @@ int main() try{
 		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
 		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
 
+
+		//rocket
+		glUniform1f(7, 1.f);
 		glBindVertexArray(rocketVAO);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D,textureObjectId);
 		glDrawArrays(GL_TRIANGLES, 0, rocketVertex);
 		model2world = make_rotation_x(0.f);
 
@@ -513,7 +522,8 @@ int main() try{
 		glDrawArrays(GL_TRIANGLES, 0, MonitorsVert);
 
 		OGL_CHECKPOINT_DEBUG();
-
+		glUniform1f(7, 0.f);
+		glBindTexture(GL_TEXTURE_2D,0);
 		glBindVertexArray(0);
 
 		OGL_CHECKPOINT_DEBUG();
@@ -524,7 +534,7 @@ int main() try{
 
 	// Cleanup.
 	//TODO: additional cleanup
-	
+
 	return 0;
 }
 catch( std::exception const& eErr )
@@ -555,7 +565,7 @@ namespace
 		//Camera Controls from Ex3...
 		if (auto* state = static_cast<State_*>(glfwGetWindowUserPointer(aWindow)))
 		{
-			
+
 			if (mod == 0) {
 				dc = 1.f;
 			}
@@ -856,4 +866,3 @@ namespace
 			glfwDestroyWindow( window );
 	}
 }
-
