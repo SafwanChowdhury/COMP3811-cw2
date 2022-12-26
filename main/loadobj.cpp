@@ -53,7 +53,7 @@ SimpleMeshData load_wavefront_obj( char const* aPath, Mat44f aPreTransform)
 				});
 
 			ret.material.alpha.emplace_back(float{
-				1.f
+				mat.dissolve
 				});
 		}
 	}

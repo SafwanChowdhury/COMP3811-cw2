@@ -1,7 +1,7 @@
 #include "cube.hpp"
 #include "../vmlib/mat33.hpp"
 
-SimpleMeshData make_cube(float x, Vec3f aColor, Mat44f aPreTransform) {
+SimpleMeshData make_cube(float x, Vec3f aColor, Vec3f aDiffuse, Vec3f aSpec, float aShininess, float aAlpha,  Mat44f aPreTransform) {
 	
 	std::vector<Vec3f> pos;
 	std::vector<Vec3f> normal;
@@ -103,5 +103,9 @@ SimpleMeshData make_cube(float x, Vec3f aColor, Mat44f aPreTransform) {
 	}
 
 	std::vector col(pos.size(), aColor);
-	return SimpleMeshData{ std::move(pos), std::move(col), std::move(normal) };
+	std::vector diff(pos.size(), aDiffuse);
+	std::vector spec(pos.size(), aSpec);
+	std::vector shine(pos.size(), aShininess);
+	std::vector alpha(pos.size(), aAlpha);
+	return SimpleMeshData{ std::move(pos), std::move(col), std::move(normal), std::move(diff), std::move(spec), std::move(shine), std::move(alpha) };
 }
