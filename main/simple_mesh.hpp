@@ -23,7 +23,7 @@ struct SimpleMeshData
 {
 	std::vector<Vec3f> positions;
 	std::vector<Vec3f> normals;
-  std::vector<Vec2f> texcoords;
+	std::vector<Vec2f> texcoords;
 	Materials material;
 };
 

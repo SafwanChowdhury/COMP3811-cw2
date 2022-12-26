@@ -102,10 +102,11 @@ SimpleMeshData make_cube(float x, Vec3f aColor, Vec3f aDiffuse, Vec3f aSpec, flo
 		n = Vec3f{ t.x, t.y, t.z };
 	}
 
+	std::vector texcoord(pos.size(), Vec2f{ 1.f,1.f });
 	std::vector col(pos.size(), aColor);
 	std::vector diff(pos.size(), aDiffuse);
 	std::vector spec(pos.size(), aSpec);
 	std::vector shine(pos.size(), aShininess);
 	std::vector alpha(pos.size(), aAlpha);
-	return SimpleMeshData{ std::move(pos), std::move(col), std::move(normal), std::move(diff), std::move(spec), std::move(shine), std::move(alpha) };
+	return SimpleMeshData{ std::move(pos), std::move(col), std::move(texcoord), std::move(normal), std::move(diff), std::move(spec), std::move(shine), std::move(alpha) };
 }
