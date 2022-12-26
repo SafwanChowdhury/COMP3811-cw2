@@ -4,9 +4,10 @@ SimpleMeshData concatenate(SimpleMeshData aM, SimpleMeshData const& aN)
 {
 	aM.positions.insert(aM.positions.end(), aN.positions.begin(), aN.positions.end());
 	aM.normals.insert(aM.normals.end(), aN.normals.begin(), aN.normals.end());
-	aM.material.ambient.insert(aM.material.ambient.end(), aN.material.ambient.begin(), aN.material.ambient.end());
+	aM.texcoords.insert(aM.texcoords.end(), aN.texcoords.begin(), aN.texcoords.end());
+	/*aM.material.ambient.insert(aM.material.ambient.end(), aN.material.ambient.begin(), aN.material.ambient.end());
 	aM.material.diffuse.insert(aM.material.diffuse.end(), aN.material.diffuse.begin(), aN.material.diffuse.end());
-	aM.material.specular.insert(aM.material.specular.end(), aN.material.specular.begin(), aN.material.specular.end());
+	aM.material.specular.insert(aM.material.specular.end(), aN.material.specular.begin(), aN.material.specular.end());*/
 	return aM;
 }
 

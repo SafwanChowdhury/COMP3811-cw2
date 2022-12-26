@@ -512,7 +512,9 @@ int main() try{
 		glBindTexture(GL_TEXTURE_2D,textureObjectId);
 		glDrawArrays(GL_TRIANGLES, 0, rocketVertex);
 		model2world = make_rotation_x(0.f);
-
+		OGL_CHECKPOINT_DEBUG();
+		glUniform1f(7, 0.f);
+		glBindTexture(GL_TEXTURE_2D,0);
 
 		model2world = make_translation({ 4.4f, 0.86f, 21.45f });
 		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
@@ -521,9 +523,7 @@ int main() try{
 		glBindVertexArray(MonitorsVao);
 		glDrawArrays(GL_TRIANGLES, 0, MonitorsVert);
 
-		OGL_CHECKPOINT_DEBUG();
-		glUniform1f(7, 0.f);
-		glBindTexture(GL_TEXTURE_2D,0);
+
 		glBindVertexArray(0);
 
 		OGL_CHECKPOINT_DEBUG();
