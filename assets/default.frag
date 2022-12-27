@@ -29,7 +29,7 @@ struct PointLight {
     vec3 specular;
 };
 
-#define NR_POINT_LIGHTS 4
+#define NR_POINT_LIGHTS 5
 uniform PointLight pointLights[NR_POINT_LIGHTS];
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 v2fPos, vec3 viewDir)
@@ -57,7 +57,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 v2fPos, vec3 viewDir)
 void main()
 {
     vec3 result = {0.f,0.f,0.f};
-	vec3 normal = v2fNormal;
+	vec3 normal = normalize(v2fNormal);
 	vec3 viewDir = normalize(v2fView - v2fPos);
 
     for(int i = 0; i < NR_POINT_LIGHTS; i++)
@@ -65,7 +65,7 @@ void main()
 
     if(oTex == 1.f){
 	   // oColor = vec4(result * texture( uTexture, v2fTexCoord ).rgb, uAlpha);
-       	    oColor = texture( uTexture, v2fTexCoord) * vec4(result, 1.f);
+       oColor = texture( uTexture, v2fTexCoord) * vec4(result, 1.f);
 	}
     else
         oColor = vec4(result, uAlpha);

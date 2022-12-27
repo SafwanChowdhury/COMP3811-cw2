@@ -38,8 +38,8 @@ void main()
 	uAlpha = iAlpha;
 	v2fTexCoord = iTexCoord;
 	oTex = isTex;
-	v2fNormal = normalize(uNormalMatrix * iNormal);
+	v2fNormal = (uNormalMatrix * iNormal);
 	v2fPos = vec3(uModel * vec4(iPosition,1.0));
-	v2fView = vec3(uView);
+	v2fView = vec3(uCamPos);
 	gl_Position = (uProjection * uView  * uModel * vec4( iPosition, 1.0 ));
 }

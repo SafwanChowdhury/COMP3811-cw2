@@ -266,14 +266,12 @@ int main() try{
 	state.objControl.x = 0.f;
 	state.objControl.y = 0.f;
 	state.objControl.z = 0.f;
-	state.objControl.x1 = 0.f;
-	state.objControl.y1 = 0.f;
-	state.objControl.z1 = 0.f;
+	state.objControl.x1 = 1.7f;
+	state.objControl.y1 = 1.63f;
+	state.objControl.z1 = 22.21f;
 	state.camControl.x = -5.48f;
 	state.camControl.y = -0.55f;
 	state.camControl.radius = 2.05f;
-
-
 
 
 
@@ -400,7 +398,8 @@ int main() try{
 			Vec3f{ 2.7f, 10.f, 1.5f },
 			Vec3f{2.5f, 9.9f, 2.5f},
 			Vec3f{19.7f, 17.7f, 23.8f},
-			Vec3f{0.f,0.f,0.f}
+			Vec3f{1.7f, 1.63f, 22.21f},
+			Vec3f{6.3f, 1.63f, 22.21f}
 		};
 
 
@@ -507,6 +506,18 @@ int main() try{
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[3].constant"), 1.0f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[3].linear"), 0.09f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[3].quadratic"), 0.032f);
+
+		lightColor = { 1.f, 1.f, 1.f };
+		diffuseColor = lightColor * 0.5f;
+		ambientColor = diffuseColor * 0.01f;
+
+		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[4].position"), pointLightPositions[4].x, pointLightPositions[4].y, pointLightPositions[4].z);
+		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[4].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
+		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[4].diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
+		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[4].specular"), 0.5f, 0.5f, 0.5f);
+		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[4].constant"), 1.0f);
+		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[4].linear"), 0.09f);
+		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[4].quadratic"), 0.032f);
 
 		OGL_CHECKPOINT_DEBUG();
 		//TODO: draw frame
