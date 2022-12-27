@@ -269,9 +269,9 @@ int main() try{
 	state.objControl.x1 = 0.f;
 	state.objControl.y1 = 0.f;
 	state.objControl.z1 = 0.f;
-	state.camControl.x = -0.13f;
-	state.camControl.y = 0.02f;
-	state.camControl.radius = 0.99f;
+	state.camControl.x = -5.48f;
+	state.camControl.y = -0.55f;
+	state.camControl.radius = 2.05f;
 
 
 
@@ -302,11 +302,8 @@ int main() try{
 	auto rocket = load_wavefront_obj("external/Rocket/rocket.obj",
 		make_scaling(0.005f, 0.005f, 0.005f) *
 		make_rotation_x(3.141592f / -2.f) *
-		make_translation({ 350.f, 0.f, 600.f })
+		make_translation({ 750.f, -400.f, 600.f })
 	);
-	for (int i = 0; i < rocket.positions.size(); i++) {
-		rocket.positions[i] = rocket.positions[i] + Vec3f{ 2.f, 0.f, 2.f };
-	}
 
 
 	GLuint rocketVAO = create_vao(rocket);
@@ -322,6 +319,14 @@ int main() try{
 	GLuint launchVAO = create_vao(launch);
 	std::size_t launchVertex = launch.positions.size();
 
+
+	auto cube3 = make_cube(1, { 0.5f, 0.87f, 1.f }, { 1.f, 1.f, 1.f }, { 0.5f,0.5f,0.5f }, 32.f, 0.1f,
+		make_scaling(2.45f, 0.6f, 0.1f) *
+		make_translation({ -0.19f, 0.58f, -2.56f })
+	);
+
+	GLuint lightBox = create_vao(cube3);
+	std::size_t lightVertex = cube3.positions.size();
 
 	OGL_CHECKPOINT_ALWAYS();
 
@@ -394,8 +399,10 @@ int main() try{
 		Vec3f pointLightPositions[] = {
 			Vec3f{ 2.7f, 10.f, 1.5f },
 			Vec3f{2.5f, 9.9f, 2.5f},
-			Vec3f{19.7f, 17.7f, 23.8f}
+			Vec3f{19.7f, 17.7f, 23.8f},
+			Vec3f{0.f,0.f,0.f}
 		};
+
 
 		// Update camera state
 		if (state.camControl.actionZoomIn) {
@@ -478,7 +485,7 @@ int main() try{
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[1].quadratic"), 0.032f);
 
 		lightColor = { 1.f, 1.f, 1.f };
-		diffuseColor = lightColor * 0.4f;
+		diffuseColor = lightColor * 1.f;
 		ambientColor = diffuseColor * 0.01f;
 
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[2].position"), pointLightPositions[2].x, pointLightPositions[2].y, pointLightPositions[2].z);
@@ -488,6 +495,18 @@ int main() try{
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[2].constant"), 1.0f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[2].linear"), 0.09f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[2].quadratic"), 0.032f);
+
+		lightColor = { 1.f, 1.f, 1.f };
+		diffuseColor = lightColor * 0.5f;
+		ambientColor = diffuseColor * 0.01f;
+
+		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[3].position"), pointLightPositions[3].x, pointLightPositions[3].y, pointLightPositions[3].z);
+		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[3].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
+		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[3].diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
+		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[3].specular"), 0.5f, 0.5f, 0.5f);
+		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[3].constant"), 1.0f);
+		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[3].linear"), 0.09f);
+		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[3].quadratic"), 0.032f);
 
 		OGL_CHECKPOINT_DEBUG();
 		//TODO: draw frame
@@ -523,7 +542,11 @@ int main() try{
 		glBindVertexArray(MonitorsVao);
 		glDrawArrays(GL_TRIANGLES, 0, MonitorsVert);
 
-
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_BLEND);
+		glBindVertexArray(lightBox);
+		glDrawArrays(GL_TRIANGLES, 0, lightVertex);
+		glDisable(GL_BLEND);
 		glBindVertexArray(0);
 
 		OGL_CHECKPOINT_DEBUG();

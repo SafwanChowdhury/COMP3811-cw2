@@ -40,6 +40,6 @@ void main()
 	oTex = isTex;
 	v2fNormal = normalize(uNormalMatrix * iNormal);
 	v2fPos = vec3(uModel * vec4(iPosition,1.0));
-	v2fView = vec3(uProjection);
+	v2fView = vec3(uView);
 	gl_Position = (uProjection * uView  * uModel * vec4( iPosition, 1.0 ));
 }
