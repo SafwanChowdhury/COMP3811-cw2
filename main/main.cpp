@@ -250,7 +250,11 @@ int main() try{
 		make_translation({ 1.2f, 1.7f, 4.f })
 	);
 
-
+        //display 
+	auto cubeFace = make_cube_tex(1, { 0.f, 1.f, 0.f }, { 1.0f, 0.5f, 0.31f }, { 0.5f,0.5f,0.5f }, 32.f, 1.f,
+	        make_scaling(0.1f, 0.07f, 0.02f)*
+		make_translation({ -1.2f, 1.7f, 5.1f })
+	);
 
 
 	auto RightArm = concatenate(baseCyl, cylR);
@@ -260,8 +264,11 @@ int main() try{
 	auto MonitorScreen1 = concatenate(MonitorArms2, cube);
 	auto Monitors = concatenate(MonitorScreen1, cube2);
 	GLuint MonitorsVao = create_vao(Monitors);
+	GLuint ScreenVao = create_vao(cubeFace);
 	std::size_t MonitorsVert = Monitors.positions.size();
+	std::size_t ScreenVert = cubeFace.positions.size();
 
+	GLuint markusFace = load_texture_2d("external/cw2-texture/markus.png");
 
 	state.objControl.x = 0.f;
 	state.objControl.y = 0.f;
@@ -572,6 +579,14 @@ int main() try{
 		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
 		glBindVertexArray(MonitorsVao);
 		glDrawArrays(GL_TRIANGLES, 0, MonitorsVert);
+
+		//drawing face
+		glUniform1f(7, 1.f);
+		glBindVertexArray(ScreenVao);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, markusFace);
+		glDrawArrays(GL_TRIANGLES, 0, ScreenVert);
+		glUniform1f(7, 0.f);
 
 		glUniform1f(8, 1.f);
 		glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 1.f, 1.f, 1.f);
