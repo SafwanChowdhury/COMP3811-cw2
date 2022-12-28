@@ -203,14 +203,14 @@ int main() try{
 	// TODO:
 
 
-	auto baseCyl = make_cylinder(true, 16, { 0.f, 1.f, 0.f }, {1.0f, 0.5f, 0.31f}, {0.5f,0.5f,0.5f}, 32.f, 1.f,
+	auto baseCyl = make_cylinder(true, 16, { 0.05f, 0.05f, 0.05f }, {0.1f, 0.1f, 0.1f }, {0.2f,0.2f,0.2f }, 12.8f, 1.f,
 		make_rotation_z(3.141592f / 2.f) *
 		make_scaling(0.1f, 0.02f, 0.02f) *
 		make_translation({ 0.f, 0.f, 0.f })
 	);
 
 
-	auto cylR = make_cylinder(true, 16, { 0.f, 1.f, 0.f }, { 1.0f, 0.5f, 0.31f }, { 0.5f,0.5f,0.5f }, 32.f, 1.f,
+	auto cylR = make_cylinder(true, 16, { 0.2f, 0.2f, 0.2f }, { 0.2f, 0.2f, 0.2f }, { 0.4f,0.4f,0.4f }, 12.8f, 1.f,
 		make_rotation_z(45.f / (180.f / 3.141592f)) *
 		make_scaling(0.115f, 0.02f, 0.02f) *
 		make_translation({ 0.3f, 1.7f, 0.f })
@@ -218,7 +218,7 @@ int main() try{
 	);
 
 
-	auto cylL = make_cylinder(true, 16, { 0.f, 1.f, 0.f }, { 1.0f, 0.5f, 0.31f }, { 0.5f,0.5f,0.5f }, 32.f, 1.f,
+	auto cylL = make_cylinder(true, 16, { 0.2f, 0.2f, 0.2f }, { 0.2f, 0.2f, 0.2f }, { 0.4f,0.4f,0.4f }, 12.8f, 1.f,
 		make_rotation_z(135.f/(180.f/3.141592f))*
 		make_scaling(0.115f, 0.02f, 0.02f)*
 		make_translation({ 0.3f, -1.7f, 0.f })
@@ -226,7 +226,7 @@ int main() try{
 
 
 
-	auto cylR2 = make_cylinder(true, 16, { 0.f, 1.f, 0.f }, { 1.0f, 0.5f, 0.31f }, { 0.5f,0.5f,0.5f }, 32.f, 1.f,
+	auto cylR2 = make_cylinder(true, 16, { 0.2f, 0.2f, 0.2f }, { 0.2f, 0.2f, 0.2f }, { 0.4f,0.4f,0.4f }, 12.8f, 1.f,
 		make_rotation_y(270.f / (180.f / 3.141592f)) *
 		make_scaling(0.06f, 0.02f, 0.02f) *
 		make_translation({ 0.f, 5.7f, 3.3f })
@@ -234,18 +234,18 @@ int main() try{
 
 
 
-	auto cylL2 = make_cylinder(true, 16, { 0.f, 1.f, 0.f }, { 1.0f, 0.5f, 0.31f }, { 0.5f,0.5f,0.5f }, 32.f, 1.f,
+	auto cylL2 = make_cylinder(true, 16, { 0.2f, 0.2f, 0.2f }, { 0.2f, 0.2f, 0.2f }, { 0.4f,0.4f,0.4f }, 12.8f, 1.f,
 		make_rotation_y(270.f / (180.f / 3.141592f))*
 		make_scaling(0.06f, 0.02f, 0.02f)*
 		make_translation({ 0.f, 5.7f, -3.3f })
 	);
 
-	auto cube = make_cube(1, { 0.f, 1.f, 0.f }, { 1.0f, 0.5f, 0.31f }, { 0.5f,0.5f,0.5f }, 32.f, 1.f,
+	auto cube = make_cube(1, { 0.f, 0.f, 0.f }, { 0.01f, 0.01f, 0.01f }, { 0.5f,0.5f,0.5f }, 32.f, 1.f,
 		make_scaling(0.1f, 0.07f, 0.02f)*
 		make_translation({ -1.2f, 1.7f, 4.f })
 	);
 
-	auto cube2 = make_cube(1, { 0.f, 1.f, 0.f }, { 1.0f, 0.5f, 0.31f }, { 0.5f,0.5f,0.5f }, 32.f, 1.f,
+	auto cube2 = make_cube(1, { 0.f, 0.f, 0.f }, { 0.01f, 0.01f, 0.01f }, { 0.5f,0.5f,0.5f }, 32.f, 1.f,
 		make_scaling(0.1f, 0.07f, 0.02f)*
 		make_translation({ 1.2f, 1.7f, 4.f })
 	);
@@ -266,9 +266,9 @@ int main() try{
 	state.objControl.x = 0.f;
 	state.objControl.y = 0.f;
 	state.objControl.z = 0.f;
-	state.objControl.x1 = 1.7f;
-	state.objControl.y1 = 1.63f;
-	state.objControl.z1 = 22.21f;
+	state.objControl.x1 = 18.8f;
+	state.objControl.y1 = 8.42f;
+	state.objControl.z1 = 9.2f;
 	state.camControl.x = -5.48f;
 	state.camControl.y = -0.55f;
 	state.camControl.radius = 2.05f;
@@ -276,24 +276,23 @@ int main() try{
 
 
 
-
-	auto cone2 = make_cone(true, 16, { 0.f, 0.f, 0.f }, { 1.0f, 0.5f, 0.31f }, { 0.5f,0.5f,0.5f }, 32.f, 1.f,
+	auto redCone = make_cone(true, 16, { 1.f, 0.f, 0.f }, { 1.0f, 0.f, 0.f }, { 0.5f,0.f,0.f }, 32.f, 1.f,
 		make_scaling(0.2f, 0.1f, 0.1f) *
 		make_translation({ 13.1f, 98.6f, 15.1f }) *
 		make_rotation_z(3.141592f * 0.8)
 	);
 
-	GLuint floodLight1Vao = create_vao(cone2);
-	std::size_t coneVertex = cone2.positions.size();
+	GLuint floodLight1Vao = create_vao(redCone);
+	std::size_t coneVertex = redCone.positions.size();
 
-	auto cone3 = make_cone(true, 16, { 0.f, 0.f, 0.f }, { 1.0f, 0.5f, 0.31f }, { 0.5f,0.5f,0.5f }, 32.f, 1.f,
+	auto blueCone = make_cone(true, 16, { 0.f, 0.f, 1.f }, { 0.f, 0.f, 1.f }, { 0.f,0.f,0.5f }, 32.f, 1.f,
 		make_scaling(0.2f, 0.1f, 0.1f) *
 		make_translation({ 13.1f, 98.6f, 24.7f }) *
 		make_rotation_z(3.141592f * 0.8)
 	);
 
-	GLuint floodLight2Vao = create_vao(cone3);
-	std::size_t coneVertex2 = cone3.positions.size();
+	GLuint floodLight2Vao = create_vao(blueCone);
+	std::size_t coneVertex2 = blueCone.positions.size();
 
 
 
@@ -318,13 +317,29 @@ int main() try{
 	std::size_t launchVertex = launch.positions.size();
 
 
-	auto cube3 = make_cube(1, { 0.5f, 0.87f, 1.f }, { 1.f, 1.f, 1.f }, { 0.5f,0.5f,0.5f }, 32.f, 0.1f,
+	auto cube3 = make_cube(1, { 0.5f, 0.87f, 1.f }, { 0.5f, 0.87f, 1.f }, { 0.5f,0.5f,0.5f }, 32.f, 0.1f,
 		make_scaling(2.45f, 0.6f, 0.1f) *
 		make_translation({ -0.19f, 0.58f, -2.56f })
 	);
 
-	GLuint lightBox = create_vao(cube3);
-	std::size_t lightVertex = cube3.positions.size();
+	GLuint windowGlass = create_vao(cube3);
+	std::size_t windowVertex = cube3.positions.size();
+
+	auto cube4 = make_cube(1, { 1.f, 1.f, 1.f }, { 1.f, 1.f, 1.f }, { 1.f,1.f,1.f }, 2.f, 1.f,
+		make_scaling(0.1f, 0.1f, 0.1f) *
+		make_translation({ 18.8f, 8.42f, 9.2f })
+	);
+
+	GLuint lightBox1 = create_vao(cube4);
+	std::size_t lightBoxVertex1 = cube4.positions.size();
+
+	auto cube5 = make_cube(1, { 1.f, 1.f, 1.f }, { 1.f, 1.f, 1.f }, { 1.f,1.f,1.f }, 2.f, 1.f,
+		make_scaling(0.1f, 0.1f, 0.1f) *
+		make_translation({ -28.17f, 8.42f, 9.2f })
+	);
+
+	GLuint lightBox2 = create_vao(cube5);
+	std::size_t lightBoxVertex2 = cube5.positions.size();
 
 	OGL_CHECKPOINT_ALWAYS();
 
@@ -395,13 +410,12 @@ int main() try{
 		}
 
 		Vec3f pointLightPositions[] = {
-			Vec3f{ 2.7f, 10.f, 1.5f },
-			Vec3f{2.5f, 9.9f, 2.5f},
+			Vec3f{ 2.7f, 10.f, 1.51f },
+			Vec3f{2.7f, 10.f, 2.5f},
 			Vec3f{19.7f, 17.7f, 23.8f},
 			Vec3f{1.7f, 1.63f, 22.21f},
-			Vec3f{6.3f, 1.63f, 22.21f}
+			Vec3f{6.1f, 1.63f, 22.21f}
 		};
-
 
 		// Update camera state
 		if (state.camControl.actionZoomIn) {
@@ -459,26 +473,26 @@ int main() try{
 		glUniformMatrix4fv(6, 1, GL_TRUE, world2camera.v);
 
 
-		Vec3f lightColor = { 0.f, 0.f, 1.f };
-		Vec3f diffuseColor = lightColor * 0.2f;
+		Vec3f lightColor = { 1.f, 0.f, 0.f };
+		Vec3f diffuseColor = lightColor * 0.3f;
 		Vec3f ambientColor = diffuseColor * 0.01f;
 
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[0].position"), pointLightPositions[0].x, pointLightPositions[0].y, pointLightPositions[0].z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[0].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[0].diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
-		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[0].specular"), 1.0f, 1.0f, 1.0f);
+		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[0].specular"), 0.25f, 0.f, 0.f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[0].constant"), 1.0f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[0].linear"), 0.09f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[0].quadratic"), 0.032f);
 
-		lightColor = { 1.f, 0.f, 0.f };
-		diffuseColor = lightColor * 0.2f;
+		lightColor = { 0.f, 0.f, 1.f };
+		diffuseColor = lightColor * 0.3f;
 		ambientColor = diffuseColor * 0.01f;
 
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[1].position"), pointLightPositions[1].x, pointLightPositions[1].y, pointLightPositions[1].z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[1].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[1].diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
-		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[1].specular"), 1.0f, 1.0f, 1.0f);
+		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[1].specular"), 0.f, 0.f, 0.25f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[1].constant"), 1.0f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[1].linear"), 0.09f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[1].quadratic"), 0.032f);
@@ -502,7 +516,7 @@ int main() try{
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[3].position"), pointLightPositions[3].x, pointLightPositions[3].y, pointLightPositions[3].z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[3].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[3].diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
-		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[3].specular"), 0.5f, 0.5f, 0.5f);
+		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[3].specular"), 0.f, 0.f, 0.f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[3].constant"), 1.0f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[3].linear"), 0.09f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[3].quadratic"), 0.032f);
@@ -514,7 +528,7 @@ int main() try{
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[4].position"), pointLightPositions[4].x, pointLightPositions[4].y, pointLightPositions[4].z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[4].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[4].diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
-		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[4].specular"), 0.5f, 0.5f, 0.5f);
+		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[4].specular"), 0.f, 0.f, 0.f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[4].constant"), 1.0f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[4].linear"), 0.09f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[4].quadratic"), 0.032f);
@@ -525,9 +539,15 @@ int main() try{
 		glBindVertexArray(launchVAO);
 		glDrawArrays(GL_TRIANGLES, 0, launchVertex);
 		glBindVertexArray(floodLight1Vao);
+
+		glUniform1f(8, 1.f);
+		glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 1.f, 0.f, 0.f);
 		glDrawArrays(GL_TRIANGLES, 0, coneVertex);
+		glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 0.f, 0.f, 1.f);
 		glBindVertexArray(floodLight2Vao);
 		glDrawArrays(GL_TRIANGLES, 0, coneVertex2);
+		glUniform1f(8, 0.f);
+		glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 0.f, 0.f, 0.f);
 
 		model2world = make_translation({ 0.f, rktHeight, 0.f });
 		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
@@ -553,11 +573,21 @@ int main() try{
 		glBindVertexArray(MonitorsVao);
 		glDrawArrays(GL_TRIANGLES, 0, MonitorsVert);
 
+		glUniform1f(8, 1.f);
+		glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 1.f, 1.f, 1.f);
+		glBindVertexArray(lightBox1);
+		glDrawArrays(GL_TRIANGLES, 0, lightBoxVertex1);
+		glBindVertexArray(lightBox2);
+		glDrawArrays(GL_TRIANGLES, 0, lightBoxVertex2);
+		glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 0.f, 0.f, 0.f);
+		glUniform1f(8, 0.f);
+
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_BLEND);
-		glBindVertexArray(lightBox);
-		glDrawArrays(GL_TRIANGLES, 0, lightVertex);
+		glBindVertexArray(windowGlass);
+		glDrawArrays(GL_TRIANGLES, 0, windowVertex);
 		glDisable(GL_BLEND);
+
 		glBindVertexArray(0);
 
 		OGL_CHECKPOINT_DEBUG();
