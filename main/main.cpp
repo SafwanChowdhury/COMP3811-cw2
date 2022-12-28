@@ -37,6 +37,7 @@ namespace
 	struct State_
 	{
 		ShaderProgram* prog;
+	        ShaderProgram* cubeMap;
 
 		struct CamCtrl_
 		{
@@ -187,11 +188,19 @@ int main() try{
 		{ GL_VERTEX_SHADER, "assets/default.vert" },
 		{ GL_FRAGMENT_SHADER, "assets/default.frag" }
 		});
+	
+
+        ShaderProgram cubeMap({
+	        {GL_VERTEX_SHADER, "assets/map.vert"},
+	        {GL_FRAGMENT_SHADER, "assets/map.frag"}
+	  });
+
+
+
 	state.prog = &prog;
+	state.cubeMap = &cubeMap;
 	state.camControl.radius = 10.f;
-
-
-
+	
 	// Animation state
 	auto last = Clock::now();
 
@@ -201,7 +210,108 @@ int main() try{
 
 
 	// TODO:
+	//cube map
 
+	std::vector<std::string> skyFaces =  {
+					"external/SkyMap/right.jpg",
+					"external/SkyMap/left.jpg",
+					"external/SkyMap/top.jpg",
+					"external/SkyMap/bottom.jpg",
+					"external/SkyMap/front.jpg",
+					"external/SkyMap/back.jpg"
+					
+	};
+
+	
+
+	//	if(skyboxTexture == 0){
+	// cout<<"NOOO"<<endl;
+	//}
+	
+
+
+	
+	//cube
+
+
+	float skyboxVertices[] = {
+    // positions          
+				  -1.0f,  1.0f, -1.0f,
+				  -1.0f, -1.0f, -1.0f,
+				  1.0f, -1.0f, -1.0f,
+				  1.0f, -1.0f, -1.0f,
+				  1.0f,  1.0f, -1.0f,
+				  -1.0f,  1.0f, -1.0f,
+
+				  -1.0f, -1.0f,  1.0f,
+				  -1.0f, -1.0f, -1.0f,
+				  -1.0f,  1.0f, -1.0f,
+				  -1.0f,  1.0f, -1.0f,
+				  -1.0f,  1.0f,  1.0f,
+				  -1.0f, -1.0f,  1.0f,
+
+				  1.0f, -1.0f, -1.0f,
+				  1.0f, -1.0f,  1.0f,
+				  1.0f,  1.0f,  1.0f,
+				  1.0f,  1.0f,  1.0f,
+				  1.0f,  1.0f, -1.0f,
+				  1.0f, -1.0f, -1.0f,
+
+				  -1.0f, -1.0f,  1.0f,
+				  -1.0f,  1.0f,  1.0f,
+				  1.0f,  1.0f,  1.0f,
+				  1.0f,  1.0f,  1.0f,
+				  1.0f, -1.0f,  1.0f,
+				  -1.0f, -1.0f,  1.0f,
+
+				  -1.0f,  1.0f, -1.0f,
+				  1.0f,  1.0f, -1.0f,
+				  1.0f,  1.0f,  1.0f,
+				  1.0f,  1.0f,  1.0f,
+				  -1.0f,  1.0f,  1.0f,
+				  -1.0f,  1.0f, -1.0f,
+
+				  -1.0f, -1.0f, -1.0f,
+				  -1.0f, -1.0f,  1.0f,
+				  1.0f, -1.0f, -1.0f,
+				  1.0f, -1.0f, -1.0f,
+				  -1.0f, -1.0f,  1.0f,
+				  1.0f, -1.0f,  1.0f
+	};
+	
+	GLuint cubeMapPositionVBO = 0;
+	glGenBuffers( 1, &cubeMapPositionVBO);
+	glBindBuffer( GL_ARRAY_BUFFER, cubeMapPositionVBO );
+	glBufferData( GL_ARRAY_BUFFER, sizeof(skyboxVertices), skyboxVertices, GL_STATIC_DRAW );
+
+
+	GLuint cubeMapVao = 0;
+	glGenVertexArrays( 1, &cubeMapVao );
+	glBindVertexArray( cubeMapVao );
+
+	GLuint skyboxTexture = load_cube_map(skyFaces);
+
+	glBindBuffer( GL_ARRAY_BUFFER, cubeMapPositionVBO );
+	glVertexAttribPointer(
+			      0,
+			      3, GL_FLOAT, GL_FALSE,
+			      3*sizeof(float),
+			      0
+	);
+	glEnableVertexAttribArray( 0 );
+
+	//Reset State
+	glBindVertexArray( 0 );
+	glBindBuffer( GL_ARRAY_BUFFER, 0 );
+
+	//Clean up buffers
+	glDeleteBuffers( 1, &cubeMapPositionVBO );
+	
+	//end of cube
+
+	
+
+	//end of cube map
 
 	auto baseCyl = make_cylinder(true, 16, { 0.05f, 0.05f, 0.05f }, {0.1f, 0.1f, 0.1f }, {0.2f,0.2f,0.2f }, 12.8f, 1.f,
 		make_rotation_z(3.141592f / 2.f) *
@@ -473,6 +583,7 @@ int main() try{
 		// We want to draw with our program..
 
 		glUseProgram(prog.programId());
+		
 		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
 		glUniformMatrix4fv(0, 1, GL_TRUE, projection.v);
 		glUniformMatrix4fv(4, 1, GL_TRUE, T.v);
@@ -603,6 +714,31 @@ int main() try{
 		glDrawArrays(GL_TRIANGLES, 0, windowVertex);
 		glDisable(GL_BLEND);
 
+		glBindVertexArray(0);
+
+
+		//skybox
+		//glDepthFunc(GL_LEQUAL);
+		glDepthMask(GL_FALSE);
+                glUseProgram(cubeMap.programId());
+		
+		//std::cout<<skymap.programId()<<std::endl;
+		//std::cout<<prog.programId()<<std::endl;
+		//std::cout<<skyboxTexture<<std::endl;
+	        //glUniformMatrix3fv(glGetUniformLocation(skymap.programId(),"normalMatrix"), 1, GL_FALSE, normalMatrix.v);
+		//Matt44f projCameraWorld = projection * view * model;
+		//Mat44f cubeMapPos = projCameraWorld * make_translation({0.0f, 18.0f, 0.f}) * make_scaling(1.0f, 0.4f, 1.0f);
+		//glUniformMatrix4fv(1, 1, GL_FALSE, projection.v);
+		//std::cout<<projection.v<<std::endl;
+		//glUniformMatrix4fv(glGetUniformLocation(skymap.programId(),"T"), 1, GL_FALSE, T.v);
+		//glUniformMatrix4fv(2, 1, GL_FALSE, model2world.v);
+		//glUniformMatrix4fv(2, 1, GL_FALSE, world2camera.v);
+		//
+		glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
+		//glActiveTexture(GL_TEXTURE0);
+		glBindVertexArray(cubeMapVao);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDepthMask(GL_TRUE);
 		glBindVertexArray(0);
 
 		OGL_CHECKPOINT_DEBUG();
