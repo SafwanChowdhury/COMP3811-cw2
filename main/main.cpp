@@ -7,7 +7,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
-//namespace fs = std::filesystem;
+namespace fs = std::filesystem;
 
 #include "../support/error.hpp"
 #include "../support/program.hpp"
@@ -25,6 +25,8 @@
 #include "cylinder.hpp"
 #include "loadobj.hpp"
 #include "screenshot.hpp"
+#include "skybox.hpp"
+using namespace std;
 
 namespace
 {
@@ -38,6 +40,7 @@ namespace
 	struct State_
 	{
 		ShaderProgram* prog;
+		ShaderProgram* skybox;
 
 		struct CamCtrl_
 		{
@@ -188,7 +191,13 @@ int main() try{
 		{ GL_VERTEX_SHADER, "assets/default.vert" },
 		{ GL_FRAGMENT_SHADER, "assets/default.frag" }
 		});
+	ShaderProgram skybox({
+		{ GL_VERTEX_SHADER, "assets/skybox.vert" },
+		{ GL_FRAGMENT_SHADER, "assets/skybox.frag" }
+		});
+
 	state.prog = &prog;
+	state.skybox = &skybox;
 	state.camControl.radius = 10.f;
 
 
@@ -202,7 +211,6 @@ int main() try{
 
 
 	// TODO:
-
 
 	auto baseCyl = make_cylinder(true, 16, { 0.05f, 0.05f, 0.05f }, {0.1f, 0.1f, 0.1f }, {0.2f,0.2f,0.2f }, 12.8f, 1.f,
 		make_rotation_z(3.141592f / 2.f) *
@@ -275,7 +283,7 @@ int main() try{
 	state.camControl.radius = 2.05f;
 	state.camControl.mod = 1.f;
 	state.animControl.mod = 1.f;
-	state.animControl.animation = 0;
+	state.animControl.animation = false;
 
 
 	auto redCone = make_cone(true, 16, { 1.f, 0.f, 0.f }, { 1.0f, 0.f, 0.f }, { 0.5f,0.f,0.f }, 32.f, 1.f,
@@ -342,6 +350,28 @@ int main() try{
 
 	GLuint lightBox2 = create_vao(cube5);
 	std::size_t lightBoxVertex2 = cube5.positions.size();
+
+	// skybox VAO
+	unsigned int skyboxVAO, skyboxVBO;
+	glGenVertexArrays(1, &skyboxVAO);
+	glGenBuffers(1, &skyboxVBO);
+	glBindVertexArray(skyboxVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+	std::vector<std::string> faces =
+	{
+		"external/skybox/right.png",
+		"external/skybox/left.png",
+		"external/skybox/top.png",
+		"external/skybox/bottom.png",
+		"external/skybox/front.png",
+		"external/skybox/back.png"
+	};
+
+	GLuint cubemapTexture = load_cubemap(faces);
 
 	OGL_CHECKPOINT_ALWAYS();
 
@@ -582,7 +612,27 @@ int main() try{
 		glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 0.f, 0.f, 0.f);
 		glUniform1f(8, 0.f);
 
+		
+
+
+		glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
+		glUseProgram(skybox.programId());
+		model2world = make_scaling( 100.f, 100.f, 100.f );
+		glUniformMatrix4fv(1, 1, GL_TRUE, world2camera.v);
+		glUniformMatrix4fv(0, 1, GL_TRUE, projection.v);
+		glUniformMatrix4fv(2, 1, GL_TRUE, model2world.v);
+		glBindVertexArray(skyboxVAO);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(0);
+		glDepthFunc(GL_LESS); // set depth function back to default
+
+
+		OGL_CHECKPOINT_DEBUG();
+
 		//window
+		glUseProgram(prog.programId());
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_BLEND);
 		glBindVertexArray(windowGlass);
@@ -590,9 +640,6 @@ int main() try{
 		glDisable(GL_BLEND);
 
 		glBindVertexArray(0);
-
-		OGL_CHECKPOINT_DEBUG();
-
 
 		// Display results
 		glfwSwapBuffers(window);
