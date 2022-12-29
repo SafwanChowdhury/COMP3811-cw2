@@ -273,7 +273,8 @@ int main() try{
 	state.camControl.y = -0.55f;
 	state.camControl.radius = 2.05f;
 	state.camControl.mod = 1.f;
-
+	state.animControl.mod = 1.f;
+	state.animControl.animation = 0;
 
 
 	auto redCone = make_cone(true, 16, { 1.f, 0.f, 0.f }, { 1.0f, 0.f, 0.f }, { 0.5f,0.f,0.f }, 32.f, 1.f,
@@ -344,7 +345,7 @@ int main() try{
 	OGL_CHECKPOINT_ALWAYS();
 
 	// Main loop
-	float rktLast = 1.1;
+	float rktLast = 1.f;
 	int tog = 0;
 	while (!glfwWindowShouldClose(window))
 	{
@@ -383,13 +384,15 @@ int main() try{
 		if (angle >= 2.f * kPi_)
 			angle -= 2.f * kPi_;
 
-		
+		float x = 1.1f;
 		if (state.animControl.animation) {
-			rktHeight += rktLast * (0.015f * state.animControl.mod);
+			if (rktHeight < 10) {
+				x += 0.01f;
+			}
+			rktHeight += (rktLast / x) * (0.015f * state.animControl.mod);
 			rktLast = rktHeight;
 			printf("%f\n", rktHeight);
 		}
-
 
 		//printf("%d ", state.objControl.displayCoords);
 		if (state.objControl.displayCoords == 1 && tog == 0) {
@@ -683,8 +686,6 @@ namespace
 				if (GLFW_PRESS == aAction) {
 					state->animControl.mod = 0.5f;
 				}
-				else if (GLFW_RELEASE == aAction)
-					state->animControl.mod = 1;
 			}
 			//play pause
 			if ((GLFW_KEY_2 == aKey || GLFW_KEY_UP == aKey) && GLFW_PRESS == aAction)
@@ -692,17 +693,17 @@ namespace
 				state->animControl.animPlay = !state->animControl.animPlay;
 				if (state->animControl.animPlay) {
 					printf("off\n");
-					state->animControl.animation = 0;
+					state->animControl.animation = 0.f;
 				}
 				else {
 					printf("on\n");
-					state->animControl.animation = 1;
+					state->animControl.animation = 1.f;
 				}
 			}
 			//reset speed modifier
 			if ((GLFW_KEY_3 == aKey || GLFW_KEY_DOWN == aKey) && GLFW_PRESS == aAction)
 			{
-				state->animControl.mod = 1;
+				state->animControl.mod = 1.f;
 			}
 			//speed up
 			if (GLFW_KEY_4 == aKey || GLFW_KEY_RIGHT == aKey)
@@ -710,11 +711,7 @@ namespace
 				if (GLFW_PRESS == aAction) {
 					state->animControl.mod = 2.f;
 				}
-				else if (GLFW_RELEASE == aAction)
-					state->animControl.mod = 1;
 			}
-
-
 
 
 
@@ -847,7 +844,7 @@ namespace
 					state->objControl.pressed = 0;
 				}
 			}
-			if (GLFW_KEY_5 == aKey)
+			if (GLFW_KEY_5 == aKey || GLFW_KEY_KP_5 == aKey)
 			{
 				if (GLFW_PRESS == aAction) {
 					state->objControl.displayCoords = 1;
