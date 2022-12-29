@@ -46,7 +46,7 @@ namespace
 			float phi, theta;
 			float radius;
 
-			float lastX, lastY, x, y;
+			float lastX, lastY, x, y, mod;
 		} camControl;
 
 		struct AnimCtrl_
@@ -240,12 +240,12 @@ int main() try{
 		make_translation({ 0.f, 5.7f, -3.3f })
 	);
 
-	auto cube = make_cube(1, { 0.f, 0.f, 0.f }, { 0.01f, 0.01f, 0.01f }, { 0.5f,0.5f,0.5f }, 32.f, 1.f,
+	auto cube = make_cube(1, { 0.f, 0.f, 0.f }, { 0.01f, 0.01f, 0.01f }, { 0.5f,0.5f,0.5f }, 50.f, 1.f,
 		make_scaling(0.1f, 0.07f, 0.02f)*
 		make_translation({ -1.2f, 1.7f, 4.f })
 	);
 
-	auto cube2 = make_cube(1, { 0.f, 0.f, 0.f }, { 0.01f, 0.01f, 0.01f }, { 0.5f,0.5f,0.5f }, 32.f, 1.f,
+	auto cube2 = make_cube(1, { 0.f, 0.f, 0.f }, { 0.01f, 0.01f, 0.01f }, { 0.5f,0.5f,0.5f }, 50.f, 1.f,
 		make_scaling(0.1f, 0.07f, 0.02f)*
 		make_translation({ 1.2f, 1.7f, 4.f })
 	);
@@ -272,7 +272,7 @@ int main() try{
 	state.camControl.x = -5.48f;
 	state.camControl.y = -0.55f;
 	state.camControl.radius = 2.05f;
-
+	state.camControl.mod = 1.f;
 
 
 
@@ -344,7 +344,7 @@ int main() try{
 	OGL_CHECKPOINT_ALWAYS();
 
 	// Main loop
-
+	float rktLast = 1.1;
 	int tog = 0;
 	while (!glfwWindowShouldClose(window))
 	{
@@ -383,17 +383,11 @@ int main() try{
 		if (angle >= 2.f * kPi_)
 			angle -= 2.f * kPi_;
 
-
-		float rktLast = 0.f;
+		
 		if (state.animControl.animation) {
-			rktHeight += 0.001f + rktLast + state.animControl.mod;
-			if (rktHeight < 0) {
-				rktHeight = 0.000000001;
-			}
-		}
-		else {
-			float rktLast = rktHeight;
-			rktHeight = 0.f;
+			rktHeight += rktLast * (0.015f * state.animControl.mod);
+			rktLast = rktHeight;
+			printf("%f\n", rktHeight);
 		}
 
 
@@ -419,30 +413,30 @@ int main() try{
 
 		// Update camera state
 		if (state.camControl.actionZoomIn) {
-			state.camControl.y += sin(state.camControl.theta) * kMovementPerSecond_ * dt;
-			state.camControl.x -= cos(state.camControl.theta) * sin(state.camControl.phi) * kMovementPerSecond_ * dt;
-			state.camControl.radius -= cos(state.camControl.theta) * cos(state.camControl.phi) * kMovementPerSecond_ * dt;
+			state.camControl.y += sin(state.camControl.theta) * kMovementPerSecond_ * dt * state.camControl.mod;
+			state.camControl.x -= cos(state.camControl.theta) * sin(state.camControl.phi) * kMovementPerSecond_ * dt * state.camControl.mod;
+			state.camControl.radius -= cos(state.camControl.theta) * cos(state.camControl.phi) * kMovementPerSecond_ * dt * state.camControl.mod;
 		}
 		else if (state.camControl.actionZoomOut) {
-			state.camControl.y -= sin(state.camControl.theta) * kMovementPerSecond_ * dt;
-			state.camControl.x += cos(state.camControl.theta) * sin(state.camControl.phi) * kMovementPerSecond_ * dt;
-			state.camControl.radius += cos(state.camControl.theta) * cos(state.camControl.phi) * kMovementPerSecond_ * dt;
+			state.camControl.y -= sin(state.camControl.theta) * kMovementPerSecond_ * dt * state.camControl.mod;
+			state.camControl.x += cos(state.camControl.theta) * sin(state.camControl.phi) * kMovementPerSecond_ * dt * state.camControl.mod;
+			state.camControl.radius += cos(state.camControl.theta) * cos(state.camControl.phi) * kMovementPerSecond_ * dt * state.camControl.mod;
 
 		}
 		if (state.camControl.actionMoveL) {
-			state.camControl.x += cos(state.camControl.phi) * kMovementPerSecond_ * dt;
-			state.camControl.radius -= sin(state.camControl.phi) * kMovementPerSecond_ * dt;
+			state.camControl.x += cos(state.camControl.phi) * kMovementPerSecond_ * dt * state.camControl.mod;
+			state.camControl.radius -= sin(state.camControl.phi) * kMovementPerSecond_ * dt * state.camControl.mod;
 		}
 		else if (state.camControl.actionMoveR) {
-			state.camControl.x -= cos(state.camControl.phi) * kMovementPerSecond_ * dt;
-			state.camControl.radius += sin(state.camControl.phi) * kMovementPerSecond_ * dt;
+			state.camControl.x -= cos(state.camControl.phi) * kMovementPerSecond_ * dt * state.camControl.mod;
+			state.camControl.radius += sin(state.camControl.phi) * kMovementPerSecond_ * dt * state.camControl.mod;
 
 		}
 		if (state.camControl.actionMoveU) {
-			state.camControl.y -= kMovementPerSecond_ * dt;
+			state.camControl.y -= kMovementPerSecond_ * dt * state.camControl.mod;
 		}
 		else if (state.camControl.actionMoveD) {
-			state.camControl.y += kMovementPerSecond_ * dt;
+			state.camControl.y += kMovementPerSecond_ * dt * state.camControl.mod;
 
 		}
 		//Compute matricies-
@@ -540,6 +534,7 @@ int main() try{
 		glDrawArrays(GL_TRIANGLES, 0, launchVertex);
 		glBindVertexArray(floodLight1Vao);
 
+		//exterior lights
 		glUniform1f(8, 1.f);
 		glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 1.f, 0.f, 0.f);
 		glDrawArrays(GL_TRIANGLES, 0, coneVertex);
@@ -549,13 +544,11 @@ int main() try{
 		glUniform1f(8, 0.f);
 		glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 0.f, 0.f, 0.f);
 
+		//rocket
 		model2world = make_translation({ 0.f, rktHeight, 0.f });
 		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
 		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
 		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
-
-
-		//rocket
 		glUniform1f(7, 1.f);
 		glBindVertexArray(rocketVAO);
 		glActiveTexture(GL_TEXTURE0);
@@ -566,6 +559,7 @@ int main() try{
 		glUniform1f(7, 0.f);
 		glBindTexture(GL_TEXTURE_2D,0);
 
+		//monitors
 		model2world = make_translation({ 4.4f, 0.86f, 21.45f });
 		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
 		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
@@ -573,6 +567,7 @@ int main() try{
 		glBindVertexArray(MonitorsVao);
 		glDrawArrays(GL_TRIANGLES, 0, MonitorsVert);
 
+		//interior lights
 		glUniform1f(8, 1.f);
 		glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 1.f, 1.f, 1.f);
 		glBindVertexArray(lightBox1);
@@ -582,6 +577,7 @@ int main() try{
 		glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 0.f, 0.f, 0.f);
 		glUniform1f(8, 0.f);
 
+		//window
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_BLEND);
 		glBindVertexArray(windowGlass);
@@ -679,15 +675,16 @@ namespace
 				else
 					glfwSetInputMode(aWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 			}
+
 			//animation controls
 			//slow down
 			if (GLFW_KEY_1 == aKey || GLFW_KEY_LEFT == aKey)
 			{
 				if (GLFW_PRESS == aAction) {
-					state->animControl.mod -= 0.01;
+					state->animControl.mod = 0.5f;
 				}
 				else if (GLFW_RELEASE == aAction)
-					state->animControl.mod += 0;
+					state->animControl.mod = 1;
 			}
 			//play pause
 			if ((GLFW_KEY_2 == aKey || GLFW_KEY_UP == aKey) && GLFW_PRESS == aAction)
@@ -705,17 +702,21 @@ namespace
 			//reset speed modifier
 			if ((GLFW_KEY_3 == aKey || GLFW_KEY_DOWN == aKey) && GLFW_PRESS == aAction)
 			{
-				state->animControl.mod = 0;
+				state->animControl.mod = 1;
 			}
 			//speed up
 			if (GLFW_KEY_4 == aKey || GLFW_KEY_RIGHT == aKey)
 			{
 				if (GLFW_PRESS == aAction) {
-					state->animControl.mod += 0.01;
+					state->animControl.mod = 2.f;
 				}
 				else if (GLFW_RELEASE == aAction)
-					state->animControl.mod += 0;
+					state->animControl.mod = 1;
 			}
+
+
+
+
 
 			// Camera controls if camera is active
 			if (state->camControl.cameraActive)
@@ -761,6 +762,20 @@ namespace
 						state->camControl.actionMoveD = true;
 					else if (GLFW_RELEASE == aAction)
 						state->camControl.actionMoveD = false;
+				}
+				if (GLFW_KEY_LEFT_SHIFT == aKey)
+				{
+					if (GLFW_PRESS == aAction)
+						state->camControl.mod = 2;
+					else if (GLFW_RELEASE == aAction)
+						state->camControl.mod = 1;
+				}
+				else if (GLFW_KEY_LEFT_CONTROL == aKey)
+				{
+					if (GLFW_PRESS == aAction)
+						state->camControl.mod = 0.5;
+					else if (GLFW_RELEASE == aAction)
+						state->camControl.mod = 1;
 				}
 			}
 
