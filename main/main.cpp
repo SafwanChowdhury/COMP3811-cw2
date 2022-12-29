@@ -24,6 +24,7 @@
 #include "cone.hpp"
 #include "cylinder.hpp"
 #include "loadobj.hpp"
+#include "screenshot.hpp"
 
 namespace
 {
@@ -45,7 +46,7 @@ namespace
 
 			float phi, theta;
 			float radius;
-
+			bool screenshot;
 			float lastX, lastY, x, y, mod;
 		} camControl;
 
@@ -347,6 +348,7 @@ int main() try{
 	// Main loop
 	float rktLast = 1.f;
 	int tog = 0;
+	int tog2 = 0;
 	while (!glfwWindowShouldClose(window))
 	{
 		// Let GLFW process events
@@ -391,10 +393,8 @@ int main() try{
 			}
 			rktHeight += (rktLast / x) * (0.015f * state.animControl.mod);
 			rktLast = rktHeight;
-			printf("%f\n", rktHeight);
 		}
 
-		//printf("%d ", state.objControl.displayCoords);
 		if (state.objControl.displayCoords == 1 && tog == 0) {
 			printf("T = %f %f %f\n", state.objControl.x, state.objControl.y, state.objControl.z);
 			printf("S = %f %f %f\n", state.objControl.x1, state.objControl.y1, state.objControl.z1);
@@ -405,6 +405,8 @@ int main() try{
 		{
 			tog = 0;
 		}
+
+
 
 		Vec3f pointLightPositions[] = {
 			Vec3f{ 2.7f, 10.f, 1.51f },
@@ -591,8 +593,9 @@ int main() try{
 
 		OGL_CHECKPOINT_DEBUG();
 
+
 		// Display results
-		glfwSwapBuffers( window );
+		glfwSwapBuffers(window);
 	}
 
 	// Cleanup.
@@ -679,6 +682,12 @@ namespace
 					glfwSetInputMode(aWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 			}
 
+			//screenshot
+			if (GLFW_KEY_F12 == aKey && GLFW_PRESS == aAction)
+			{
+				if (GLFW_PRESS == aAction)
+					saveScreenshot();
+			}
 			//animation controls
 			//slow down
 			if (GLFW_KEY_1 == aKey || GLFW_KEY_LEFT == aKey)
@@ -942,3 +951,5 @@ namespace
 			glfwDestroyWindow( window );
 	}
 }
+
+
