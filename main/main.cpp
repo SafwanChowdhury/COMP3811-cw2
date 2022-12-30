@@ -386,16 +386,30 @@ int main() try{
 	ImGui::StyleColorsDark();
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 430");
+	float colorBool[3] = {0.f,0.f,0.f};
+	float lightBrightness[3] = {0.5f, 0.3f, 0.3f};
+	float color[4] = { 0.8f, 0.3f, 0.02f, 1.0f };
+	float color1[4] = { 0.8f, 0.3f, 0.02f, 1.0f };
+	float color2[4] = { 0.8f, 0.3f, 0.02f, 1.0f };
 
 
+	glUseProgram(prog.programId());
+	glUniform3f(glGetUniformLocation(prog.programId(), "colorBool"), colorBool[0], colorBool[1],colorBool[2]);
+	glUniform4f(glGetUniformLocation(prog.programId(), "color"), color[0], color[1], color[2], color[3]);
+	glUniform4f(glGetUniformLocation(prog.programId(), "color1"), color1[0], color1[1], color1[2], color1[3]);
+	glUniform4f(glGetUniformLocation(prog.programId(), "color2"), color2[0], color2[1], color2[2], color2[3]);
 
-
-
+	printf("test");
 
 	// Main loop
 	float rktLast = 1.f;
 	int tog = 0;
 	int tog2 = 0;
+	bool temp = false;
+	bool temp1 = false;
+	bool temp2 = false;
+
+	printf("test\n");
 	while (!glfwWindowShouldClose(window))
 	{
 		// Let GLFW process events
@@ -503,8 +517,16 @@ int main() try{
 			0.1f, 100.0f
 		);
 		Mat33f normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
+
 		// Draw scene
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		//imgui
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+
 
 
 
@@ -520,9 +542,16 @@ int main() try{
 
 
 		Vec3f lightColor = { 1.f, 0.f, 0.f };
-		Vec3f diffuseColor = lightColor * 0.3f;
-		Vec3f ambientColor = diffuseColor * 0.01f;
+		if (colorBool[1] > 0.5f) {
+			lightColor = { color1[0], color1[1], color1[2] };
 
+		}
+		else {
+			lightColor = { 1.f, 1.f, 1.f };
+		}
+		Vec3f diffuseColor = lightColor * lightBrightness[1];
+		Vec3f ambientColor = diffuseColor * 0.01f;
+		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel1"), true);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[0].position"), pointLightPositions[0].x, pointLightPositions[0].y, pointLightPositions[0].z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[0].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[0].diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
@@ -530,11 +559,17 @@ int main() try{
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[0].constant"), 1.0f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[0].linear"), 0.09f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[0].quadratic"), 0.032f);
+		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel1"), false);
+		if (colorBool[2] > 0.5f) {
+			lightColor = { color2[0], color2[1], color2[2] };
 
-		lightColor = { 0.f, 0.f, 1.f };
-		diffuseColor = lightColor * 0.3f;
+		}
+		else {
+			lightColor = { 0.f, 0.f, 1.f };
+		}
+		diffuseColor = lightColor * lightBrightness[2];
 		ambientColor = diffuseColor * 0.01f;
-
+		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel2"), true);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[1].position"), pointLightPositions[1].x, pointLightPositions[1].y, pointLightPositions[1].z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[1].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[1].diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
@@ -542,7 +577,8 @@ int main() try{
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[1].constant"), 1.0f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[1].linear"), 0.09f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[1].quadratic"), 0.032f);
-
+		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel2"), false);
+		//ambient moonlight
 		lightColor = { 1.f, 1.f, 1.f };
 		diffuseColor = lightColor * 1.f;
 		ambientColor = diffuseColor * 0.01f;
@@ -555,10 +591,18 @@ int main() try{
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[2].linear"), 0.09f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[2].quadratic"), 0.032f);
 
-		lightColor = { 1.f, 1.f, 1.f };
-		diffuseColor = lightColor * 0.5f;
+		if (colorBool[0] > 0.5f) {
+			lightColor = { color[0], color[1], color[2] };
+
+		}
+		else {
+			lightColor = { 1.f, 1.f, 1.f };
+		}
+		diffuseColor = lightColor * lightBrightness[0];
 		ambientColor = diffuseColor * 0.01f;
 
+
+		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel"), true);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[3].position"), pointLightPositions[3].x, pointLightPositions[3].y, pointLightPositions[3].z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[3].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[3].diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
@@ -566,11 +610,9 @@ int main() try{
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[3].constant"), 1.0f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[3].linear"), 0.09f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[3].quadratic"), 0.032f);
+		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel"), false);
 
-		lightColor = { 1.f, 1.f, 1.f };
-		diffuseColor = lightColor * 0.5f;
-		ambientColor = diffuseColor * 0.01f;
-
+		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel"), true);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[4].position"), pointLightPositions[4].x, pointLightPositions[4].y, pointLightPositions[4].z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[4].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[4].diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
@@ -578,23 +620,29 @@ int main() try{
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[4].constant"), 1.0f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[4].linear"), 0.09f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[4].quadratic"), 0.032f);
+		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel"), false);
+
 
 		OGL_CHECKPOINT_DEBUG();
 		//TODO: draw frame
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glBindVertexArray(launchVAO);
 		glDrawArrays(GL_TRIANGLES, 0, launchVertex);
-		glBindVertexArray(floodLight1Vao);
 
-		//exterior lights
 		glUniform1f(8, 1.f);
+		glBindVertexArray(floodLight1Vao);
+		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel1"), true);
 		glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 1.f, 0.f, 0.f);
 		glDrawArrays(GL_TRIANGLES, 0, coneVertex);
+		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel1"), false);
+		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel2"), true);
 		glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 0.f, 0.f, 1.f);
 		glBindVertexArray(floodLight2Vao);
 		glDrawArrays(GL_TRIANGLES, 0, coneVertex2);
-		glUniform1f(8, 0.f);
+		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel2"), false);
 		glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 0.f, 0.f, 0.f);
+		glUniform1f(8, 0.f);
+
 
 		//rocket
 		model2world = make_translation({ 0.f, rktHeight, 0.f });
@@ -621,6 +669,7 @@ int main() try{
 
 		//interior lights
 		glUniform1f(8, 1.f);
+		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel"), true);
 		glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 1.f, 1.f, 1.f);
 		glBindVertexArray(lightBox1);
 		glDrawArrays(GL_TRIANGLES, 0, lightBoxVertex1);
@@ -628,6 +677,7 @@ int main() try{
 		glDrawArrays(GL_TRIANGLES, 0, lightBoxVertex2);
 		glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 0.f, 0.f, 0.f);
 		glUniform1f(8, 0.f);
+		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel"), false);
 
 		
 
@@ -658,13 +708,54 @@ int main() try{
 
 		glBindVertexArray(0);
 
+		//imgui
+		// ImGUI window creation
+		ImGui::Begin("Light Color Selector");
+		// Text that appears in the window
+		ImGui::Text("Tick the box to change lights!");
+		ImGui::Checkbox("Interior  Lights", &temp);
+		ImGui::SliderFloat("Brightness", &lightBrightness[0], 0.1f, 5.0f);
+		ImGui::ColorEdit4("Color", color);
+		ImGui::Checkbox("Launchpad 1", &temp1);
+		ImGui::SliderFloat("Brightness 1", &lightBrightness[1], 0.1f, 5.0f);
+		ImGui::ColorEdit4("Color 1", color1);
+		ImGui::Checkbox("Launchpad 2", &temp2);
+		ImGui::SliderFloat("Brightness 2", &lightBrightness[2], 0.1f, 5.0f);
+		ImGui::ColorEdit4("Color 2", color2);
+		// Ends the window
+		ImGui::End();
+
+		if (temp)
+			colorBool[0] = 1.f;
+		else
+			colorBool[0] = 0.f;
+		if (temp1)
+			colorBool[1] = 1.f;
+		else
+			colorBool[1] = 0.f;
+		if (temp2)
+			colorBool[2] = 1.f;
+		else
+			colorBool[2] = 0.f;
+
+		glUseProgram(prog.programId());
+		glUniform3f(glGetUniformLocation(prog.programId(), "colorBool"), colorBool[0],colorBool[1], colorBool[2]);
+		glUniform4f(glGetUniformLocation(prog.programId(), "color"), color[0], color[1], color[2], color[3]);
+		glUniform4f(glGetUniformLocation(prog.programId(), "color1"), color1[0], color1[1], color1[2], color1[3]);
+		glUniform4f(glGetUniformLocation(prog.programId(), "color2"), color2[0], color2[1], color2[2], color2[3]);
+
+		// Renders the ImGUI elements
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		// Display results
 		glfwSwapBuffers(window);
 	}
 
 	// Cleanup.
 	//TODO: additional cleanup
-
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
 	return 0;
 }
 catch( std::exception const& eErr )
