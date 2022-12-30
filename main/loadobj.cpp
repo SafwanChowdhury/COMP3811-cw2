@@ -1,5 +1,6 @@
 #include "loadobj.hpp"
 #include <rapidobj/rapidobj.hpp>
+#include <iostream>
 
 #include "../support/error.hpp"
 
@@ -34,6 +35,9 @@ SimpleMeshData load_wavefront_obj( char const* aPath, Mat44f aPreTransform)
 					result.attributes.texcoords[idx.texcoord_index * 2 + 0],
 					result.attributes.texcoords[idx.texcoord_index * 2 + 1]
 			  	});
+			}
+			else{
+			  //std::cout<<aPath<<" doesn't have textures"<<std::endl;
 			}
 			
 			auto const& mat = result.materials[shape.mesh.material_ids[i / 3]];

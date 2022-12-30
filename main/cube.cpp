@@ -5,6 +5,7 @@ SimpleMeshData make_cube(float x, Vec3f aColor, Vec3f aDiffuse, Vec3f aSpec, flo
 	
 	std::vector<Vec3f> pos;
 	std::vector<Vec3f> normal;
+	std::vector<Vec2f> texcoords;
 
 	pos.emplace_back(Vec3f{+x, +x, -x});
 	normal.emplace_back(Vec3f{ 0.f, +1.f, 0.f });
@@ -18,6 +19,12 @@ SimpleMeshData make_cube(float x, Vec3f aColor, Vec3f aDiffuse, Vec3f aSpec, flo
 	normal.emplace_back(Vec3f{ 0.f, +1.f, 0.f });
 	pos.emplace_back(Vec3f{+x, +x, +x});
 	normal.emplace_back(Vec3f{ 0.f, +1.f, 0.f });
+	texcoords.emplace_back(Vec2f{1.f,1.f});
+	texcoords.emplace_back(Vec2f{0.f,1.f});
+	texcoords.emplace_back(Vec2f{0.f,0.f});
+	texcoords.emplace_back(Vec2f{1.f,1.f});
+	texcoords.emplace_back(Vec2f{0.f,0.f});
+	texcoords.emplace_back(Vec2f{1.f,0.f});
 
 	pos.emplace_back(Vec3f{+x, -x, +x});
 	normal.emplace_back(Vec3f{ 0.f, 0.f, +1.f });
@@ -31,6 +38,12 @@ SimpleMeshData make_cube(float x, Vec3f aColor, Vec3f aDiffuse, Vec3f aSpec, flo
 	normal.emplace_back(Vec3f{ 0.f, 0.f, +1.f });
 	pos.emplace_back(Vec3f{-x, -x, +x});
 	normal.emplace_back(Vec3f{ 0.f, 0.f, +1.f });
+	texcoords.emplace_back(Vec2f{1.f,1.f});
+	texcoords.emplace_back(Vec2f{0.f,1.f});
+	texcoords.emplace_back(Vec2f{0.f,0.f});
+	texcoords.emplace_back(Vec2f{1.f,1.f});
+	texcoords.emplace_back(Vec2f{0.f,0.f});
+	texcoords.emplace_back(Vec2f{1.f,0.f});
 
 	pos.emplace_back(Vec3f{-x, -x, +x});
 	normal.emplace_back(Vec3f{ -1.f, 0.f, 0.f });
@@ -44,6 +57,12 @@ SimpleMeshData make_cube(float x, Vec3f aColor, Vec3f aDiffuse, Vec3f aSpec, flo
 	normal.emplace_back(Vec3f{ -1.f, 0.f, 0.f });
 	pos.emplace_back(Vec3f{-x, -x, -x});
 	normal.emplace_back(Vec3f{ -1.f, 0.f, 0.f });
+	texcoords.emplace_back(Vec2f{1.f,1.f});
+	texcoords.emplace_back(Vec2f{0.f,1.f});
+	texcoords.emplace_back(Vec2f{0.f,0.f});
+	texcoords.emplace_back(Vec2f{1.f,1.f});
+	texcoords.emplace_back(Vec2f{0.f,0.f});
+	texcoords.emplace_back(Vec2f{1.f,0.f});
 	
 	pos.emplace_back(Vec3f{-x, -x, -x});
 	normal.emplace_back(Vec3f{ 0.f, -1.f, 0.f });
@@ -57,6 +76,12 @@ SimpleMeshData make_cube(float x, Vec3f aColor, Vec3f aDiffuse, Vec3f aSpec, flo
 	normal.emplace_back(Vec3f{ 0.f, -1.f, 0.f });
 	pos.emplace_back(Vec3f{-x, -x, +x});
 	normal.emplace_back(Vec3f{ 0.f, -1.f, 0.f });
+	texcoords.emplace_back(Vec2f{1.f,1.f});
+	texcoords.emplace_back(Vec2f{0.f,1.f});
+	texcoords.emplace_back(Vec2f{0.f,0.f});
+	texcoords.emplace_back(Vec2f{1.f,1.f});
+	texcoords.emplace_back(Vec2f{0.f,0.f});
+	texcoords.emplace_back(Vec2f{1.f,0.f});
 
 	pos.emplace_back(Vec3f{+x, -x, -x});
 	normal.emplace_back(Vec3f{ +1.f, 0.f, 0.f });
@@ -70,6 +95,12 @@ SimpleMeshData make_cube(float x, Vec3f aColor, Vec3f aDiffuse, Vec3f aSpec, flo
 	normal.emplace_back(Vec3f{ +1.f, 0.f, 0.f });
 	pos.emplace_back(Vec3f{+x, -x, +x});
 	normal.emplace_back(Vec3f{ +1.f, 0.f, 0.f });
+	texcoords.emplace_back(Vec2f{1.f,1.f});
+	texcoords.emplace_back(Vec2f{0.f,1.f});
+	texcoords.emplace_back(Vec2f{0.f,0.f});
+	texcoords.emplace_back(Vec2f{1.f,1.f});
+	texcoords.emplace_back(Vec2f{0.f,0.f});
+	texcoords.emplace_back(Vec2f{1.f,0.f});
 
 	pos.emplace_back(Vec3f{-x, -x, -x});
 	normal.emplace_back(Vec3f{ 0.f, 0.f, -1.f });
@@ -83,6 +114,12 @@ SimpleMeshData make_cube(float x, Vec3f aColor, Vec3f aDiffuse, Vec3f aSpec, flo
 	normal.emplace_back(Vec3f{ 0.f, 0.f, -1.f });
 	pos.emplace_back(Vec3f{+x, -x, -x});
 	normal.emplace_back(Vec3f{ 0.f, 0.f, -1.f });
+	texcoords.emplace_back(Vec2f{1.f,1.f});
+	texcoords.emplace_back(Vec2f{0.f,1.f});
+	texcoords.emplace_back(Vec2f{0.f,0.f});
+	texcoords.emplace_back(Vec2f{1.f,1.f});
+	texcoords.emplace_back(Vec2f{0.f,0.f});
+	texcoords.emplace_back(Vec2f{1.f,0.f});
 
 	Mat33f const N = mat44_to_mat33(transpose(invert(aPreTransform)));
 
@@ -108,7 +145,7 @@ SimpleMeshData make_cube(float x, Vec3f aColor, Vec3f aDiffuse, Vec3f aSpec, flo
 	std::vector spec(pos.size(), aSpec);
 	std::vector shine(pos.size(), aShininess);
 	std::vector alpha(pos.size(), aAlpha);
-	return SimpleMeshData{ std::move(pos), std::move(col), std::move(texcoord), std::move(normal), std::move(diff), std::move(spec), std::move(shine), std::move(alpha) };
+	return SimpleMeshData{ std::move(pos), std::move(col), std::move(texcoords), std::move(normal), std::move(diff), std::move(spec), std::move(shine), std::move(alpha) };
 }
 
 SimpleMeshData make_cube_tex(float x, Vec3f aColor, Vec3f aDiffuse, Vec3f aSpec, float aShininess, float aAlpha,  Mat44f aPreTransform) {

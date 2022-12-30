@@ -16,6 +16,7 @@ layout( location = 5 ) uniform mat4 uModel;
 layout( location = 6 ) uniform mat4 uView;
 layout( location = 7 ) uniform float isTex;
 layout( location = 8 ) uniform float isEmi;
+layout( location = 9 ) uniform float isMulti;
 
 out vec3 v2fNormal;
 out vec3 v2fPos;
@@ -29,6 +30,7 @@ out float uAlpha;
 out vec2 v2fTexCoord;
 out float oTex;
 out float oEmi;
+out float oMulti;
 
 
 void main()
@@ -41,6 +43,7 @@ void main()
 	v2fTexCoord = iTexCoord;
 	oTex = isTex;
 	oEmi = isEmi;
+	oMulti = isMulti;
 	v2fNormal = normalize(uNormalMatrix * iNormal);
 	v2fPos = vec3(uModel * vec4(iPosition,1.0));
 	v2fView = vec3(uCamPos);

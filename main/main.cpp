@@ -37,7 +37,6 @@ namespace
 	struct State_
 	{
 		ShaderProgram* prog;
-	        ShaderProgram* cubeMap;
 
 		struct CamCtrl_
 		{
@@ -188,17 +187,8 @@ int main() try{
 		{ GL_VERTEX_SHADER, "assets/default.vert" },
 		{ GL_FRAGMENT_SHADER, "assets/default.frag" }
 		});
-	
-
-        ShaderProgram cubeMap({
-	        {GL_VERTEX_SHADER, "assets/map.vert"},
-	        {GL_FRAGMENT_SHADER, "assets/map.frag"}
-	  });
-
-
 
 	state.prog = &prog;
-	state.cubeMap = &cubeMap;
 	state.camControl.radius = 10.f;
 	
 	// Animation state
@@ -210,108 +200,7 @@ int main() try{
 
 
 	// TODO:
-	//cube map
 
-	std::vector<std::string> skyFaces =  {
-					"external/SkyMap/right.jpg",
-					"external/SkyMap/left.jpg",
-					"external/SkyMap/top.jpg",
-					"external/SkyMap/bottom.jpg",
-					"external/SkyMap/front.jpg",
-					"external/SkyMap/back.jpg"
-					
-	};
-
-	
-
-	//	if(skyboxTexture == 0){
-	// cout<<"NOOO"<<endl;
-	//}
-	
-
-
-	
-	//cube
-
-
-	float skyboxVertices[] = {
-    // positions          
-				  -1.0f,  1.0f, -1.0f,
-				  -1.0f, -1.0f, -1.0f,
-				  1.0f, -1.0f, -1.0f,
-				  1.0f, -1.0f, -1.0f,
-				  1.0f,  1.0f, -1.0f,
-				  -1.0f,  1.0f, -1.0f,
-
-				  -1.0f, -1.0f,  1.0f,
-				  -1.0f, -1.0f, -1.0f,
-				  -1.0f,  1.0f, -1.0f,
-				  -1.0f,  1.0f, -1.0f,
-				  -1.0f,  1.0f,  1.0f,
-				  -1.0f, -1.0f,  1.0f,
-
-				  1.0f, -1.0f, -1.0f,
-				  1.0f, -1.0f,  1.0f,
-				  1.0f,  1.0f,  1.0f,
-				  1.0f,  1.0f,  1.0f,
-				  1.0f,  1.0f, -1.0f,
-				  1.0f, -1.0f, -1.0f,
-
-				  -1.0f, -1.0f,  1.0f,
-				  -1.0f,  1.0f,  1.0f,
-				  1.0f,  1.0f,  1.0f,
-				  1.0f,  1.0f,  1.0f,
-				  1.0f, -1.0f,  1.0f,
-				  -1.0f, -1.0f,  1.0f,
-
-				  -1.0f,  1.0f, -1.0f,
-				  1.0f,  1.0f, -1.0f,
-				  1.0f,  1.0f,  1.0f,
-				  1.0f,  1.0f,  1.0f,
-				  -1.0f,  1.0f,  1.0f,
-				  -1.0f,  1.0f, -1.0f,
-
-				  -1.0f, -1.0f, -1.0f,
-				  -1.0f, -1.0f,  1.0f,
-				  1.0f, -1.0f, -1.0f,
-				  1.0f, -1.0f, -1.0f,
-				  -1.0f, -1.0f,  1.0f,
-				  1.0f, -1.0f,  1.0f
-	};
-	
-	GLuint cubeMapPositionVBO = 0;
-	glGenBuffers( 1, &cubeMapPositionVBO);
-	glBindBuffer( GL_ARRAY_BUFFER, cubeMapPositionVBO );
-	glBufferData( GL_ARRAY_BUFFER, sizeof(skyboxVertices), skyboxVertices, GL_STATIC_DRAW );
-
-
-	GLuint cubeMapVao = 0;
-	glGenVertexArrays( 1, &cubeMapVao );
-	glBindVertexArray( cubeMapVao );
-
-	GLuint skyboxTexture = load_cube_map(skyFaces);
-
-	glBindBuffer( GL_ARRAY_BUFFER, cubeMapPositionVBO );
-	glVertexAttribPointer(
-			      0,
-			      3, GL_FLOAT, GL_FALSE,
-			      3*sizeof(float),
-			      0
-	);
-	glEnableVertexAttribArray( 0 );
-
-	//Reset State
-	glBindVertexArray( 0 );
-	glBindBuffer( GL_ARRAY_BUFFER, 0 );
-
-	//Clean up buffers
-	glDeleteBuffers( 1, &cubeMapPositionVBO );
-	
-	//end of cube
-
-	
-
-	//end of cube map
 
 	auto baseCyl = make_cylinder(true, 16, { 0.05f, 0.05f, 0.05f }, {0.1f, 0.1f, 0.1f }, {0.2f,0.2f,0.2f }, 12.8f, 1.f,
 		make_rotation_z(3.141592f / 2.f) *
@@ -363,7 +252,12 @@ int main() try{
         //display 
 	auto cubeFace = make_cube_tex(1, { 0.f, 1.f, 0.f }, { 1.0f, 0.5f, 0.31f }, { 0.5f,0.5f,0.5f }, 32.f, 1.f,
 	        make_scaling(0.1f, 0.07f, 0.02f)*
-		make_translation({ -1.2f, 1.7f, 5.1f })
+		make_translation({ -1.2f, 1.7f, 5.01f })
+	);
+
+        auto multiTex  = make_cube_tex(1, { 1.f, 0.f, 0.f }, { 1.0f, 0.5f, 0.31f }, { 0.5f,0.5f,0.5f }, 32.f, 1.f,
+	        make_scaling(0.1f, 0.07f, 0.02f)*
+		make_translation({ 1.2f, 1.7f, 5.01f })
 	);
 
 
@@ -377,7 +271,12 @@ int main() try{
 	GLuint ScreenVao = create_vao(cubeFace);
 	std::size_t MonitorsVert = Monitors.positions.size();
 	std::size_t ScreenVert = cubeFace.positions.size();
+	GLuint MultiTexVao = create_vao(multiTex);
+	std::size_t MultiVert = multiTex.positions.size();
 
+        //Multitexturing dirty glass
+	GLuint mTex0 = load_texture_2d("external/materials/glass/dirty_glass_43_92_opacity.jpg");
+        
 	GLuint markusFace = load_texture_2d("external/cw2-texture/markus.png");
 
 	state.objControl.x = 0.f;
@@ -433,7 +332,8 @@ int main() try{
 	GLuint launchVAO = create_vao(launch);
 	std::size_t launchVertex = launch.positions.size();
 
-
+	GLuint textureFenceBase = load_texture_2d("external/Fence/fence_DefaultMaterial_BaseColor.png");
+	
 	auto cube3 = make_cube(1, { 0.5f, 0.87f, 1.f }, { 0.5f, 0.87f, 1.f }, { 0.5f,0.5f,0.5f }, 32.f, 0.1f,
 		make_scaling(2.45f, 0.6f, 0.1f) *
 		make_translation({ -0.19f, 0.58f, -2.56f })
@@ -654,7 +554,10 @@ int main() try{
 		OGL_CHECKPOINT_DEBUG();
 		//TODO: draw frame
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		
 		glBindVertexArray(launchVAO);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D,textureFenceBase);
 		glDrawArrays(GL_TRIANGLES, 0, launchVertex);
 		glBindVertexArray(floodLight1Vao);
 
@@ -691,13 +594,56 @@ int main() try{
 		glBindVertexArray(MonitorsVao);
 		glDrawArrays(GL_TRIANGLES, 0, MonitorsVert);
 
-		//drawing face
+		//Screen1
 		glUniform1f(7, 1.f);
+		//glUniform1f(9, 1.f);
 		glBindVertexArray(ScreenVao);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, markusFace);
+		
+		//glActiveTexture(GL_TEXTURE1);
+		//glBindTexture(GL_TEXTURE_2D, mTex0);
+		
+		//glActiveTexture(GL_TEXTURE2);
+	        //glBindTexture(GL_TEXTURE_2D, mTex1);
+		
 		glDrawArrays(GL_TRIANGLES, 0, ScreenVert);
 		glUniform1f(7, 0.f);
+		//glUniform1f(9, 0.f);
+
+		//Screen2
+		glUniform1f(7, 1.f);
+		glUniform1f(9, 1.f);
+		glUniform3f(glGetUniformLocation(prog.programId(), "specular"), 0.9f, 0.9f, 0.9f);
+		//glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 1.f, 1.f, 1.f);
+		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		//glEnable(GL_BLEND);
+		glBindVertexArray(MultiTexVao);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, markusFace);
+        
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, mTex0);
+
+		/*
+		glActiveTexture(GL_TEXTURE2);
+	        glBindTexture(GL_TEXTURE_2D, mTex1);
+	        
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, mTex2);
+		
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, mTex3);
+		glActiveTexture(GL_TEXTURE4);
+		glBindTexture(GL_TEXTURE_2D, mTex4);
+		*/
+		glDrawArrays(GL_TRIANGLES, 0, MultiVert);
+		glUniform1f(9, 0.f);
+		glUniform1f(7, 0.f);
+	 
+		glUniform3f(glGetUniformLocation(prog.programId(), "specular"), 0.f, 0.f, 0.f);
+		//glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 0.f, 0.f, 0.f);
 
 		glUniform1f(8, 1.f);
 		glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 1.f, 1.f, 1.f);
@@ -713,33 +659,10 @@ int main() try{
 		glBindVertexArray(windowGlass);
 		glDrawArrays(GL_TRIANGLES, 0, windowVertex);
 		glDisable(GL_BLEND);
-
+		glUniform1f(9, 0.f);
 		glBindVertexArray(0);
 
 
-		//skybox
-		//glDepthFunc(GL_LEQUAL);
-		glDepthMask(GL_FALSE);
-                glUseProgram(cubeMap.programId());
-		
-		//std::cout<<skymap.programId()<<std::endl;
-		//std::cout<<prog.programId()<<std::endl;
-		//std::cout<<skyboxTexture<<std::endl;
-	        //glUniformMatrix3fv(glGetUniformLocation(skymap.programId(),"normalMatrix"), 1, GL_FALSE, normalMatrix.v);
-		//Matt44f projCameraWorld = projection * view * model;
-		//Mat44f cubeMapPos = projCameraWorld * make_translation({0.0f, 18.0f, 0.f}) * make_scaling(1.0f, 0.4f, 1.0f);
-		//glUniformMatrix4fv(1, 1, GL_FALSE, projection.v);
-		//std::cout<<projection.v<<std::endl;
-		//glUniformMatrix4fv(glGetUniformLocation(skymap.programId(),"T"), 1, GL_FALSE, T.v);
-		//glUniformMatrix4fv(2, 1, GL_FALSE, model2world.v);
-		//glUniformMatrix4fv(2, 1, GL_FALSE, world2camera.v);
-		//
-		glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
-		//glActiveTexture(GL_TEXTURE0);
-		glBindVertexArray(cubeMapVao);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glDepthMask(GL_TRUE);
-		glBindVertexArray(0);
 
 		OGL_CHECKPOINT_DEBUG();
 

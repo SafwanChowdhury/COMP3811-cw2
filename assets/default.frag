@@ -10,12 +10,17 @@ in float uAlpha;
 in vec2 v2fTexCoord;
 in float oTex;
 in float oEmi;
+in float oMulti;
 //layout( location = 2 ) uniform vec3 uLightDir; // should be normalized! kuLightDirk = 1
 layout( location = 0 ) out vec4 oColor;
 
 vec3 result = {0.f,0.f,0.f};
 
 layout( binding = 0 ) uniform sampler2D uTexture;
+layout( binding = 1 ) uniform sampler2D uTexture1;
+layout( binding = 2 ) uniform sampler2D uTexture2;
+layout( binding = 3 ) uniform sampler2D uTexture3;
+layout( binding = 4 ) uniform sampler2D uTexture4;
 
 struct PointLight {
     vec3 position;
@@ -68,10 +73,16 @@ void main()
         result += CalcPointLight(pointLights[i], v2fNormal, v2fPos, v2fView);
 
     if(oTex > 0.5f){
-       oColor = (texture( uTexture, v2fTexCoord) * vec4(result, uAlpha));
+	if(oMulti > 0.5f) {
+		oColor = (texture( uTexture, v2fTexCoord) * texture( uTexture1, v2fTexCoord) * vec4(result, uAlpha));
+	}
+	else{
+       		oColor = (texture( uTexture, v2fTexCoord) * vec4(result, uAlpha));
+	}
 	}
     else{
         if (oEmi > 0.5f)
+		
             oColor = vec4(emissive.x, emissive.y, emissive.z ,1.f);
         else
             oColor = vec4(result, uAlpha);
