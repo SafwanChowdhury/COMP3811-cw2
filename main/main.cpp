@@ -425,7 +425,6 @@ int main() try{
 	bool temp1 = false;
 	bool temp2 = false;
 
-	printf("test\n");
 	while (!glfwWindowShouldClose(window))
 	{
 		// Let GLFW process events

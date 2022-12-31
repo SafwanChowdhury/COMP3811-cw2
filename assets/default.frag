@@ -81,7 +81,9 @@ void main()
         if(oMulti > 0.5f) {
   		    oColor = (texture( uTexture, v2fTexCoord) * texture( uTexture1, v2fTexCoord) * vec4(result, uAlpha));
   	    }
-        oColor = (texture( uTexture, v2fTexCoord) * vec4(result, uAlpha));
+        else{
+            oColor = (texture( uTexture, v2fTexCoord) * vec4(result, uAlpha));
+        }
     }
     else if (oEmi > 0.5f){
         if (colorBool[0] > 0.5f && colorSel)
