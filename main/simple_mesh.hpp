@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <string>
+#include <iostream>
 
 #include "../vmlib/vec3.hpp"
 #include "../vmlib/vec2.hpp"
@@ -29,6 +30,9 @@ struct SimpleMeshData
 };
 
 GLuint load_texture_2d (char const* aPath);
+
+GLuint load_cubemap(std::vector<std::string> faces);
+
 
 
 

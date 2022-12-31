@@ -4,6 +4,14 @@ includedirs( "stb/include" );
 includedirs( "glad/include" );
 includedirs( "glfw/include" );
 includedirs( "rapidobj/include" );
+includedirs("imgui");
+
+project( "x-imgui" )
+	kind "StaticLib"
+
+	location "."
+
+	files( "imgui/*.cpp" )
 
 project( "x-stb" )
 	kind "StaticLib"

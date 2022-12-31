@@ -1,3 +1,7 @@
+#include "../third_party/imgui/imgui.h"
+#include "../third_party/imgui/imgui_impl_glfw.h"
+#include "../third_party/imgui/imgui_impl_opengl3.h"
+
 #include <glad.h>
 #include <GLFW/glfw3.h>
 
@@ -7,7 +11,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
-//namespace fs = std::filesystem;
+namespace fs = std::filesystem;
 
 #include "../support/error.hpp"
 #include "../support/program.hpp"
@@ -24,6 +28,9 @@
 #include "cone.hpp"
 #include "cylinder.hpp"
 #include "loadobj.hpp"
+#include "screenshot.hpp"
+#include "skybox.hpp"
+using namespace std;
 
 namespace
 {
@@ -37,6 +44,7 @@ namespace
 	struct State_
 	{
 		ShaderProgram* prog;
+		ShaderProgram* skybox;
 
 		struct CamCtrl_
 		{
@@ -45,8 +53,8 @@ namespace
 
 			float phi, theta;
 			float radius;
-
-			float lastX, lastY, x, y;
+			bool screenshot;
+			float lastX, lastY, x, y, mod;
 		} camControl;
 
 		struct AnimCtrl_
@@ -187,10 +195,15 @@ int main() try{
 		{ GL_VERTEX_SHADER, "assets/default.vert" },
 		{ GL_FRAGMENT_SHADER, "assets/default.frag" }
 		});
+	ShaderProgram skybox({
+		{ GL_VERTEX_SHADER, "assets/skybox.vert" },
+		{ GL_FRAGMENT_SHADER, "assets/skybox.frag" }
+		});
 
 	state.prog = &prog;
+	state.skybox = &skybox;
 	state.camControl.radius = 10.f;
-	
+
 	// Animation state
 	auto last = Clock::now();
 
@@ -200,7 +213,6 @@ int main() try{
 
 
 	// TODO:
-
 
 	auto baseCyl = make_cylinder(true, 16, { 0.05f, 0.05f, 0.05f }, {0.1f, 0.1f, 0.1f }, {0.2f,0.2f,0.2f }, 12.8f, 1.f,
 		make_rotation_z(3.141592f / 2.f) *
@@ -239,17 +251,17 @@ int main() try{
 		make_translation({ 0.f, 5.7f, -3.3f })
 	);
 
-	auto cube = make_cube(1, { 0.f, 0.f, 0.f }, { 0.01f, 0.01f, 0.01f }, { 0.5f,0.5f,0.5f }, 32.f, 1.f,
+	auto cube = make_cube(1, { 0.f, 0.f, 0.f }, { 0.01f, 0.01f, 0.01f }, { 0.5f,0.5f,0.5f }, 50.f, 1.f,
 		make_scaling(0.1f, 0.07f, 0.02f)*
 		make_translation({ -1.2f, 1.7f, 4.f })
 	);
 
-	auto cube2 = make_cube(1, { 0.f, 0.f, 0.f }, { 0.01f, 0.01f, 0.01f }, { 0.5f,0.5f,0.5f }, 32.f, 1.f,
+	auto cube2 = make_cube(1, { 0.f, 0.f, 0.f }, { 0.01f, 0.01f, 0.01f }, { 0.5f,0.5f,0.5f }, 50.f, 1.f,
 		make_scaling(0.1f, 0.07f, 0.02f)*
 		make_translation({ 1.2f, 1.7f, 4.f })
 	);
 
-        //display 
+        //display
 	auto cubeFace = make_cube_tex(1, { 0.f, 1.f, 0.f }, { 1.0f, 0.5f, 0.31f }, { 0.5f,0.5f,0.5f }, 32.f, 1.f,
 	        make_scaling(0.1f, 0.07f, 0.02f)*
 		make_translation({ -1.2f, 1.7f, 5.01f })
@@ -276,7 +288,7 @@ int main() try{
 
         //Multitexturing dirty glass
 	GLuint mTex0 = load_texture_2d("external/materials/glass/dirty_glass_43_92_opacity.jpg");
-        
+
 	GLuint markusFace = load_texture_2d("external/cw2-texture/markus.png");
 
 	state.objControl.x = 0.f;
@@ -288,8 +300,9 @@ int main() try{
 	state.camControl.x = -5.48f;
 	state.camControl.y = -0.55f;
 	state.camControl.radius = 2.05f;
-
-
+	state.camControl.mod = 1.f;
+	state.animControl.mod = 1.f;
+	state.animControl.animation = false;
 
 
 	auto redCone = make_cone(true, 16, { 1.f, 0.f, 0.f }, { 1.0f, 0.f, 0.f }, { 0.5f,0.f,0.f }, 32.f, 1.f,
@@ -333,7 +346,7 @@ int main() try{
 	std::size_t launchVertex = launch.positions.size();
 
 	GLuint textureFenceBase = load_texture_2d("external/Fence/fence_DefaultMaterial_BaseColor.png");
-	
+
 	auto cube3 = make_cube(1, { 0.5f, 0.87f, 1.f }, { 0.5f, 0.87f, 1.f }, { 0.5f,0.5f,0.5f }, 32.f, 0.1f,
 		make_scaling(2.45f, 0.6f, 0.1f) *
 		make_translation({ -0.19f, 0.58f, -2.56f })
@@ -358,11 +371,61 @@ int main() try{
 	GLuint lightBox2 = create_vao(cube5);
 	std::size_t lightBoxVertex2 = cube5.positions.size();
 
+	// skybox VAO
+	unsigned int skyboxVAO, skyboxVBO;
+	glGenVertexArrays(1, &skyboxVAO);
+	glGenBuffers(1, &skyboxVBO);
+	glBindVertexArray(skyboxVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+	std::vector<std::string> faces =
+	{
+		"external/skybox/right.png",
+		"external/skybox/left.png",
+		"external/skybox/top.png",
+		"external/skybox/bottom.png",
+		"external/skybox/front.png",
+		"external/skybox/back.png"
+	};
+
+	GLuint cubemapTexture = load_cubemap(faces);
+
 	OGL_CHECKPOINT_ALWAYS();
 
-	// Main loop
+	//imgui
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	ImGui::StyleColorsDark();
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init("#version 430");
+	float colorBool[3] = {0.f,0.f,0.f};
+	float lightBrightness[3] = {0.5f, 0.3f, 0.3f};
+	float color[4] = { 0.8f, 0.3f, 0.02f, 1.0f };
+	float color1[4] = { 0.8f, 0.3f, 0.02f, 1.0f };
+	float color2[4] = { 0.8f, 0.3f, 0.02f, 1.0f };
 
+
+	glUseProgram(prog.programId());
+	glUniform3f(glGetUniformLocation(prog.programId(), "colorBool"), colorBool[0], colorBool[1],colorBool[2]);
+	glUniform4f(glGetUniformLocation(prog.programId(), "color"), color[0], color[1], color[2], color[3]);
+	glUniform4f(glGetUniformLocation(prog.programId(), "color1"), color1[0], color1[1], color1[2], color1[3]);
+	glUniform4f(glGetUniformLocation(prog.programId(), "color2"), color2[0], color2[1], color2[2], color2[3]);
+
+	printf("test");
+
+	// Main loop
+	float rktLast = 1.f;
 	int tog = 0;
+	int tog2 = 0;
+	bool temp = false;
+	bool temp1 = false;
+	bool temp2 = false;
+
+	printf("test\n");
 	while (!glfwWindowShouldClose(window))
 	{
 		// Let GLFW process events
@@ -400,21 +463,15 @@ int main() try{
 		if (angle >= 2.f * kPi_)
 			angle -= 2.f * kPi_;
 
-
-		float rktLast = 0.f;
+		float x = 1.1f;
 		if (state.animControl.animation) {
-			rktHeight += 0.001f + rktLast + state.animControl.mod;
-			if (rktHeight < 0) {
-				rktHeight = 0.000000001;
+			if (rktHeight < 10) {
+				x += 0.01f;
 			}
-		}
-		else {
-			float rktLast = rktHeight;
-			rktHeight = 0.f;
+			rktHeight += (rktLast / x) * (0.015f * state.animControl.mod);
+			rktLast = rktHeight;
 		}
 
-
-		//printf("%d ", state.objControl.displayCoords);
 		if (state.objControl.displayCoords == 1 && tog == 0) {
 			printf("T = %f %f %f\n", state.objControl.x, state.objControl.y, state.objControl.z);
 			printf("S = %f %f %f\n", state.objControl.x1, state.objControl.y1, state.objControl.z1);
@@ -426,6 +483,8 @@ int main() try{
 			tog = 0;
 		}
 
+
+
 		Vec3f pointLightPositions[] = {
 			Vec3f{ 2.7f, 10.f, 1.51f },
 			Vec3f{2.7f, 10.f, 2.5f},
@@ -436,30 +495,30 @@ int main() try{
 
 		// Update camera state
 		if (state.camControl.actionZoomIn) {
-			state.camControl.y += sin(state.camControl.theta) * kMovementPerSecond_ * dt;
-			state.camControl.x -= cos(state.camControl.theta) * sin(state.camControl.phi) * kMovementPerSecond_ * dt;
-			state.camControl.radius -= cos(state.camControl.theta) * cos(state.camControl.phi) * kMovementPerSecond_ * dt;
+			state.camControl.y += sin(state.camControl.theta) * kMovementPerSecond_ * dt * state.camControl.mod;
+			state.camControl.x -= cos(state.camControl.theta) * sin(state.camControl.phi) * kMovementPerSecond_ * dt * state.camControl.mod;
+			state.camControl.radius -= cos(state.camControl.theta) * cos(state.camControl.phi) * kMovementPerSecond_ * dt * state.camControl.mod;
 		}
 		else if (state.camControl.actionZoomOut) {
-			state.camControl.y -= sin(state.camControl.theta) * kMovementPerSecond_ * dt;
-			state.camControl.x += cos(state.camControl.theta) * sin(state.camControl.phi) * kMovementPerSecond_ * dt;
-			state.camControl.radius += cos(state.camControl.theta) * cos(state.camControl.phi) * kMovementPerSecond_ * dt;
+			state.camControl.y -= sin(state.camControl.theta) * kMovementPerSecond_ * dt * state.camControl.mod;
+			state.camControl.x += cos(state.camControl.theta) * sin(state.camControl.phi) * kMovementPerSecond_ * dt * state.camControl.mod;
+			state.camControl.radius += cos(state.camControl.theta) * cos(state.camControl.phi) * kMovementPerSecond_ * dt * state.camControl.mod;
 
 		}
 		if (state.camControl.actionMoveL) {
-			state.camControl.x += cos(state.camControl.phi) * kMovementPerSecond_ * dt;
-			state.camControl.radius -= sin(state.camControl.phi) * kMovementPerSecond_ * dt;
+			state.camControl.x += cos(state.camControl.phi) * kMovementPerSecond_ * dt * state.camControl.mod;
+			state.camControl.radius -= sin(state.camControl.phi) * kMovementPerSecond_ * dt * state.camControl.mod;
 		}
 		else if (state.camControl.actionMoveR) {
-			state.camControl.x -= cos(state.camControl.phi) * kMovementPerSecond_ * dt;
-			state.camControl.radius += sin(state.camControl.phi) * kMovementPerSecond_ * dt;
+			state.camControl.x -= cos(state.camControl.phi) * kMovementPerSecond_ * dt * state.camControl.mod;
+			state.camControl.radius += sin(state.camControl.phi) * kMovementPerSecond_ * dt * state.camControl.mod;
 
 		}
 		if (state.camControl.actionMoveU) {
-			state.camControl.y -= kMovementPerSecond_ * dt;
+			state.camControl.y -= kMovementPerSecond_ * dt * state.camControl.mod;
 		}
 		else if (state.camControl.actionMoveD) {
-			state.camControl.y += kMovementPerSecond_ * dt;
+			state.camControl.y += kMovementPerSecond_ * dt * state.camControl.mod;
 
 		}
 		//Compute matricies-
@@ -474,8 +533,16 @@ int main() try{
 			0.1f, 100.0f
 		);
 		Mat33f normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
+
 		// Draw scene
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		//imgui
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+
 
 
 
@@ -483,7 +550,7 @@ int main() try{
 		// We want to draw with our program..
 
 		glUseProgram(prog.programId());
-		
+
 		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
 		glUniformMatrix4fv(0, 1, GL_TRUE, projection.v);
 		glUniformMatrix4fv(4, 1, GL_TRUE, T.v);
@@ -492,9 +559,16 @@ int main() try{
 
 
 		Vec3f lightColor = { 1.f, 0.f, 0.f };
-		Vec3f diffuseColor = lightColor * 0.3f;
-		Vec3f ambientColor = diffuseColor * 0.01f;
+		if (colorBool[1] > 0.5f) {
+			lightColor = { color1[0], color1[1], color1[2] };
 
+		}
+		else {
+			lightColor = { 1.f, 1.f, 1.f };
+		}
+		Vec3f diffuseColor = lightColor * lightBrightness[1];
+		Vec3f ambientColor = diffuseColor * 0.01f;
+		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel1"), true);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[0].position"), pointLightPositions[0].x, pointLightPositions[0].y, pointLightPositions[0].z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[0].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[0].diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
@@ -502,11 +576,17 @@ int main() try{
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[0].constant"), 1.0f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[0].linear"), 0.09f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[0].quadratic"), 0.032f);
+		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel1"), false);
+		if (colorBool[2] > 0.5f) {
+			lightColor = { color2[0], color2[1], color2[2] };
 
-		lightColor = { 0.f, 0.f, 1.f };
-		diffuseColor = lightColor * 0.3f;
+		}
+		else {
+			lightColor = { 0.f, 0.f, 1.f };
+		}
+		diffuseColor = lightColor * lightBrightness[2];
 		ambientColor = diffuseColor * 0.01f;
-
+		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel2"), true);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[1].position"), pointLightPositions[1].x, pointLightPositions[1].y, pointLightPositions[1].z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[1].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[1].diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
@@ -514,7 +594,8 @@ int main() try{
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[1].constant"), 1.0f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[1].linear"), 0.09f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[1].quadratic"), 0.032f);
-
+		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel2"), false);
+		//ambient moonlight
 		lightColor = { 1.f, 1.f, 1.f };
 		diffuseColor = lightColor * 1.f;
 		ambientColor = diffuseColor * 0.01f;
@@ -527,10 +608,18 @@ int main() try{
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[2].linear"), 0.09f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[2].quadratic"), 0.032f);
 
-		lightColor = { 1.f, 1.f, 1.f };
-		diffuseColor = lightColor * 0.5f;
+		if (colorBool[0] > 0.5f) {
+			lightColor = { color[0], color[1], color[2] };
+
+		}
+		else {
+			lightColor = { 1.f, 1.f, 1.f };
+		}
+		diffuseColor = lightColor * lightBrightness[0];
 		ambientColor = diffuseColor * 0.01f;
 
+
+		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel"), true);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[3].position"), pointLightPositions[3].x, pointLightPositions[3].y, pointLightPositions[3].z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[3].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[3].diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
@@ -538,11 +627,9 @@ int main() try{
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[3].constant"), 1.0f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[3].linear"), 0.09f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[3].quadratic"), 0.032f);
+		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel"), false);
 
-		lightColor = { 1.f, 1.f, 1.f };
-		diffuseColor = lightColor * 0.5f;
-		ambientColor = diffuseColor * 0.01f;
-
+		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel"), true);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[4].position"), pointLightPositions[4].x, pointLightPositions[4].y, pointLightPositions[4].z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[4].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[4].diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
@@ -550,33 +637,38 @@ int main() try{
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[4].constant"), 1.0f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[4].linear"), 0.09f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[4].quadratic"), 0.032f);
+		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel"), false);
+
 
 		OGL_CHECKPOINT_DEBUG();
 		//TODO: draw frame
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		
+
 		glBindVertexArray(launchVAO);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D,textureFenceBase);
 		glDrawArrays(GL_TRIANGLES, 0, launchVertex);
-		glBindVertexArray(floodLight1Vao);
 
 		glUniform1f(8, 1.f);
+		glBindVertexArray(floodLight1Vao);
+		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel1"), true);
 		glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 1.f, 0.f, 0.f);
 		glDrawArrays(GL_TRIANGLES, 0, coneVertex);
+		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel1"), false);
+		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel2"), true);
 		glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 0.f, 0.f, 1.f);
 		glBindVertexArray(floodLight2Vao);
 		glDrawArrays(GL_TRIANGLES, 0, coneVertex2);
-		glUniform1f(8, 0.f);
+		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel2"), false);
 		glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 0.f, 0.f, 0.f);
+		glUniform1f(8, 0.f);
 
+
+		//rocket
 		model2world = make_translation({ 0.f, rktHeight, 0.f });
 		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
 		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
 		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
-
-
-		//rocket
 		glUniform1f(7, 1.f);
 		glBindVertexArray(rocketVAO);
 		glActiveTexture(GL_TEXTURE0);
@@ -587,6 +679,7 @@ int main() try{
 		glUniform1f(7, 0.f);
 		glBindTexture(GL_TEXTURE_2D,0);
 
+		//monitors
 		model2world = make_translation({ 4.4f, 0.86f, 21.45f });
 		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
 		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
@@ -600,13 +693,13 @@ int main() try{
 		glBindVertexArray(ScreenVao);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, markusFace);
-		
+
 		//glActiveTexture(GL_TEXTURE1);
 		//glBindTexture(GL_TEXTURE_2D, mTex0);
-		
+
 		//glActiveTexture(GL_TEXTURE2);
 	        //glBindTexture(GL_TEXTURE_2D, mTex1);
-		
+
 		glDrawArrays(GL_TRIANGLES, 0, ScreenVert);
 		glUniform1f(7, 0.f);
 		//glUniform1f(9, 0.f);
@@ -622,17 +715,17 @@ int main() try{
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, markusFace);
-        
+
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, mTex0);
 
 		/*
 		glActiveTexture(GL_TEXTURE2);
 	        glBindTexture(GL_TEXTURE_2D, mTex1);
-	        
+
 		glActiveTexture(GL_TEXTURE3);
 		glBindTexture(GL_TEXTURE_2D, mTex2);
-		
+
 		glActiveTexture(GL_TEXTURE3);
 		glBindTexture(GL_TEXTURE_2D, mTex3);
 		glActiveTexture(GL_TEXTURE4);
@@ -641,11 +734,13 @@ int main() try{
 		glDrawArrays(GL_TRIANGLES, 0, MultiVert);
 		glUniform1f(9, 0.f);
 		glUniform1f(7, 0.f);
-	 
+
 		glUniform3f(glGetUniformLocation(prog.programId(), "specular"), 0.f, 0.f, 0.f);
 		//glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 0.f, 0.f, 0.f);
 
+		//interior lights
 		glUniform1f(8, 1.f);
+		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel"), true);
 		glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 1.f, 1.f, 1.f);
 		glBindVertexArray(lightBox1);
 		glDrawArrays(GL_TRIANGLES, 0, lightBoxVertex1);
@@ -653,7 +748,29 @@ int main() try{
 		glDrawArrays(GL_TRIANGLES, 0, lightBoxVertex2);
 		glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 0.f, 0.f, 0.f);
 		glUniform1f(8, 0.f);
+		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel"), false);
 
+
+
+
+		glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
+		glUseProgram(skybox.programId());
+		model2world = make_scaling( 100.f, 100.f, 100.f );
+		glUniformMatrix4fv(1, 1, GL_TRUE, world2camera.v);
+		glUniformMatrix4fv(0, 1, GL_TRUE, projection.v);
+		glUniformMatrix4fv(2, 1, GL_TRUE, model2world.v);
+		glBindVertexArray(skyboxVAO);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(0);
+		glDepthFunc(GL_LESS); // set depth function back to default
+
+
+		OGL_CHECKPOINT_DEBUG();
+
+		//window
+		glUseProgram(prog.programId());
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_BLEND);
 		glBindVertexArray(windowGlass);
@@ -662,17 +779,55 @@ int main() try{
 		glUniform1f(9, 0.f);
 		glBindVertexArray(0);
 
-
-
+		//imgui
+		// ImGUI window creation
+		ImGui::Begin("Light Color Selector");
+		// Text that appears in the window
+		ImGui::Text("Tick the box to change lights!");
+		ImGui::Checkbox("Interior  Lights", &temp);
+		ImGui::SliderFloat("Brightness", &lightBrightness[0], 0.1f, 5.0f);
+		ImGui::ColorEdit4("Color", color);
+		ImGui::Checkbox("Launchpad 1", &temp1);
+		ImGui::SliderFloat("Brightness 1", &lightBrightness[1], 0.1f, 5.0f);
+		ImGui::ColorEdit4("Color 1", color1);
+		ImGui::Checkbox("Launchpad 2", &temp2);
+		ImGui::SliderFloat("Brightness 2", &lightBrightness[2], 0.1f, 5.0f);
+		ImGui::ColorEdit4("Color 2", color2);
+		// Ends the window
+		ImGui::End();
 		OGL_CHECKPOINT_DEBUG();
 
+		if (temp)
+			colorBool[0] = 1.f;
+		else
+			colorBool[0] = 0.f;
+		if (temp1)
+			colorBool[1] = 1.f;
+		else
+			colorBool[1] = 0.f;
+		if (temp2)
+			colorBool[2] = 1.f;
+		else
+			colorBool[2] = 0.f;
+
+		glUseProgram(prog.programId());
+		glUniform3f(glGetUniformLocation(prog.programId(), "colorBool"), colorBool[0],colorBool[1], colorBool[2]);
+		glUniform4f(glGetUniformLocation(prog.programId(), "color"), color[0], color[1], color[2], color[3]);
+		glUniform4f(glGetUniformLocation(prog.programId(), "color1"), color1[0], color1[1], color1[2], color1[3]);
+		glUniform4f(glGetUniformLocation(prog.programId(), "color2"), color2[0], color2[1], color2[2], color2[3]);
+
+		// Renders the ImGUI elements
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		// Display results
-		glfwSwapBuffers( window );
+		glfwSwapBuffers(window);
 	}
 
 	// Cleanup.
 	//TODO: additional cleanup
-
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
 	return 0;
 }
 catch( std::exception const& eErr )
@@ -753,15 +908,20 @@ namespace
 				else
 					glfwSetInputMode(aWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 			}
+
+			//screenshot
+			if (GLFW_KEY_F12 == aKey && GLFW_PRESS == aAction)
+			{
+				if (GLFW_PRESS == aAction)
+					saveScreenshot();
+			}
 			//animation controls
 			//slow down
 			if (GLFW_KEY_1 == aKey || GLFW_KEY_LEFT == aKey)
 			{
 				if (GLFW_PRESS == aAction) {
-					state->animControl.mod -= 0.01;
+					state->animControl.mod = 0.5f;
 				}
-				else if (GLFW_RELEASE == aAction)
-					state->animControl.mod += 0;
 			}
 			//play pause
 			if ((GLFW_KEY_2 == aKey || GLFW_KEY_UP == aKey) && GLFW_PRESS == aAction)
@@ -769,27 +929,27 @@ namespace
 				state->animControl.animPlay = !state->animControl.animPlay;
 				if (state->animControl.animPlay) {
 					printf("off\n");
-					state->animControl.animation = 0;
+					state->animControl.animation = 0.f;
 				}
 				else {
 					printf("on\n");
-					state->animControl.animation = 1;
+					state->animControl.animation = 1.f;
 				}
 			}
 			//reset speed modifier
 			if ((GLFW_KEY_3 == aKey || GLFW_KEY_DOWN == aKey) && GLFW_PRESS == aAction)
 			{
-				state->animControl.mod = 0;
+				state->animControl.mod = 1.f;
 			}
 			//speed up
 			if (GLFW_KEY_4 == aKey || GLFW_KEY_RIGHT == aKey)
 			{
 				if (GLFW_PRESS == aAction) {
-					state->animControl.mod += 0.01;
+					state->animControl.mod = 2.f;
 				}
-				else if (GLFW_RELEASE == aAction)
-					state->animControl.mod += 0;
 			}
+
+
 
 			// Camera controls if camera is active
 			if (state->camControl.cameraActive)
@@ -835,6 +995,20 @@ namespace
 						state->camControl.actionMoveD = true;
 					else if (GLFW_RELEASE == aAction)
 						state->camControl.actionMoveD = false;
+				}
+				if (GLFW_KEY_LEFT_SHIFT == aKey)
+				{
+					if (GLFW_PRESS == aAction)
+						state->camControl.mod = 2;
+					else if (GLFW_RELEASE == aAction)
+						state->camControl.mod = 1;
+				}
+				else if (GLFW_KEY_LEFT_CONTROL == aKey)
+				{
+					if (GLFW_PRESS == aAction)
+						state->camControl.mod = 0.5;
+					else if (GLFW_RELEASE == aAction)
+						state->camControl.mod = 1;
 				}
 			}
 
@@ -906,7 +1080,7 @@ namespace
 					state->objControl.pressed = 0;
 				}
 			}
-			if (GLFW_KEY_5 == aKey)
+			if (GLFW_KEY_5 == aKey || GLFW_KEY_KP_5 == aKey)
 			{
 				if (GLFW_PRESS == aAction) {
 					state->objControl.displayCoords = 1;
