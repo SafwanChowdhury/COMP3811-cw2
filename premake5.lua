@@ -84,7 +84,7 @@ project "main"
 
 	links "vmlib"
 	links "support"
-
+	links "x-imgui"
 	links "x-stb"
 	links "x-glad"
 	links "x-glfw"
