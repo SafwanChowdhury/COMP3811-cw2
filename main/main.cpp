@@ -294,16 +294,15 @@ int main() try{
 	state.objControl.x = 0.f;
 	state.objControl.y = 0.f;
 	state.objControl.z = 0.f;
-	state.objControl.x1 = 18.8f;
-	state.objControl.y1 = 8.42f;
-	state.objControl.z1 = 9.2f;
-	state.camControl.x = -5.48f;
-	state.camControl.y = -0.55f;
-	state.camControl.radius = 2.05f;
+	state.objControl.x1 = 0.f;
+	state.objControl.y1 = 0.f;
+	state.objControl.z1 = 0.f;
+	state.camControl.x = -3.5f;
+	state.camControl.y = -1.07f;
+	state.camControl.radius = 22.29f;
 	state.camControl.mod = 1.f;
 	state.animControl.mod = 1.f;
 	state.animControl.animation = false;
-
 
 	auto redCone = make_cone(true, 16, { 1.f, 0.f, 0.f }, { 1.0f, 0.f, 0.f }, { 0.5f,0.f,0.f }, 32.f, 1.f,
 		make_scaling(0.2f, 0.1f, 0.1f) *
@@ -345,8 +344,6 @@ int main() try{
 	GLuint launchVAO = create_vao(launch);
 	std::size_t launchVertex = launch.positions.size();
 
-	GLuint textureFenceBase = load_texture_2d("external/Fence/fence_DefaultMaterial_BaseColor.png");
-
 	auto cube3 = make_cube(1, { 0.5f, 0.87f, 1.f }, { 0.5f, 0.87f, 1.f }, { 0.5f,0.5f,0.5f }, 32.f, 0.1f,
 		make_scaling(2.45f, 0.6f, 0.1f) *
 		make_translation({ -0.19f, 0.58f, -2.56f })
@@ -371,12 +368,11 @@ int main() try{
 	GLuint lightBox2 = create_vao(cube5);
 	std::size_t lightBoxVertex2 = cube5.positions.size();
 
-
+	
 	auto fan_base = load_wavefront_obj("external/Fan/fan_base.obj", make_scaling(0.1f, 0.1f, 0.1f));
 
 	GLuint fanBaseVAO = create_vao(fan_base);
 	std::size_t fanBaseVertex = fan_base.positions.size();
-
 
 	auto fan_motor = load_wavefront_obj("external/Fan/fan_motor.obj", make_scaling(0.1f, 0.1f, 0.1f));
 	GLuint fanMotorVAO = create_vao(fan_motor);
@@ -481,6 +477,7 @@ int main() try{
 		if (angle >= 2.f * kPi_)
 			angle -= 2.f * kPi_;
 
+
 		float x = 1.1f;
 		if (state.animControl.animation) {
 			if (rktHeight < 10) {
@@ -501,7 +498,7 @@ int main() try{
 			tog = 0;
 		}
 
-
+		
 
 		Vec3f pointLightPositions[] = {
 			Vec3f{ 2.7f, 10.f, 1.51f },
@@ -582,19 +579,22 @@ int main() try{
 
 		}
 		else {
-			lightColor = { 1.f, 1.f, 1.f };
+			lightColor = { 1.f, 0.f, 0.f };
 		}
 		Vec3f diffuseColor = lightColor * lightBrightness[1];
 		Vec3f ambientColor = diffuseColor * 0.01f;
+		Vec3f specularColor = 0.25f * lightColor;
 		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel1"), true);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[0].position"), pointLightPositions[0].x, pointLightPositions[0].y, pointLightPositions[0].z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[0].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[0].diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
-		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[0].specular"), 0.25f, 0.f, 0.f);
+		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[0].specular"), specularColor.x, specularColor.y, specularColor.z);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[0].constant"), 1.0f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[0].linear"), 0.09f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[0].quadratic"), 0.032f);
 		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel1"), false);
+		
+
 		if (colorBool[2] > 0.5f) {
 			lightColor = { color2[0], color2[1], color2[2] };
 
@@ -604,27 +604,31 @@ int main() try{
 		}
 		diffuseColor = lightColor * lightBrightness[2];
 		ambientColor = diffuseColor * 0.01f;
+		specularColor = 0.25f * lightColor;
+
 		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel2"), true);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[1].position"), pointLightPositions[1].x, pointLightPositions[1].y, pointLightPositions[1].z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[1].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[1].diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
-		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[1].specular"), 0.f, 0.f, 0.25f);
+		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[1].specular"), specularColor.x, specularColor.y, specularColor.z);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[1].constant"), 1.0f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[1].linear"), 0.09f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[1].quadratic"), 0.032f);
 		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel2"), false);
+		
 		//ambient moonlight
 		lightColor = { 1.f, 1.f, 1.f };
 		diffuseColor = lightColor * 1.f;
 		ambientColor = diffuseColor * 0.01f;
-
+		specularColor = 0.5f * lightColor;
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[2].position"), pointLightPositions[2].x, pointLightPositions[2].y, pointLightPositions[2].z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[2].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[2].diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
-		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[2].specular"), 0.5f, 0.5f, 0.5f);
+		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[2].specular"), specularColor.x, specularColor.y, specularColor.z);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[2].constant"), 1.0f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[2].linear"), 0.09f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[2].quadratic"), 0.032f);
+
 
 		if (colorBool[0] > 0.5f) {
 			lightColor = { color[0], color[1], color[2] };
@@ -635,37 +639,38 @@ int main() try{
 		}
 		diffuseColor = lightColor * lightBrightness[0];
 		ambientColor = diffuseColor * 0.01f;
-
+		specularColor = 0.f * lightColor;
 
 		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel"), true);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[3].position"), pointLightPositions[3].x, pointLightPositions[3].y, pointLightPositions[3].z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[3].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[3].diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
-		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[3].specular"), 0.f, 0.f, 0.f);
+		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[3].specular"), specularColor.x, specularColor.y, specularColor.z);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[3].constant"), 1.0f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[3].linear"), 0.09f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[3].quadratic"), 0.032f);
 		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel"), false);
 
+		specularColor = 0.1f * lightColor;
 		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel"), true);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[4].position"), pointLightPositions[4].x, pointLightPositions[4].y, pointLightPositions[4].z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[4].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
 		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[4].diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
-		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[4].specular"), 0.f, 0.f, 0.f);
+		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[4].specular"), specularColor.x, specularColor.y, specularColor.z);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[4].constant"), 1.0f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[4].linear"), 0.09f);
 		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[4].quadratic"), 0.032f);
 		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel"), false);
 
-
 		OGL_CHECKPOINT_DEBUG();
 		//TODO: draw frame
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
+		
+		glDisable(GL_CULL_FACE);
 		glBindVertexArray(launchVAO);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, textureFenceBase);
 		glDrawArrays(GL_TRIANGLES, 0, launchVertex);
+		glEnable(GL_CULL_FACE);
+
 
 		glUniform1f(8, 1.f);
 		glBindVertexArray(floodLight1Vao);
@@ -688,14 +693,18 @@ int main() try{
 		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
 		glBindVertexArray(fanBaseVAO);
 		glDrawArrays(GL_TRIANGLES, 0, fanBaseVertex);
-		model2world = make_translation({ 5.1f, 0.75f, 21.6f }) * make_rotation_y(angle);
+
+		glDisable(GL_CULL_FACE);
+		Mat44f motorTransform = make_translation({ 5.1f, 0.82f + (sin(angle)/16), 21.6f});
+		model2world = motorTransform;
 		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
 		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
 		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
 		glBindVertexArray(fanMotorVAO);
 		glDrawArrays(GL_TRIANGLES, 0, fanMotorVertex);
+		glEnable(GL_CULL_FACE);
 
-		model2world = make_translation({ 5.1f, 0.75f, 21.6f }) * make_translation({ -0.04f, 0.1f, 0.f }) * make_rotation_x(angle);
+		model2world = motorTransform * make_translation({ 0.f, 0.105f, 0.f }) * make_rotation_x(angle * 20.f);
 		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
 		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
 		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
@@ -717,7 +726,6 @@ int main() try{
 		OGL_CHECKPOINT_DEBUG();
 		glUniform1f(7, 0.f);
 		glBindTexture(GL_TEXTURE_2D,0);
-
 
 		//monitors
 		model2world = make_translation({ 4.4f, 0.86f, 21.45f });
@@ -967,12 +975,10 @@ namespace
 			{
 				state->animControl.animPlay = !state->animControl.animPlay;
 				if (state->animControl.animPlay) {
-					printf("off\n");
-					state->animControl.animation = 0.f;
+					state->animControl.animation = 1.f;
 				}
 				else {
-					printf("on\n");
-					state->animControl.animation = 1.f;
+					state->animControl.animation = 0.f;
 				}
 			}
 			//reset speed modifier
