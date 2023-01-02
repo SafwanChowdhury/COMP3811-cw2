@@ -371,6 +371,24 @@ int main() try{
 	GLuint lightBox2 = create_vao(cube5);
 	std::size_t lightBoxVertex2 = cube5.positions.size();
 
+
+	auto fan_base = load_wavefront_obj("external/Fan/fan_base.obj", make_scaling(0.1f, 0.1f, 0.1f));
+
+	GLuint fanBaseVAO = create_vao(fan_base);
+	std::size_t fanBaseVertex = fan_base.positions.size();
+
+
+	auto fan_motor = load_wavefront_obj("external/Fan/fan_motor.obj", make_scaling(0.1f, 0.1f, 0.1f));
+	GLuint fanMotorVAO = create_vao(fan_motor);
+	std::size_t fanMotorVertex = fan_motor.positions.size();
+
+
+	auto fan_blade = load_wavefront_obj("external/Fan/fan_blade.obj", make_scaling(0.1f, 0.1f, 0.1f) * make_translation({ 0.f,-1.f,0.f }));
+
+	GLuint fanBladeVAO = create_vao(fan_blade);
+	std::size_t fanBladeVertex = fan_blade.positions.size();
+
+
 	// skybox VAO
 	unsigned int skyboxVAO, skyboxVBO;
 	glGenVertexArrays(1, &skyboxVAO);
@@ -424,7 +442,8 @@ int main() try{
 	bool temp = false;
 	bool temp1 = false;
 	bool temp2 = false;
-
+	float rotX = 0.f;
+	float rotY = 0.f;
 	while (!glfwWindowShouldClose(window))
 	{
 		// Let GLFW process events
@@ -645,7 +664,7 @@ int main() try{
 
 		glBindVertexArray(launchVAO);
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D,textureFenceBase);
+		glBindTexture(GL_TEXTURE_2D, textureFenceBase);
 		glDrawArrays(GL_TRIANGLES, 0, launchVertex);
 
 		glUniform1f(8, 1.f);
@@ -662,6 +681,27 @@ int main() try{
 		glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 0.f, 0.f, 0.f);
 		glUniform1f(8, 0.f);
 
+		//fan
+		model2world = make_translation({ 5.1f, 0.75f, 21.6f });
+		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
+		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
+		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
+		glBindVertexArray(fanBaseVAO);
+		glDrawArrays(GL_TRIANGLES, 0, fanBaseVertex);
+		model2world = make_translation({ 5.1f, 0.75f, 21.6f }) * make_rotation_y(angle);
+		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
+		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
+		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
+		glBindVertexArray(fanMotorVAO);
+		glDrawArrays(GL_TRIANGLES, 0, fanMotorVertex);
+
+		model2world = make_translation({ 5.1f, 0.75f, 21.6f }) * make_translation({ -0.04f, 0.1f, 0.f }) * make_rotation_x(angle);
+		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
+		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
+		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
+
+		glBindVertexArray(fanBladeVAO);
+		glDrawArrays(GL_TRIANGLES, 0, fanBladeVertex);
 
 		//rocket
 		model2world = make_translation({ 0.f, rktHeight, 0.f });
@@ -677,6 +717,7 @@ int main() try{
 		OGL_CHECKPOINT_DEBUG();
 		glUniform1f(7, 0.f);
 		glBindTexture(GL_TEXTURE_2D,0);
+
 
 		//monitors
 		model2world = make_translation({ 4.4f, 0.86f, 21.45f });
@@ -748,7 +789,6 @@ int main() try{
 		glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 0.f, 0.f, 0.f);
 		glUniform1f(8, 0.f);
 		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel"), false);
-
 
 
 
