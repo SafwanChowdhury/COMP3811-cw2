@@ -82,6 +82,9 @@ namespace
 
 	void glfw_callback_key_( GLFWwindow*, int, int, int, int );
 	void glfw_callback_motion_(GLFWwindow*, double, double);
+	State_ updateCamera(State_, float);
+	void lighting(float [3], float [4], float [4], float [4], float [3], GLuint, Vec3f [5]);
+
 	struct GLFWCleanupHelper
 	{
 		~GLFWCleanupHelper();
@@ -301,6 +304,16 @@ int main() try{
 	state.animControl.mod = 1.f;
 	state.animControl.animation = false;
 
+	//define pointlight positons
+	Vec3f pointLightPositions[] = {
+			Vec3f{ 2.7f, 10.f, 1.51f },
+			Vec3f{2.7f, 10.f, 2.5f},
+			Vec3f{19.7f, 17.7f, 23.8f},
+			Vec3f{1.7f, 1.63f, 22.21f},
+			Vec3f{6.1f, 1.63f, 22.21f}
+	};
+
+
     //Floodlight 1 - Red emissive light
 	auto redCone = make_cone(true, 16, { 1.f, 0.f, 0.f }, { 1.0f, 0.f, 0.f }, { 0.5f,0.f,0.f }, 32.f, 1.f,
 		make_scaling(0.2f, 0.1f, 0.1f) *
@@ -336,10 +349,7 @@ int main() try{
 	std::size_t rocketVertex = rocket.positions.size();
 
 	//load scene object
-	auto launch = load_wavefront_obj("external/Scene/scene.obj", make_scaling(0.49f, 0.49f, 0.49f));
-	for (int i = 0; i < launch.positions.size(); i++) {
-		launch.positions[i] = launch.positions[i] + Vec3f{ 2.f, 0.f, 2.f };
-	}
+	auto launch = load_wavefront_obj("external/Scene/scene.obj", make_scaling(0.49f, 0.49f, 0.49f) * make_translation({4.09f, 0.f, 4.08f}));
 	GLuint launchVAO = create_vao(launch);
 	std::size_t launchVertex = launch.positions.size();
 
@@ -425,12 +435,14 @@ int main() try{
 	float color1[4] = { 0.8f, 0.3f, 0.02f, 1.0f };
 	float color2[4] = { 0.8f, 0.3f, 0.02f, 1.0f };
 
-	// Main loop
+	//intialise variables for use in the loop
 	float rktLast = 1.f;
 	int tog = 0;
 	bool temp = false;
 	bool temp1 = false;
 	bool temp2 = false;
+
+	// Main loop
 	while (!glfwWindowShouldClose(window))
 	{
 		// Let GLFW process events
@@ -463,12 +475,13 @@ int main() try{
 		auto const now = Clock::now();
 		float dt = std::chrono::duration_cast<Secondsf>(now - last).count();
 		last = now;
-
+		
+		//calculate angle based on time
 		angle += dt * kPi_ * 0.3f;
 		if (angle >= 2.f * kPi_)
 			angle -= 2.f * kPi_;
 
-
+		//calculate rocket height for animation
 		float x = 1.1f;
 		if (state.animControl.animation) {
 			if (rktHeight < 8) {
@@ -478,6 +491,7 @@ int main() try{
 			rktLast = rktHeight;
 		}
 
+		//used for debugging and development
 		if (state.objControl.displayCoords == 1 && tog == 0) {
 			printf("T = %f %f %f\n", state.objControl.x, state.objControl.y, state.objControl.z);
 			printf("S = %f %f %f\n", state.objControl.x1, state.objControl.y1, state.objControl.z1);
@@ -489,44 +503,9 @@ int main() try{
 			tog = 0;
 		}
 
-		
-
-		Vec3f pointLightPositions[] = {
-			Vec3f{ 2.7f, 10.f, 1.51f },
-			Vec3f{2.7f, 10.f, 2.5f},
-			Vec3f{19.7f, 17.7f, 23.8f},
-			Vec3f{1.7f, 1.63f, 22.21f},
-			Vec3f{6.1f, 1.63f, 22.21f}
-		};
-
 		// Update camera state
-		if (state.camControl.actionZoomIn) {
-			state.camControl.y += sin(state.camControl.theta) * kMovementPerSecond_ * dt * state.camControl.mod;
-			state.camControl.x -= cos(state.camControl.theta) * sin(state.camControl.phi) * kMovementPerSecond_ * dt * state.camControl.mod;
-			state.camControl.radius -= cos(state.camControl.theta) * cos(state.camControl.phi) * kMovementPerSecond_ * dt * state.camControl.mod;
-		}
-		else if (state.camControl.actionZoomOut) {
-			state.camControl.y -= sin(state.camControl.theta) * kMovementPerSecond_ * dt * state.camControl.mod;
-			state.camControl.x += cos(state.camControl.theta) * sin(state.camControl.phi) * kMovementPerSecond_ * dt * state.camControl.mod;
-			state.camControl.radius += cos(state.camControl.theta) * cos(state.camControl.phi) * kMovementPerSecond_ * dt * state.camControl.mod;
+		state = updateCamera(state, dt);
 
-		}
-		if (state.camControl.actionMoveL) {
-			state.camControl.x += cos(state.camControl.phi) * kMovementPerSecond_ * dt * state.camControl.mod;
-			state.camControl.radius -= sin(state.camControl.phi) * kMovementPerSecond_ * dt * state.camControl.mod;
-		}
-		else if (state.camControl.actionMoveR) {
-			state.camControl.x -= cos(state.camControl.phi) * kMovementPerSecond_ * dt * state.camControl.mod;
-			state.camControl.radius += sin(state.camControl.phi) * kMovementPerSecond_ * dt * state.camControl.mod;
-
-		}
-		if (state.camControl.actionMoveU) {
-			state.camControl.y -= kMovementPerSecond_ * dt * state.camControl.mod;
-		}
-		else if (state.camControl.actionMoveD) {
-			state.camControl.y += kMovementPerSecond_ * dt * state.camControl.mod;
-
-		}
 		//Compute matricies-
 		Mat44f Rx = make_rotation_x(state.camControl.theta);
 		Mat44f Ry = make_rotation_y(state.camControl.phi);
@@ -549,13 +528,11 @@ int main() try{
 		ImGui::NewFrame();
 
 
-
-
-
 		// Clear color buffer to specified clear color (glClearColor())
 		// We want to draw with our program..
 
 		glUseProgram(prog.programId());
+		GLuint progid = prog.programId();
 
 		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
 		glUniformMatrix4fv(0, 1, GL_TRUE, projection.v);
@@ -564,94 +541,8 @@ int main() try{
 		glUniformMatrix4fv(6, 1, GL_TRUE, world2camera.v);
 
         //Blinn-Phong lighting
-		Vec3f lightColor = { 1.f, 0.f, 0.f };
-		if (colorBool[1] > 0.5f) {
-			lightColor = { color1[0], color1[1], color1[2] };
+		lighting(colorBool, color, color1, color2, lightBrightness, progid, pointLightPositions);
 
-		}
-		else {
-			lightColor = { 1.f, 0.f, 0.f };
-		}
-		Vec3f diffuseColor = lightColor * lightBrightness[1];
-		Vec3f ambientColor = diffuseColor * 0.01f;
-		Vec3f specularColor = 0.25f * lightColor;
-		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel1"), true);
-		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[0].position"), pointLightPositions[0].x, pointLightPositions[0].y, pointLightPositions[0].z);
-		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[0].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
-		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[0].diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
-		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[0].specular"), specularColor.x, specularColor.y, specularColor.z);
-		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[0].constant"), 1.0f);
-		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[0].linear"), 0.09f);
-		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[0].quadratic"), 0.032f);
-		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel1"), false);
-		
-
-		if (colorBool[2] > 0.5f) {
-			lightColor = { color2[0], color2[1], color2[2] };
-
-		}
-		else {
-			lightColor = { 0.f, 0.f, 1.f };
-		}
-		diffuseColor = lightColor * lightBrightness[2];
-		ambientColor = diffuseColor * 0.01f;
-		specularColor = 0.25f * lightColor;
-
-		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel2"), true);
-		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[1].position"), pointLightPositions[1].x, pointLightPositions[1].y, pointLightPositions[1].z);
-		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[1].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
-		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[1].diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
-		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[1].specular"), specularColor.x, specularColor.y, specularColor.z);
-		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[1].constant"), 1.0f);
-		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[1].linear"), 0.09f);
-		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[1].quadratic"), 0.032f);
-		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel2"), false);
-		
-		//ambient moonlight
-		lightColor = { 1.f, 1.f, 1.f };
-		diffuseColor = lightColor * 1.f;
-		ambientColor = diffuseColor * 0.01f;
-		specularColor = 0.5f * lightColor;
-		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[2].position"), pointLightPositions[2].x, pointLightPositions[2].y, pointLightPositions[2].z);
-		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[2].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
-		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[2].diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
-		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[2].specular"), specularColor.x, specularColor.y, specularColor.z);
-		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[2].constant"), 1.0f);
-		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[2].linear"), 0.09f);
-		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[2].quadratic"), 0.032f);
-
-
-		if (colorBool[0] > 0.5f) {
-			lightColor = { color[0], color[1], color[2] };
-
-		}
-		else {
-			lightColor = { 1.f, 1.f, 1.f };
-		}
-		diffuseColor = lightColor * lightBrightness[0];
-		ambientColor = diffuseColor * 0.01f;
-		specularColor = 0.f * lightColor;
-
-		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel"), true);
-		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[3].position"), pointLightPositions[3].x, pointLightPositions[3].y, pointLightPositions[3].z);
-		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[3].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
-		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[3].diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
-		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[3].specular"), specularColor.x, specularColor.y, specularColor.z);
-		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[3].constant"), 1.0f);
-		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[3].linear"), 0.09f);
-		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[3].quadratic"), 0.032f);
-		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel"), false);
-
-		specularColor = 0.1f * lightColor;
-		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel"), true);
-		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[4].position"), pointLightPositions[4].x, pointLightPositions[4].y, pointLightPositions[4].z);
-		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[4].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
-		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[4].diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
-		glUniform3f(glGetUniformLocation(prog.programId(), "pointLights[4].specular"), specularColor.x, specularColor.y, specularColor.z);
-		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[4].constant"), 1.0f);
-		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[4].linear"), 0.09f);
-		glUniform1f(glGetUniformLocation(prog.programId(), "pointLights[4].quadratic"), 0.032f);
-		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel"), false);
 
 		OGL_CHECKPOINT_DEBUG();
 		//TODO: draw frame
@@ -678,7 +569,7 @@ int main() try{
 		glUniform1f(8, 0.f);
 
 		//fan
-		model2world = make_translation({ 5.1f, 0.75f, 21.6f });
+		model2world = make_translation({ 5.1f, 0.715f, 21.6f });
 		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
 		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
 		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
@@ -686,7 +577,7 @@ int main() try{
 		glDrawArrays(GL_TRIANGLES, 0, GLsizei(fanBaseVertex));
 
 		glDisable(GL_CULL_FACE);
-		Mat44f motorTransform = make_translation({ 5.1f, 0.82f + (sin(angle)/16), 21.6f});
+		Mat44f motorTransform = make_translation({ 5.1f, 0.785f + (sin(angle)/16), 21.6f});
 		model2world = motorTransform;
 		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
 		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
@@ -1186,5 +1077,132 @@ namespace
 	{
 		if( window )
 			glfwDestroyWindow( window );
+	}
+}
+
+namespace 
+{
+	State_ updateCamera(State_ state, float dt) {
+		if (state.camControl.actionZoomIn) {
+			state.camControl.y += sin(state.camControl.theta) * kMovementPerSecond_ * dt * state.camControl.mod;
+			state.camControl.x -= cos(state.camControl.theta) * sin(state.camControl.phi) * kMovementPerSecond_ * dt * state.camControl.mod;
+			state.camControl.radius -= cos(state.camControl.theta) * cos(state.camControl.phi) * kMovementPerSecond_ * dt * state.camControl.mod;
+		}
+		else if (state.camControl.actionZoomOut) {
+			state.camControl.y -= sin(state.camControl.theta) * kMovementPerSecond_ * dt * state.camControl.mod;
+			state.camControl.x += cos(state.camControl.theta) * sin(state.camControl.phi) * kMovementPerSecond_ * dt * state.camControl.mod;
+			state.camControl.radius += cos(state.camControl.theta) * cos(state.camControl.phi) * kMovementPerSecond_ * dt * state.camControl.mod;
+
+		}
+		if (state.camControl.actionMoveL) {
+			state.camControl.x += cos(state.camControl.phi) * kMovementPerSecond_ * dt * state.camControl.mod;
+			state.camControl.radius -= sin(state.camControl.phi) * kMovementPerSecond_ * dt * state.camControl.mod;
+		}
+		else if (state.camControl.actionMoveR) {
+			state.camControl.x -= cos(state.camControl.phi) * kMovementPerSecond_ * dt * state.camControl.mod;
+			state.camControl.radius += sin(state.camControl.phi) * kMovementPerSecond_ * dt * state.camControl.mod;
+
+		}
+		if (state.camControl.actionMoveU) {
+			state.camControl.y -= kMovementPerSecond_ * dt * state.camControl.mod;
+		}
+		else if (state.camControl.actionMoveD) {
+			state.camControl.y += kMovementPerSecond_ * dt * state.camControl.mod;
+
+		}
+
+		return state;
+	}
+
+	void lighting(float colorBool[3], float color[4], float color1[4], float color2[4], float lightBrightness[3], GLuint prog, Vec3f pointLightPositions[]) {
+		//Blinn-Phong lighting
+		Vec3f lightColor = { 1.f, 0.f, 0.f };
+		if (colorBool[1] > 0.5f) {
+			lightColor = { color1[0], color1[1], color1[2] };
+
+		}
+		else {
+			lightColor = { 1.f, 0.f, 0.f };
+		}
+		Vec3f diffuseColor = lightColor * lightBrightness[1];
+		Vec3f ambientColor = diffuseColor * 0.01f;
+		Vec3f specularColor = 0.25f * lightColor;
+		glUniform1i(glGetUniformLocation(prog, "colorSel1"), true);
+		glUniform3f(glGetUniformLocation(prog, "pointLights[0].position"), pointLightPositions[0].x, pointLightPositions[0].y, pointLightPositions[0].z);
+		glUniform3f(glGetUniformLocation(prog, "pointLights[0].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
+		glUniform3f(glGetUniformLocation(prog, "pointLights[0].diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
+		glUniform3f(glGetUniformLocation(prog, "pointLights[0].specular"), specularColor.x, specularColor.y, specularColor.z);
+		glUniform1f(glGetUniformLocation(prog, "pointLights[0].constant"), 1.0f);
+		glUniform1f(glGetUniformLocation(prog, "pointLights[0].linear"), 0.09f);
+		glUniform1f(glGetUniformLocation(prog, "pointLights[0].quadratic"), 0.032f);
+		glUniform1i(glGetUniformLocation(prog, "colorSel1"), false);
+
+
+		if (colorBool[2] > 0.5f) {
+			lightColor = { color2[0], color2[1], color2[2] };
+
+		}
+		else {
+			lightColor = { 0.f, 0.f, 1.f };
+		}
+		diffuseColor = lightColor * lightBrightness[2];
+		ambientColor = diffuseColor * 0.01f;
+		specularColor = 0.25f * lightColor;
+
+		glUniform1i(glGetUniformLocation(prog, "colorSel2"), true);
+		glUniform3f(glGetUniformLocation(prog, "pointLights[1].position"), pointLightPositions[1].x, pointLightPositions[1].y, pointLightPositions[1].z);
+		glUniform3f(glGetUniformLocation(prog, "pointLights[1].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
+		glUniform3f(glGetUniformLocation(prog, "pointLights[1].diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
+		glUniform3f(glGetUniformLocation(prog, "pointLights[1].specular"), specularColor.x, specularColor.y, specularColor.z);
+		glUniform1f(glGetUniformLocation(prog, "pointLights[1].constant"), 1.0f);
+		glUniform1f(glGetUniformLocation(prog, "pointLights[1].linear"), 0.09f);
+		glUniform1f(glGetUniformLocation(prog, "pointLights[1].quadratic"), 0.032f);
+		glUniform1i(glGetUniformLocation(prog, "colorSel2"), false);
+
+		//ambient moonlight
+		lightColor = { 1.f, 1.f, 1.f };
+		diffuseColor = lightColor * 1.f;
+		ambientColor = diffuseColor * 0.01f;
+		specularColor = 0.5f * lightColor;
+		glUniform3f(glGetUniformLocation(prog, "pointLights[2].position"), pointLightPositions[2].x, pointLightPositions[2].y, pointLightPositions[2].z);
+		glUniform3f(glGetUniformLocation(prog, "pointLights[2].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
+		glUniform3f(glGetUniformLocation(prog, "pointLights[2].diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
+		glUniform3f(glGetUniformLocation(prog, "pointLights[2].specular"), specularColor.x, specularColor.y, specularColor.z);
+		glUniform1f(glGetUniformLocation(prog, "pointLights[2].constant"), 1.0f);
+		glUniform1f(glGetUniformLocation(prog, "pointLights[2].linear"), 0.09f);
+		glUniform1f(glGetUniformLocation(prog, "pointLights[2].quadratic"), 0.032f);
+
+
+		if (colorBool[0] > 0.5f) {
+			lightColor = { color[0], color[1], color[2] };
+
+		}
+		else {
+			lightColor = { 1.f, 1.f, 1.f };
+		}
+		diffuseColor = lightColor * lightBrightness[0];
+		ambientColor = diffuseColor * 0.01f;
+		specularColor = 0.f * lightColor;
+
+		glUniform1i(glGetUniformLocation(prog, "colorSel"), true);
+		glUniform3f(glGetUniformLocation(prog, "pointLights[3].position"), pointLightPositions[3].x, pointLightPositions[3].y, pointLightPositions[3].z);
+		glUniform3f(glGetUniformLocation(prog, "pointLights[3].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
+		glUniform3f(glGetUniformLocation(prog, "pointLights[3].diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
+		glUniform3f(glGetUniformLocation(prog, "pointLights[3].specular"), specularColor.x, specularColor.y, specularColor.z);
+		glUniform1f(glGetUniformLocation(prog, "pointLights[3].constant"), 1.0f);
+		glUniform1f(glGetUniformLocation(prog, "pointLights[3].linear"), 0.09f);
+		glUniform1f(glGetUniformLocation(prog, "pointLights[3].quadratic"), 0.032f);
+		glUniform1i(glGetUniformLocation(prog, "colorSel"), false);
+
+		specularColor = 0.1f * lightColor;
+		glUniform1i(glGetUniformLocation(prog, "colorSel"), true);
+		glUniform3f(glGetUniformLocation(prog, "pointLights[4].position"), pointLightPositions[4].x, pointLightPositions[4].y, pointLightPositions[4].z);
+		glUniform3f(glGetUniformLocation(prog, "pointLights[4].ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
+		glUniform3f(glGetUniformLocation(prog, "pointLights[4].diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
+		glUniform3f(glGetUniformLocation(prog, "pointLights[4].specular"), specularColor.x, specularColor.y, specularColor.z);
+		glUniform1f(glGetUniformLocation(prog, "pointLights[4].constant"), 1.0f);
+		glUniform1f(glGetUniformLocation(prog, "pointLights[4].linear"), 0.09f);
+		glUniform1f(glGetUniformLocation(prog, "pointLights[4].quadratic"), 0.032f);
+		glUniform1i(glGetUniformLocation(prog, "colorSel"), false);
 	}
 }
