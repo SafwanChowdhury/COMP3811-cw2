@@ -214,6 +214,7 @@ int main() try{
 
 	// TODO:
 
+    //5 Cylinders required for complex object
 	auto baseCyl = make_cylinder(true, 16, { 0.05f, 0.05f, 0.05f }, {0.1f, 0.1f, 0.1f }, {0.2f,0.2f,0.2f }, 12.8f, 1.f,
 		make_rotation_z(3.141592f / 2.f) *
 		make_scaling(0.1f, 0.02f, 0.02f) *
@@ -251,6 +252,7 @@ int main() try{
 		make_translation({ 0.f, 5.7f, -3.3f })
 	);
 
+    //Cubes for screens
 	auto cube = make_cube(1, { 0.f, 0.f, 0.f }, { 0.01f, 0.01f, 0.01f }, { 0.5f,0.5f,0.5f }, 50.f, 1.f,
 		make_scaling(0.1f, 0.07f, 0.02f)*
 		make_translation({ -1.2f, 1.7f, 4.f })
@@ -261,7 +263,7 @@ int main() try{
 		make_translation({ 1.2f, 1.7f, 4.f })
 	);
 
-        //display
+    //flat cubes for textures on screens
 	auto cubeFace = make_cube_tex(1, { 0.f, 1.f, 0.f }, { 1.0f, 0.5f, 0.31f }, { 0.5f,0.5f,0.5f }, 32.f, 1.f,
 	        make_scaling(0.1f, 0.07f, 0.02f)*
 		make_translation({ -1.2f, 1.7f, 5.01f })
@@ -304,6 +306,7 @@ int main() try{
 	state.animControl.mod = 1.f;
 	state.animControl.animation = false;
 
+    //Floodlight 1
 	auto redCone = make_cone(true, 16, { 1.f, 0.f, 0.f }, { 1.0f, 0.f, 0.f }, { 0.5f,0.f,0.f }, 32.f, 1.f,
 		make_scaling(0.2f, 0.1f, 0.1f) *
 		make_translation({ 13.1f, 98.6f, 15.1f }) *
@@ -313,6 +316,7 @@ int main() try{
 	GLuint floodLight1Vao = create_vao(redCone);
 	std::size_t coneVertex = redCone.positions.size();
 
+    //Floodlight 2
 	auto blueCone = make_cone(true, 16, { 0.f, 0.f, 1.f }, { 0.f, 0.f, 1.f }, { 0.f,0.f,0.5f }, 32.f, 1.f,
 		make_scaling(0.2f, 0.1f, 0.1f) *
 		make_translation({ 13.1f, 98.6f, 24.7f }) *
@@ -344,6 +348,7 @@ int main() try{
 	GLuint launchVAO = create_vao(launch);
 	std::size_t launchVertex = launch.positions.size();
 
+    //Glass Window - Transparent object
 	auto cube3 = make_cube(1, { 0.5f, 0.87f, 1.f }, { 0.5f, 0.87f, 1.f }, { 0.5f,0.5f,0.5f }, 32.f, 0.1f,
 		make_scaling(2.45f, 0.6f, 0.1f) *
 		make_translation({ -0.19f, 0.58f, -2.56f })
@@ -351,7 +356,8 @@ int main() try{
 
 	GLuint windowGlass = create_vao(cube3);
 	std::size_t windowVertex = cube3.positions.size();
-
+    
+    //light source 1 in viewing box
 	auto cube4 = make_cube(1, { 1.f, 1.f, 1.f }, { 1.f, 1.f, 1.f }, { 1.f,1.f,1.f }, 2.f, 1.f,
 		make_scaling(0.1f, 0.1f, 0.1f) *
 		make_translation({ 18.8f, 8.42f, 9.2f })
@@ -360,6 +366,7 @@ int main() try{
 	GLuint lightBox1 = create_vao(cube4);
 	std::size_t lightBoxVertex1 = cube4.positions.size();
 
+    //light source 2 in viewing box
 	auto cube5 = make_cube(1, { 1.f, 1.f, 1.f }, { 1.f, 1.f, 1.f }, { 1.f,1.f,1.f }, 2.f, 1.f,
 		make_scaling(0.1f, 0.1f, 0.1f) *
 		make_translation({ -28.17f, 8.42f, 9.2f })
@@ -368,7 +375,7 @@ int main() try{
 	GLuint lightBox2 = create_vao(cube5);
 	std::size_t lightBoxVertex2 = cube5.positions.size();
 
-	
+    //Creating Hierarchical Object
 	auto fan_base = load_wavefront_obj("external/Fan/fan_base.obj", make_scaling(0.1f, 0.1f, 0.1f));
 
 	GLuint fanBaseVAO = create_vao(fan_base);
@@ -572,7 +579,7 @@ int main() try{
 		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
 		glUniformMatrix4fv(6, 1, GL_TRUE, world2camera.v);
 
-
+        //Blinn-Phong lighting
 		Vec3f lightColor = { 1.f, 0.f, 0.f };
 		if (colorBool[1] > 0.5f) {
 			lightColor = { color1[0], color1[1], color1[2] };
@@ -737,54 +744,27 @@ int main() try{
 
 		//Screen1
 		glUniform1f(7, 1.f);
-		//glUniform1f(9, 1.f);
 		glBindVertexArray(ScreenVao);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, markusFace);
-
-		//glActiveTexture(GL_TEXTURE1);
-		//glBindTexture(GL_TEXTURE_2D, mTex0);
-
-		//glActiveTexture(GL_TEXTURE2);
-	        //glBindTexture(GL_TEXTURE_2D, mTex1);
-
 		glDrawArrays(GL_TRIANGLES, 0, ScreenVert);
 		glUniform1f(7, 0.f);
-		//glUniform1f(9, 0.f);
+
 
 		//Screen2
 		glUniform1f(7, 1.f);
 		glUniform1f(9, 1.f);
 		glUniform3f(glGetUniformLocation(prog.programId(), "specular"), 0.9f, 0.9f, 0.9f);
-		//glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 1.f, 1.f, 1.f);
-		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		//glEnable(GL_BLEND);
 		glBindVertexArray(MultiTexVao);
-
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, markusFace);
-
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, mTex0);
-
-		/*
-		glActiveTexture(GL_TEXTURE2);
-	        glBindTexture(GL_TEXTURE_2D, mTex1);
-
-		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_2D, mTex2);
-
-		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_2D, mTex3);
-		glActiveTexture(GL_TEXTURE4);
-		glBindTexture(GL_TEXTURE_2D, mTex4);
-		*/
 		glDrawArrays(GL_TRIANGLES, 0, MultiVert);
 		glUniform1f(9, 0.f);
 		glUniform1f(7, 0.f);
+        glUniform3f(glGetUniformLocation(prog.programId(), "specular"), 0.f, 0.f, 0.f);
 
-		glUniform3f(glGetUniformLocation(prog.programId(), "specular"), 0.f, 0.f, 0.f);
-		//glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 0.f, 0.f, 0.f);
 
 		//interior lights
 		glUniform1f(8, 1.f);
@@ -799,7 +779,7 @@ int main() try{
 		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel"), false);
 
 
-
+        //Drawing skybox 
 		glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
 		glUseProgram(skybox.programId());
 		model2world = make_scaling( 100.f, 100.f, 100.f );

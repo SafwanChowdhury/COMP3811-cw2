@@ -18,18 +18,21 @@ SimpleMeshData load_wavefront_obj( char const* aPath, Mat44f aPreTransform)
 		{
 			auto const& idx = shape.mesh.indices[i];
 
+            //Vertices
 			ret.positions.emplace_back(Vec3f{
 				result.attributes.positions[idx.position_index * 3 + 0],
 				result.attributes.positions[idx.position_index * 3 + 1],
 				result.attributes.positions[idx.position_index * 3 + 2]
 			});
 
+            //Normals
 			ret.normals.emplace_back(Vec3f{
 				result.attributes.normals[idx.normal_index * 3 + 0],
 				result.attributes.normals[idx.normal_index * 3 + 1],
 				result.attributes.normals[idx.normal_index * 3 + 2],
 				});
-
+            
+            //Texture coordinates
 			if (result.attributes.texcoords.size() != 0) {
 				ret.texcoords.emplace_back(Vec2f{
 					result.attributes.texcoords[idx.texcoord_index * 2 + 0],
@@ -40,6 +43,7 @@ SimpleMeshData load_wavefront_obj( char const* aPath, Mat44f aPreTransform)
 			  //std::cout<<aPath<<" doesn't have textures"<<std::endl;
 			}
 			
+            //Material Data
 			auto const& mat = result.materials[shape.mesh.material_ids[i / 3]];
 			ret.material.ambient.emplace_back(Vec3f{
 				mat.ambient[0],

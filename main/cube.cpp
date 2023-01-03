@@ -148,6 +148,7 @@ SimpleMeshData make_cube(float x, Vec3f aColor, Vec3f aDiffuse, Vec3f aSpec, flo
 	return SimpleMeshData{ std::move(pos), std::move(col), std::move(texcoords), std::move(normal), std::move(diff), std::move(spec), std::move(shine), std::move(alpha) };
 }
 
+//method to make a flat cube for texturing a face on another cube
 SimpleMeshData make_cube_tex(float x, Vec3f aColor, Vec3f aDiffuse, Vec3f aSpec, float aShininess, float aAlpha,  Mat44f aPreTransform) {
 	
 	std::vector<Vec3f> pos;
