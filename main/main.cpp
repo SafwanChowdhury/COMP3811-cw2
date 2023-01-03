@@ -45,27 +45,26 @@ namespace
 		ShaderProgram* prog;
 		ShaderProgram* skybox;
 
-		struct CamCtrl_
+		struct CamCtrl_ //camera control strucutre
 		{
 			bool cameraActive;
 			bool actionZoomIn, actionZoomOut, actionMoveL, actionMoveR, actionMoveU, actionMoveD;
 
 			float phi, theta;
 			float radius;
-			bool screenshot;
 			float lastX, lastY, x, y, mod;
 		} camControl;
 
-		struct AnimCtrl_
+		struct AnimCtrl_ //animation control struture
 		{
 			bool animation = false;
 			bool animPlay, animFWD, animRWD;
 
-			float mod;
+			float mod; //animation playback modifier
 
 		} animControl;
 
-		struct ObjCtrl_
+		struct ObjCtrl_ //object controls used exclusively for development purposes
 		{
 			bool displayCoords = false;
 			bool objFWD, objBKD, objLFT, objRGT, objUP, objDWN;
@@ -176,7 +175,7 @@ int main() try{
 	glEnable(GL_FRAMEBUFFER_SRGB);
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
-	glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
+	glClearColor(0.5f, 0.5f, 0.5f, 0.5f); //background color
 	OGL_CHECKPOINT_ALWAYS();
 
 	// Get actual framebuffer size.
@@ -194,24 +193,20 @@ int main() try{
 		{ GL_VERTEX_SHADER, "assets/default.vert" },
 		{ GL_FRAGMENT_SHADER, "assets/default.frag" }
 		});
-	ShaderProgram skybox({
+	ShaderProgram skybox({ //define the skybox shaders
 		{ GL_VERTEX_SHADER, "assets/skybox.vert" },
 		{ GL_FRAGMENT_SHADER, "assets/skybox.frag" }
 		});
 
 	state.prog = &prog;
-	state.skybox = &skybox;
-	state.camControl.radius = 10.f;
+	state.skybox = &skybox; //link skybox to the state
 
 	// Animation state
 	auto last = Clock::now();
 
 	float angle = 0.f;
-	float rktHeight = 0.f;
+	float rktHeight = 0.f; //rocket height, used for animation
 	OGL_CHECKPOINT_ALWAYS();
-
-
-	// TODO:
 
     //5 Cylinders required for complex object
 	auto baseCyl = make_cylinder(true, 16, { 0.05f, 0.05f, 0.05f }, {0.1f, 0.1f, 0.1f }, {0.2f,0.2f,0.2f }, 12.8f, 1.f,
@@ -273,7 +268,7 @@ int main() try{
 		make_translation({ 1.2f, 1.7f, 5.01f })
 	);
 
-
+	//concatenate different parts of the complex object
 	auto RightArm = concatenate(baseCyl, cylR);
 	auto MonitorArms = concatenate(RightArm, cylL);
 	auto MonitorArms1 = concatenate(MonitorArms, cylR2);
@@ -287,11 +282,12 @@ int main() try{
 	GLuint MultiTexVao = create_vao(multiTex);
 	std::size_t MultiVert = multiTex.positions.size();
 
-        //Multitexturing dirty glass
+    //Multitexturing dirty glass
 	GLuint mTex0 = load_texture_2d("external/materials/glass/dirty_glass_43_92_opacity.jpg");
 
 	GLuint markusFace = load_texture_2d("external/cw2-texture/markus.png");
-
+	
+	//initialise state variables
 	state.objControl.x = 0.f;
 	state.objControl.y = 0.f;
 	state.objControl.z = 0.f;
@@ -305,28 +301,28 @@ int main() try{
 	state.animControl.mod = 1.f;
 	state.animControl.animation = false;
 
-    //Floodlight 1
+    //Floodlight 1 - Red emissive light
 	auto redCone = make_cone(true, 16, { 1.f, 0.f, 0.f }, { 1.0f, 0.f, 0.f }, { 0.5f,0.f,0.f }, 32.f, 1.f,
 		make_scaling(0.2f, 0.1f, 0.1f) *
 		make_translation({ 13.1f, 98.6f, 15.1f }) *
-		make_rotation_z(3.141592f * 0.8)
+		make_rotation_z(3.141592f * 0.8f)
 	);
 
 	GLuint floodLight1Vao = create_vao(redCone);
 	std::size_t coneVertex = redCone.positions.size();
 
-    //Floodlight 2
+    //Floodlight 2 - Blue emissive light
 	auto blueCone = make_cone(true, 16, { 0.f, 0.f, 1.f }, { 0.f, 0.f, 1.f }, { 0.f,0.f,0.5f }, 32.f, 1.f,
 		make_scaling(0.2f, 0.1f, 0.1f) *
 		make_translation({ 13.1f, 98.6f, 24.7f }) *
-		make_rotation_z(3.141592f * 0.8)
+		make_rotation_z(3.141592f * 0.8f)
 	);
 
 	GLuint floodLight2Vao = create_vao(blueCone);
 	std::size_t coneVertex2 = blueCone.positions.size();
 
 
-
+	//load rocket object
 	auto rocket = load_wavefront_obj("external/Rocket/rocket.obj",
 		make_scaling(0.005f, 0.005f, 0.005f) *
 		make_rotation_x(3.141592f / -2.f) *
@@ -335,11 +331,11 @@ int main() try{
 
 
 	GLuint rocketVAO = create_vao(rocket);
-
+	//load rocket texture
 	GLuint textureObjectId = load_texture_2d("external/Rocket/rocket.jpg");
 	std::size_t rocketVertex = rocket.positions.size();
 
-
+	//load scene object
 	auto launch = load_wavefront_obj("external/Scene/scene.obj", make_scaling(0.49f, 0.49f, 0.49f));
 	for (int i = 0; i < launch.positions.size(); i++) {
 		launch.positions[i] = launch.positions[i] + Vec3f{ 2.f, 0.f, 2.f };
@@ -422,30 +418,19 @@ int main() try{
 	ImGui::StyleColorsDark();
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 430");
+	//intialise imgui variables
 	float colorBool[3] = {0.f,0.f,0.f};
 	float lightBrightness[3] = {0.5f, 0.3f, 0.3f};
 	float color[4] = { 0.8f, 0.3f, 0.02f, 1.0f };
 	float color1[4] = { 0.8f, 0.3f, 0.02f, 1.0f };
 	float color2[4] = { 0.8f, 0.3f, 0.02f, 1.0f };
 
-
-	glUseProgram(prog.programId());
-	glUniform3f(glGetUniformLocation(prog.programId(), "colorBool"), colorBool[0], colorBool[1],colorBool[2]);
-	glUniform4f(glGetUniformLocation(prog.programId(), "color"), color[0], color[1], color[2], color[3]);
-	glUniform4f(glGetUniformLocation(prog.programId(), "color1"), color1[0], color1[1], color1[2], color1[3]);
-	glUniform4f(glGetUniformLocation(prog.programId(), "color2"), color2[0], color2[1], color2[2], color2[3]);
-
-	printf("test");
-
 	// Main loop
 	float rktLast = 1.f;
 	int tog = 0;
-	int tog2 = 0;
 	bool temp = false;
 	bool temp1 = false;
 	bool temp2 = false;
-	float rotX = 0.f;
-	float rotY = 0.f;
 	while (!glfwWindowShouldClose(window))
 	{
 		// Let GLFW process events
@@ -471,7 +456,7 @@ int main() try{
 				} while (0 == nwidth || 0 == nheight);
 			}
 
-			glViewport(0, 0, fbwidth, fbheight);
+			glViewport(0, 0, GLsizei(fbwidth), GLsizei(fbheight));
 		}
 
 		// Update state
@@ -674,7 +659,7 @@ int main() try{
 		
 		glDisable(GL_CULL_FACE);
 		glBindVertexArray(launchVAO);
-		glDrawArrays(GL_TRIANGLES, 0, launchVertex);
+		glDrawArrays(GL_TRIANGLES, 0, GLsizei(launchVertex));
 		glEnable(GL_CULL_FACE);
 
 
@@ -682,12 +667,12 @@ int main() try{
 		glBindVertexArray(floodLight1Vao);
 		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel1"), true);
 		glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 1.f, 0.f, 0.f);
-		glDrawArrays(GL_TRIANGLES, 0, coneVertex);
+		glDrawArrays(GL_TRIANGLES, 0, GLsizei(coneVertex));
 		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel1"), false);
 		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel2"), true);
 		glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 0.f, 0.f, 1.f);
 		glBindVertexArray(floodLight2Vao);
-		glDrawArrays(GL_TRIANGLES, 0, coneVertex2);
+		glDrawArrays(GL_TRIANGLES, 0, GLsizei(coneVertex2));
 		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel2"), false);
 		glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 0.f, 0.f, 0.f);
 		glUniform1f(8, 0.f);
@@ -698,7 +683,7 @@ int main() try{
 		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
 		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
 		glBindVertexArray(fanBaseVAO);
-		glDrawArrays(GL_TRIANGLES, 0, fanBaseVertex);
+		glDrawArrays(GL_TRIANGLES, 0, GLsizei(fanBaseVertex));
 
 		glDisable(GL_CULL_FACE);
 		Mat44f motorTransform = make_translation({ 5.1f, 0.82f + (sin(angle)/16), 21.6f});
@@ -707,7 +692,7 @@ int main() try{
 		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
 		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
 		glBindVertexArray(fanMotorVAO);
-		glDrawArrays(GL_TRIANGLES, 0, fanMotorVertex);
+		glDrawArrays(GL_TRIANGLES, 0, GLsizei(fanMotorVertex));
 		glEnable(GL_CULL_FACE);
 
 		model2world = motorTransform * make_translation({ 0.f, 0.105f, 0.f }) * make_rotation_x(angle * 20.f);
@@ -716,7 +701,7 @@ int main() try{
 		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
 
 		glBindVertexArray(fanBladeVAO);
-		glDrawArrays(GL_TRIANGLES, 0, fanBladeVertex);
+		glDrawArrays(GL_TRIANGLES, 0, GLsizei(fanBladeVertex));
 
 		//rocket
 		model2world = make_translation({ 0.f, rktHeight, 0.f });
@@ -727,7 +712,7 @@ int main() try{
 		glBindVertexArray(rocketVAO);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D,textureObjectId);
-		glDrawArrays(GL_TRIANGLES, 0, rocketVertex);
+		glDrawArrays(GL_TRIANGLES, 0, GLsizei(rocketVertex));
 		model2world = make_rotation_x(0.f);
 		OGL_CHECKPOINT_DEBUG();
 		glUniform1f(7, 0.f);
@@ -739,14 +724,14 @@ int main() try{
 		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
 		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
 		glBindVertexArray(MonitorsVao);
-		glDrawArrays(GL_TRIANGLES, 0, MonitorsVert);
+		glDrawArrays(GL_TRIANGLES, 0, GLsizei(MonitorsVert));
 
 		//Screen1
 		glUniform1f(7, 1.f);        //telling shader that the object is textured
 		glBindVertexArray(ScreenVao);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, markusFace);
-		glDrawArrays(GL_TRIANGLES, 0, ScreenVert);
+		glDrawArrays(GL_TRIANGLES, 0, GLsizei(ScreenVert));
 		glUniform1f(7, 0.f);
 
 
@@ -759,7 +744,7 @@ int main() try{
 		glBindTexture(GL_TEXTURE_2D, markusFace);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, mTex0);
-		glDrawArrays(GL_TRIANGLES, 0, MultiVert);
+		glDrawArrays(GL_TRIANGLES, 0, GLsizei(MultiVert));
 		glUniform1f(9, 0.f);
 		glUniform1f(7, 0.f);
         glUniform3f(glGetUniformLocation(prog.programId(), "specular"), 0.f, 0.f, 0.f);
@@ -770,9 +755,9 @@ int main() try{
 		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel"), true);
 		glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 1.f, 1.f, 1.f);
 		glBindVertexArray(lightBox1);
-		glDrawArrays(GL_TRIANGLES, 0, lightBoxVertex1);
+		glDrawArrays(GL_TRIANGLES, 0, GLsizei(lightBoxVertex1));
 		glBindVertexArray(lightBox2);
-		glDrawArrays(GL_TRIANGLES, 0, lightBoxVertex2);
+		glDrawArrays(GL_TRIANGLES, 0, GLsizei(lightBoxVertex2));
 		glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 0.f, 0.f, 0.f);
 		glUniform1f(8, 0.f);
 		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel"), false);
@@ -789,7 +774,6 @@ int main() try{
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glBindVertexArray(0);
 		glDepthFunc(GL_LESS);                       // set depth function back to default
 
 
@@ -800,10 +784,9 @@ int main() try{
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_BLEND);
 		glBindVertexArray(windowGlass);
-		glDrawArrays(GL_TRIANGLES, 0, windowVertex);
+		glDrawArrays(GL_TRIANGLES, 0, GLsizei(windowVertex));
 		glDisable(GL_BLEND);
 		glUniform1f(9, 0.f);
-		glBindVertexArray(0);
 
 		//imgui
 		// ImGUI window creation
@@ -836,7 +819,6 @@ int main() try{
 		else
 			colorBool[2] = 0.f;
 
-		glUseProgram(prog.programId());
 		glUniform3f(glGetUniformLocation(prog.programId(), "colorBool"), colorBool[0],colorBool[1], colorBool[2]);
 		glUniform4f(glGetUniformLocation(prog.programId(), "color"), color[0], color[1], color[2], color[3]);
 		glUniform4f(glGetUniformLocation(prog.programId(), "color1"), color1[0], color1[1], color1[2], color1[3]);
@@ -845,6 +827,10 @@ int main() try{
 		// Renders the ImGUI elements
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		
+		glUseProgram(0);
+		glBindVertexArray(0);
+
 		// Display results
 		glfwSwapBuffers(window);
 	}
@@ -1173,17 +1159,17 @@ namespace
 				auto const dx = aX - state->camControl.lastX;
 				auto const dy = aY - state->camControl.lastY;
 
-				state->camControl.phi += dx * kMouseSensitivity_;
+				state->camControl.phi += float(dx) * kMouseSensitivity_;
 
-				state->camControl.theta += dy * kMouseSensitivity_;
+				state->camControl.theta += float(dy) * kMouseSensitivity_;
 				if (state->camControl.theta > kPi_ / 2.f)
 					state->camControl.theta = kPi_ / 2.f;
 				else if (state->camControl.theta < -kPi_ / 2.f)
 					state->camControl.theta = -kPi_ / 2.f;
 			}
 
-			state->camControl.lastX = aX;
-			state->camControl.lastY = aY;
+			state->camControl.lastX = float(aX);
+			state->camControl.lastY = float(aY);
 		}
 	}
 	//...End
