@@ -65,6 +65,7 @@ SimpleMeshData make_cylinder(bool aCapped, std::size_t aSubdivs, Vec3f aColor, V
 		t = normalize(t);
 		n = Vec3f{ t.x, t.y, t.z };
 	}
+	//add material data and texture data to shape
 	std::vector texcoord(pos.size(), Vec2f{ 1.f,1.f });
 	std::vector col(pos.size(), aColor);
 	std::vector diff(pos.size(), aDiffuse);

@@ -154,6 +154,7 @@ Vec3f cross(Vec3f aLeft, Vec3f aRight) noexcept
 	return newVec;
 }
 
+//used to calculate reflect vector for phong lighting model
 inline
 Vec3f reflect(Vec3f aIncidence, Vec3f aNormal) {
 	Vec3f newVec{};

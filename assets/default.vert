@@ -35,6 +35,7 @@ out float oMulti;
 
 void main()
 {
+	//send values to fragment shader
 	uAmbient = iAmbient;
 	uDiffuse = iDiffuse;
 	uSpecular = iSpecular;
@@ -47,5 +48,5 @@ void main()
 	v2fNormal = normalize(uNormalMatrix * iNormal);
 	v2fPos = vec3(uModel * vec4(iPosition,1.0));
 	v2fView = vec3(uCamPos);
-	gl_Position = (uProjection * uView  * uModel * vec4( iPosition, 1.0 ));
+	gl_Position = (uProjection * uView  * uModel * vec4( iPosition, 1.0 )); //calculate projcamworld.
 }

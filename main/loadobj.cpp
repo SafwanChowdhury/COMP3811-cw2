@@ -72,6 +72,7 @@ SimpleMeshData load_wavefront_obj( char const* aPath, Mat44f aPreTransform)
 				});
 		}
 	}
+	//allow for imported objects to be pretransformed
 	Mat33f const N = mat44_to_mat33(transpose(invert(aPreTransform)));
 
 	for (auto& p : ret.positions)

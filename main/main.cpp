@@ -553,8 +553,8 @@ int main() try{
 		glDrawArrays(GL_TRIANGLES, 0, GLsizei(launchVertex));
 		glEnable(GL_CULL_FACE);
 
-
-		glUniform1f(8, 1.f);            //the objects are emissive
+		//the objects are emissive
+		glUniform1f(8, 1.f); 
 		glBindVertexArray(floodLight1Vao);
 		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel1"), true);
 		glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 1.f, 0.f, 0.f);
@@ -575,7 +575,6 @@ int main() try{
 		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
 		glBindVertexArray(fanBaseVAO);
 		glDrawArrays(GL_TRIANGLES, 0, GLsizei(fanBaseVertex));
-
 		glDisable(GL_CULL_FACE);
 		Mat44f motorTransform = make_translation({ 5.1f, 0.785f + (sin(angle)/16), 21.6f});
 		model2world = motorTransform;
@@ -585,12 +584,10 @@ int main() try{
 		glBindVertexArray(fanMotorVAO);
 		glDrawArrays(GL_TRIANGLES, 0, GLsizei(fanMotorVertex));
 		glEnable(GL_CULL_FACE);
-
 		model2world = motorTransform * make_translation({ 0.f, 0.105f, 0.f }) * make_rotation_x(angle * 20.f);
 		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
 		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
 		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
-
 		glBindVertexArray(fanBladeVAO);
 		glDrawArrays(GL_TRIANGLES, 0, GLsizei(fanBladeVertex));
 

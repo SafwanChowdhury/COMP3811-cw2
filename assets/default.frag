@@ -51,7 +51,7 @@ vec3 CalcPointLight(PointLight light, vec3 v2fNormal, vec3 v2fPos, vec3 v2fView)
     vec3 normal = normalize(v2fNormal);
 	vec3 viewDir = normalize(v2fView - v2fPos);
 	vec3 lightDir = normalize(light.position - v2fPos);
-    vec3 halfDir = normalize(lightDir + viewDir);
+    vec3 halfDir = normalize(lightDir + viewDir); //calculate halfway vector for specular
 	float diff = max( 0.0, dot(normal, lightDir ) );
     float distance    = length(light.position - v2fPos);
     float attenuation = 1.0 / (light.constant + light.linear * distance +
@@ -76,7 +76,7 @@ void main()
     for(int i = 0; i < NR_POINT_LIGHTS; i++)
         result += CalcPointLight(pointLights[i], v2fNormal, v2fPos, v2fView);
 
-
+    //if statements check to see if object is textured or not and whether it is emissive of not.
     if(oTex > 0.5f){
         if(oMulti > 0.5f) {
   		    oColor = (texture( uTexture, v2fTexCoord) * texture( uTexture1, v2fTexCoord) * vec4(result, uAlpha));

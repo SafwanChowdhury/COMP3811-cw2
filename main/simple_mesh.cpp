@@ -88,7 +88,7 @@ GLuint create_vao(SimpleMeshData const& aMeshData)
 	glBindBuffer(GL_ARRAY_BUFFER, normals);
 
 	glVertexAttribPointer(
-		2, // location = 0 in vertex shader
+		2, // location = 2 in vertex shader
 		3, GL_FLOAT, GL_FALSE,
 		0, // stride = 0 indicates that there is no padding between inputs
 		0 // data starts at offset 0 in the VBO
@@ -99,7 +99,7 @@ GLuint create_vao(SimpleMeshData const& aMeshData)
 	glBindBuffer(GL_ARRAY_BUFFER, texcoords);
 
 	glVertexAttribPointer(
-		3, // location = 0 in vertex shader
+		3, // location = 3 in vertex shader
 		2, GL_FLOAT, GL_FALSE,
 		0, // stride = 0 indicates that there is no padding between inputs
 		0 // data starts at offset 0 in the VBO
@@ -109,7 +109,7 @@ GLuint create_vao(SimpleMeshData const& aMeshData)
 	glBindBuffer(GL_ARRAY_BUFFER, diffuse);
 
 	glVertexAttribPointer(
-		4, // location = 0 in vertex shader
+		4, // location = 4 in vertex shader
 		3, GL_FLOAT, GL_FALSE,
 		0, // stride = 0 indicates that there is no padding between inputs
 		0 // data starts at offset 0 in the VBO
@@ -119,7 +119,7 @@ GLuint create_vao(SimpleMeshData const& aMeshData)
 	glBindBuffer(GL_ARRAY_BUFFER, specular);
 
 	glVertexAttribPointer(
-		5, // location = 0 in vertex shader
+		5, // location = 5 in vertex shader
 		3, GL_FLOAT, GL_FALSE,
 		0, // stride = 0 indicates that there is no padding between inputs
 		0 // data starts at offset 0 in the VBO
@@ -129,7 +129,7 @@ GLuint create_vao(SimpleMeshData const& aMeshData)
 	glBindBuffer(GL_ARRAY_BUFFER, shininess);
 
 	glVertexAttribPointer(
-		6, // location = 0 in vertex shader
+		6, // location = 6 in vertex shader
 		1, GL_FLOAT, GL_FALSE,
 		0, // stride = 0 indicates that there is no padding between inputs
 		0 // data starts at offset 0 in the VBO
@@ -139,7 +139,7 @@ GLuint create_vao(SimpleMeshData const& aMeshData)
 	glBindBuffer(GL_ARRAY_BUFFER, alpha);
 
 	glVertexAttribPointer(
-		7, // location = 0 in vertex shader
+		7, // location = 7 in vertex shader
 		1, GL_FLOAT, GL_FALSE,
 		0, // stride = 0 indicates that there is no padding between inputs
 		0 // data starts at offset 0 in the VBO
@@ -202,7 +202,7 @@ GLuint load_cubemap(std::vector<std::string> faces) {
 	GLuint textureID = 0;
 	glGenTextures(1, &textureID);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-	stbi_set_flip_vertically_on_load(0);
+	stbi_set_flip_vertically_on_load(0); //dont flip image on load
 	int width, height, nrComponents;
 	for (unsigned int i = 0; i < faces.size(); i++)
 	{
