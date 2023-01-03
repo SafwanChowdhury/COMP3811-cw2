@@ -1,5 +1,5 @@
-#ifndef LOADOBJ_HPP_2CF735BE_6624_413E_B6DC_B5BBA337F96F
-#define LOADOBJ_HPP_2CF735BE_6624_413E_B6DC_B5BBA337F96F
+#ifndef LOADOBJ_HPP
+#define LOADOBJ_HPP
 
 #include "simple_mesh.hpp"
 #include "../vmlib/mat33.hpp"
@@ -8,4 +8,4 @@
 
 SimpleMeshData load_wavefront_obj( char const* aPath, Mat44f aPreTransform);
 
-#endif // LOADOBJ_HPP_2CF735BE_6624_413E_B6DC_B5BBA337F96F
+#endif // LOADOBJ_HPP

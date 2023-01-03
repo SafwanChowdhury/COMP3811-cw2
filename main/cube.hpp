@@ -1,5 +1,5 @@
-#ifndef CUBE_HPP_6874B39C_112D_4D34_BD85_AB81A730955B
-#define CUBE_HPP_6874B39C_112D_4D34_BD85_AB81A730955B
+#ifndef CUBE_HPP
+#define CUBE_HPP
 
 // This defines the vertex data for a colored unit cube.
 
@@ -35,4 +35,4 @@ SimpleMeshData make_cube_tex(
 );
 
 
-#endif // CUBE_HPP_6874B39C_112D_4D34_BD85_AB81A730955B
+#endif // CUBE_HPP

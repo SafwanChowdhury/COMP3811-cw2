@@ -24,7 +24,6 @@ namespace fs = std::filesystem;
 
 #include "defaults.hpp"
 #include "cube.hpp"
-#include "frustum.hpp"
 #include "cone.hpp"
 #include "cylinder.hpp"
 #include "loadobj.hpp"

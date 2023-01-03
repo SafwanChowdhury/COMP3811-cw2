@@ -1,5 +1,5 @@
-#ifndef CYLINDER_HPP_E4D1E8EC_6CDA_4800_ABDD_264F643AF5DB
-#define CYLINDER_HPP_E4D1E8EC_6CDA_4800_ABDD_264F643AF5DB
+#ifndef CYLINDER_HPP
+#define CYLINDER_HPP
 
 #include <vector>
 
@@ -22,4 +22,4 @@ SimpleMeshData make_cylinder(
 	Mat44f aPreTransform = kIdentity44f
 );
 
-#endif // CYLINDER_HPP_E4D1E8EC_6CDA_4800_ABDD_264F643AF5DB
+#endif // CYLINDER_HPP

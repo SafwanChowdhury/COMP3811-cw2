@@ -1,5 +1,5 @@
-#ifndef CONE_HPP_CB812C27_5E45_4ED9_9A7F_D66774954C29
-#define CONE_HPP_CB812C27_5E45_4ED9_9A7F_D66774954C29
+#ifndef CONE_HPP
+#define CONE_HPP
 
 #include <vector>
 
@@ -21,4 +21,4 @@ SimpleMeshData make_cone(
 	Mat44f aPreTransform = kIdentity44f
 );
 
-#endif // CONE_HPP_CB812C27_5E45_4ED9_9A7F_D66774954C29
+#endif // CONE_HPP
