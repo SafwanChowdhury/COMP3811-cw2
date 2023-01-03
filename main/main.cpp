@@ -486,7 +486,7 @@ int main() try{
 
 		float x = 1.1f;
 		if (state.animControl.animation) {
-			if (rktHeight < 10) {
+			if (rktHeight < 8) {
 				x += 0.01f;
 			}
 			rktHeight += (rktLast / x) * (0.015f * state.animControl.mod);
