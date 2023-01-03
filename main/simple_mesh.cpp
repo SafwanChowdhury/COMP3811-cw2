@@ -164,6 +164,7 @@ GLuint create_vao(SimpleMeshData const& aMeshData)
 //method to load textures using stbi_load
 GLuint load_texture_2d (char const* aPath) {
   assert(aPath);
+    
   GLuint tex = 0;
   glGenTextures(1, &tex);
   glBindTexture(GL_TEXTURE_2D, tex);

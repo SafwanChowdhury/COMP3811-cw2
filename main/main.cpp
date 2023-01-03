@@ -678,7 +678,7 @@ int main() try{
 		glEnable(GL_CULL_FACE);
 
 
-		glUniform1f(8, 1.f);
+		glUniform1f(8, 1.f);            //the objects are emissive
 		glBindVertexArray(floodLight1Vao);
 		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel1"), true);
 		glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 1.f, 0.f, 0.f);
@@ -723,7 +723,7 @@ int main() try{
 		glUniformMatrix4fv(5, 1, GL_TRUE, model2world.v);
 		normalMatrix = mat44_to_mat33(transpose(invert(model2world)));
 		glUniformMatrix3fv(1, 1, GL_TRUE, normalMatrix.v);
-		glUniform1f(7, 1.f);
+		glUniform1f(7, 1.f);        //telling shader that the object is textured
 		glBindVertexArray(rocketVAO);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D,textureObjectId);
@@ -742,7 +742,7 @@ int main() try{
 		glDrawArrays(GL_TRIANGLES, 0, MonitorsVert);
 
 		//Screen1
-		glUniform1f(7, 1.f);
+		glUniform1f(7, 1.f);        //telling shader that the object is textured
 		glBindVertexArray(ScreenVao);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, markusFace);
@@ -751,8 +751,8 @@ int main() try{
 
 
 		//Screen2
-		glUniform1f(7, 1.f);
-		glUniform1f(9, 1.f);
+		glUniform1f(7, 1.f);        //telling shader that the object is textured
+		glUniform1f(9, 1.f);        //telling shader that the object has multiple textures
 		glUniform3f(glGetUniformLocation(prog.programId(), "specular"), 0.9f, 0.9f, 0.9f);
 		glBindVertexArray(MultiTexVao);
 		glActiveTexture(GL_TEXTURE0);
@@ -766,7 +766,7 @@ int main() try{
 
 
 		//interior lights
-		glUniform1f(8, 1.f);
+		glUniform1f(8, 1.f);        //the object is emissive
 		glUniform1i(glGetUniformLocation(prog.programId(), "colorSel"), true);
 		glUniform3f(glGetUniformLocation(prog.programId(), "emissive"), 1.f, 1.f, 1.f);
 		glBindVertexArray(lightBox1);
@@ -779,8 +779,8 @@ int main() try{
 
 
         //Drawing skybox 
-		glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
-		glUseProgram(skybox.programId());
+        glDepthFunc(GL_LEQUAL);                     // change depth function so depth test passes when values are equal to depth buffer's content
+		glUseProgram(skybox.programId());           //switching to skybox.vert and skybox.frag
 		model2world = make_scaling( 100.f, 100.f, 100.f );
 		glUniformMatrix4fv(1, 1, GL_TRUE, world2camera.v);
 		glUniformMatrix4fv(0, 1, GL_TRUE, projection.v);
@@ -790,13 +790,13 @@ int main() try{
 		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
-		glDepthFunc(GL_LESS); // set depth function back to default
+		glDepthFunc(GL_LESS);                       // set depth function back to default
 
 
 		OGL_CHECKPOINT_DEBUG();
 
 		//window
-		glUseProgram(prog.programId());
+		glUseProgram(prog.programId());             //switching back to default shaders
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_BLEND);
 		glBindVertexArray(windowGlass);
